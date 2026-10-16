@@ -1,0 +1,292 @@
+/* machine.css — the useless light switch on machine.html.
+   style.css still does the nav, the heading and the page column; this file
+   only draws the wall switch, the hand and the darkness over the page. */
+
+/* 1 · The darkness. It covers the whole screen but never blocks it:
+   pointer-events: none lets clicks pass through. Its opacity follows the
+   "is-dark" class that machine.js puts on the body. */
+.darkness {
+  position: fixed;
+  inset: 0;                      /* all four edges at 0: the whole screen */
+  z-index: 90;                   /* above the page, below the switch */
+  background: rgb(3 7 18 / .92); /* night, almost opaque */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+}
+
+body.is-dark .darkness {
+  opacity: 1;
+}
+
+/* 2 · The wall plate the switch sits in. It stays above the darkness, so
+   the switch — and the hand — can be seen even in the dark. */
+.light-unit {
+  position: relative;            /* needed so z-index applies */
+  z-index: 100;                  /* above the darkness (90) */
+  width: 7rem;
+  height: 10rem;
+  margin: 2rem auto 2.5rem;      /* centred on the page */
+  border-radius: 12px;
+  background: linear-gradient(180deg, #faf8f2, #e8e4da);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 8px 20px rgb(0 0 0 / .2);
+  transition: filter 600ms ease; /* dims in the dark, brightens back */
+}
+
+/* two screws, one in each top corner */
+.light-unit::before,
+.light-unit::after {
+  content: "";
+  position: absolute;
+  top: .6rem;
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #cbd5e1, #64748b);
+}
+
+.light-unit::before { left: .6rem; }
+.light-unit::after { right: .6rem; }
+
+/* 3 · The switch — the real checkbox, dressed as a paddle you press up and
+   down. The thing you see, click and focus is the control itself.
+
+   Two layers. The input is the dark socket cut into the plate; the paddle
+   that rocks inside it is drawn by ::before. A rocker tips about a
+   horizontal line through its middle — press the top in and the bottom comes
+   out — which is what rotateX on that axis does. Three things carry the
+   depth: the tilt, the shading of the paddle, and the shadow it casts on the
+   plate, which swaps ends with every press. */
+.switch {
+  appearance: none;              /* drop the browser's square checkbox */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.8rem;
+  height: 4.4rem;
+  margin: 0;
+  border: 0;
+  border-radius: 10px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  touch-action: manipulation;    /* no 300 ms tap delay on phones */
+  z-index: 2;                    /* under the hand (3), over the plate */
+  transition: box-shadow .3s;
+  /* the socket: a dark well, with the plate catching the light on its rim */
+  background: linear-gradient(180deg, #57534e, #3f3a34 45%, #292524);
+  box-shadow:
+    inset 0 4px 9px rgb(0 0 0 / .8),
+    inset 0 -1px 3px rgb(255 255 255 / .1),
+    0 1px 0 rgb(255 255 255 / .9);
+}
+
+/* The paddle. perspective() goes inside the transform so it tilts the paddle
+   only — putting it on the plate would pull the hand into 3D space too. */
+.switch::before {
+  content: "";
+  position: absolute;
+  inset: .22rem;                 /* the paddle sits inside the socket */
+  border-radius: 8px;
+  transform-origin: 50% 50%;     /* the rocking axis: across the middle */
+  transition:
+    transform .28s cubic-bezier(.4, 1.7, .5, 1),  /* a click, with a snap */
+    background .28s,
+    box-shadow .28s;
+  /* OFF: the top half stands proud, the bottom is pushed in */
+  transform: perspective(160px) rotateX(-22deg);
+  background: linear-gradient(180deg, #ffffff, #e2e8f0 36%, #94a3b8 54%, #475569);
+  box-shadow:
+    0 -3px 7px rgb(0 0 0 / .45),            /* the shadow it casts upwards */
+    inset 0 1px 0 rgb(255 255 255 / .95);   /* the lit top edge */
+}
+
+/* ON: the top is the end that went in, so the shading runs the other way and
+   the bottom is the lit edge — and the paddle glows, because the light it
+   holds is on */
+.switch:checked::before {
+  transform: perspective(160px) rotateX(22deg);
+  background: linear-gradient(180deg, #92400e, #d97706 40%, #fbbf24 56%, #fde68a);
+  box-shadow:
+    0 3px 7px rgb(0 0 0 / .45),             /* the shadow it casts downwards */
+    0 0 14px rgb(245 158 11 / .8),
+    inset 0 -1px 0 rgb(255 255 255 / .95);  /* the lit bottom edge */
+}
+
+/* the light spills out of the socket as well */
+.switch:checked {
+  box-shadow:
+    inset 0 4px 9px rgb(0 0 0 / .8),
+    inset 0 -1px 3px rgb(255 255 255 / .1),
+    0 1px 0 rgb(255 255 255 / .9),
+    0 0 22px rgb(245 158 11 / .85);
+}
+
+/* Keyboard focus gets its own ring, drawn on the toggle itself. */
+.switch:focus-visible {
+  outline: 3px solid #7dd3fc;
+  outline-offset: 3px;
+}
+
+/* 4 · The label, engraved under the toggle. A tap on it flips the switch. */
+.switch-label {
+  position: absolute;
+  left: 50%;
+  bottom: 1.4rem;
+  transform: translateX(-50%);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #57534e;
+  cursor: pointer;
+}
+
+/* 5 · While the room is dark the plate dims a little — night-time — but it
+   stays visible above the darkness, so you can watch the switch work. */
+body.is-dark .light-unit {
+  filter: brightness(.8);
+}
+
+/* 6 · The line of text under the switch stays visible in the dark too. */
+.machine-status {
+  position: relative;
+  z-index: 100;                  /* above the darkness */
+  min-height: 1.5rem;            /* reserve the line: no jump when it changes */
+  color: #6b7280;
+}
+
+/* 7 · The tally under the story. It stays above the darkness with the rest
+   of the things the visitor needs to read (z-index 100), so the number keeps
+   climbing in the dark too. */
+.machine-counter {
+  position: relative;
+  z-index: 100;                  /* above the darkness (90) */
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;  /* every digit the same width: no jitter */
+  color: #6b7280;                /* dark enough for the light page, light
+                                    enough to read on the night-time page */
+}
+
+/* 8 · The hand. Two boxes do the work: the clip is exactly the plate and
+   hides everything outside it, so the hand parked beside the plate is simply
+   not there — nothing to see until machine.js slides it in. */
+.hand-clip {
+  position: absolute;
+  inset: 0;                      /* exactly the plate's box */
+  overflow: hidden;              /* anything past the plate is cut off */
+  border-radius: 12px;           /* same corners as the plate */
+  z-index: 3;                    /* in front of the switch */
+  pointer-events: none;          /* clicks fall through to the switch */
+}
+
+/* The finger that slides in. .hand is only the track it travels along: an
+   invisible box, longer than the plate is wide, that machine.js slides. The
+   finger is the only thing actually drawn. */
+.hand {
+  position: absolute;
+  left: -3.8rem;                 /* parked outside the plate: clipped away */
+  top: 40%;                      /* level with the top half of the paddle */
+  width: 3.5rem;
+  height: 1.05rem;
+  transform: translateY(-50%);
+  /* matches HAND_REACH in machine.js: the slide has to be over by the time
+     the switch flips */
+  transition: left .28s cubic-bezier(.34, 1.2, .64, 1);
+}
+
+/* The finger, filling the track end to end. It is longer than the plate is
+   wide, so its root is always outside and clipped away: it reads as coming
+   in from behind the wall, and there is no palm to draw. */
+.finger {
+  position: absolute;
+  inset: 0;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #f5cca4, #dd9f70 55%, #c1875c);
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / .4));
+}
+
+/* the nail at the tip — the detail that makes it a finger, not a sausage */
+.finger::after {
+  content: "";
+  position: absolute;
+  right: .26rem;
+  top: 50%;
+  width: .54rem;
+  height: .4rem;
+  transform: translateY(-50%);
+  border-radius: 45%;
+  background: #fbe3ca;
+  box-shadow: inset 0 0 0 .5px rgb(170 110 70 / .3);
+}
+
+/* The arrived position. 3.5 − 0.88 = 2.62rem at the tip, so it presses
+   0.3rem past the paddle's left edge (2.32rem) and the root is still off
+   the plate, where the clip cuts it. */
+.light-unit.is-hand .hand {
+  left: -.88rem;
+}
+
+/* 9 · The flicker. Every fifth press the light refuses to die quietly: the
+   darkness layer jumps between bright and dark, like a bulb on its way out.
+   Each stop below is one brightness level; machine.js adds "is-flickering".
+
+   Three dips, roughly a third of a second apart — so with FLICKER_TIME at
+   one second this flashes three times a second. The last dip does not come
+   back: that is the light dying, and the room stays dark from there. */
+@keyframes flicker {
+  0%   { opacity: 0; }      /* bright */
+  16%  { opacity: 1; }      /* dip 1: dark */
+  30%  { opacity: .1; }
+  48%  { opacity: 1; }      /* dip 2 */
+  62%  { opacity: .12; }
+  80%  { opacity: 1; }      /* dip 3 — and it stays out */
+  100% { opacity: 1; }
+}
+
+/* forwards holds that last frame, so the room stays dark after the animation
+   ends and the handover to .is-dark happens with no jump. */
+body.is-flickering .darkness {
+  animation: flicker var(--flicker, 2s) linear forwards;
+}
+
+/* The slow version of the same story, for the media query further down. */
+@keyframes flicker-calm {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  50%  { opacity: 0; }
+  75%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* 10 · Hover is a bonus for mouse users only, never the only way to read
+   something. A phone never gets stuck in a hover state. */
+@media (hover: hover) {
+  .switch:hover {
+    filter: brightness(1.05);
+  }
+}
+
+/* 11 · A visitor who asked for less motion still gets the whole story, just
+   told in slow moves. The strobe above flashes three times a second, the
+   limit for photosensitive eyes — so here it becomes two slow dips instead,
+   about twice per second. */
+@media (prefers-reduced-motion: reduce) {
+  .darkness {
+    transition-duration: 150ms;
+  }
+
+  .light-unit {
+    transition-duration: 150ms;
+  }
+
+  .hand {
+    transition-duration: 150ms;
+  }
+
+  body.is-flickering .darkness {
+    animation-name: flicker-calm;
+  }
+}

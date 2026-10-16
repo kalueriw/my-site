@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Useless Light Switch · Li Wei</title>
+  <link rel="icon" href="favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="machine.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <h1>The Useless Light Switch</h1>
+    <p>
+      A room with one rule: the light stays on. Turn it off and the switch
+      turns itself back on — after a while, and a different while every time.
+      The dark never lasts.
+    </p>
+
+    <!-- The wall unit. machine.css draws the plate, the toggle and the hand. -->
+    <div class="light-unit" id="unit">
+      <input class="switch" type="checkbox" id="light" role="switch" checked>
+      <label class="switch-label" for="light">Light switch</label>
+
+      <!-- Decoration only, and not on the page at rest: the hand is parked
+           outside the plate and clipped away until machine.js sends it in.
+           The span is the one extended finger; machine.css draws the fist,
+           the thumb and the curled fingers around it. -->
+      <span class="hand-clip" aria-hidden="true">
+        <span class="hand">
+          <span class="finger"></span>
+        </span>
+      </span>
+    </div>
+
+    <!-- role="status" makes a screen reader read each line as the machine
+         moves, so the joke is not something only sighted visitors get. -->
+    <p class="machine-status" id="status" role="status">
+      On — the room is bright. Try turning it off.
+    </p>
+
+    <!-- The tally. machine.js keeps the number inside the span up to date.
+         It sits outside the role="status" paragraph above, so a screen
+         reader is not made to announce a number on every single press. -->
+    <p class="machine-counter">
+      Presses so far: <span id="counter">0</span>
+    </p>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <!-- The dark. It covers the whole page while the light is off; the switch
+       unit and the status line sit above it (z-index in machine.css). -->
+  <div class="darkness" aria-hidden="true"></div>
+
+  <script src="nav.js"></script>
+  <script src="machine.js"></script>
+</body>
+</html>
