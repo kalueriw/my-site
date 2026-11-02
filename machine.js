@@ -1,171 +1,308 @@
-// machine.js — the useless light switch on machine.html.
-// One rule: the light wants to stay on. Turn it off and a hand comes out of
-// the dark to turn it back on — after a while, and a different while every
-// time. Every fifth press, though, the light fights back first.
+// machine.js — two machines on machine.html.
+//
+//   Part A: the eraser. You make a mark; an arm wipes it off.
+//   Part B: the game. You try to keep a mark alive while the arm hunts it.
+//
+// Both are written the same way, and that is the point of the file: each is a
+// small STATE MACHINE. One variable says which state we are in, one function
+// moves between states, one timer is ever alive, and the page is painted from
+// the state rather than edited by hand. That last rule is what makes a double
+// click harmless: there is never a half-finished page to clean up.
 
+'use strict';
 
-// -- 1 · The elements the script talks to ------------------------------------
+/* =========================================================================
+   PART A — THE ERASER
+   =========================================================================
 
-// The switch — a real <input type="checkbox">. Checked means the light is on.
-const lever = document.getElementById('light');
+   Four states, and each one is a picture of what you can see:
 
-// The wall plate. The hand is parked inside its clipping box, out of sight.
-const unit = document.getElementById('unit');
+       blank        card empty      arm parked off the right
+         │
+         │  you press the button
+         ▼
+       marked       ink showing     arm parked          ── after a wait ──┐
+         │                                                              │
+         │  the arm sets off                                            │
+         ▼                                                              │
+       erasing      ink wiping      arm crossing the card               │
+         │                                                              │
+         │  the ink is gone                                             │
+         ▼                                                              │
+       retracting   card empty      arm sliding back out                 │
+         │                                                              │
+         └──────────────────────────────────────────────────────────────┘
+                                 back to blank
 
-// The sentence under the switch. It carries role="status" in the HTML, so a
-// screen reader announces every change, and everyone gets the same story.
+   Two rules make the machine impossible to break:
+
+     1. Presses are only accepted in `blank` and `marked`. Once the arm has
+        set off, the machine is busy and a press is refused, not queued.
+     2. Every timer goes through enter(), which cancels the previous one
+        first. There is never more than one alive, so no stale callback can
+        fire into a later state.
+   ========================================================================= */
+
+const stage = document.getElementById('stage');
+const makeBtn = document.getElementById('make');
 const readout = document.getElementById('status');
+const madeEl = document.getElementById('made');
+const oncardEl = document.getElementById('oncard');
 
-// The span holding the tally under that sentence. It sits outside the
-// role="status" paragraph, so this number is never read out on every press.
-const counter = document.getElementById('counter');
+// -- Timings, in milliseconds ----------------------------------------------
 
+const WAIT_MIN = 800;      // how long the machine lets the ink sit, at least
+const WAIT_MAX = 1400;     // …and at most
+const ERASE_MS = 900;      // the arm's whole pass across the card
+const RETRACT_MS = 600;    // and its return
 
-// -- 2 · The numbers ---------------------------------------------------------
+// Hand the two durations to CSS, so the transitions and these waits cannot
+// describe different amounts of time.
+document.documentElement.style.setProperty('--erase', ERASE_MS + 'ms');
+document.documentElement.style.setProperty('--retract', RETRACT_MS + 'ms');
 
-// How long the light flickers before it gives up, in milliseconds.
-// (CSS reads the same number through the --flicker property.)
-const FLICKER_TIME = 1000;
+// -- State -----------------------------------------------------------------
 
-// How long the light stays off — measured from the press to the moment the
-// switch comes back on, the hand's travel included. A fresh random number
-// every press, between these two, in milliseconds: 0.3 s up to 1 s.
-const MIN_WAIT = 300;
-const MAX_WAIT = 1000;
+let state = 'blank';
+let timer = null;          // the only live timeout, or null
+let made = 0;
 
-// After a flicker the light stays off for this fixed, longer time instead —
-// again measured up to the moment it comes back on.
-const DARK_AFTER_FLICKER = 3000;
+/**
+ * Paint the page from `state`. This is the ONLY place the stage's classes
+ * are set, which is why none of them can be left behind.
+ */
+function render() {
+  stage.classList.toggle('is-marked', state === 'marked');
+  stage.classList.toggle('is-erasing', state === 'erasing');
+  stage.classList.toggle('is-retracting', state === 'retracting');
 
-// The hand: how long it takes to slide in, and how long it rests on the
-// switch before sliding back out. CSS matches the first with its own
-// transition on the hand's `left`. It must stay below MIN_WAIT: the slide-in
-// happens inside the wait above, so a longer reach than MIN_WAIT would leave
-// no time for it and the hand would arrive after the switch had flipped.
-const HAND_REACH = 280;
-const HAND_HOLD = 350;
-
-// Every fifth press is a special one.
-const SPECIAL_EVERY = 5;
-
-// Hand the flicker length to CSS, so the animation lasts exactly as long as
-// the pause this script waits before the room goes dark.
-document.documentElement.style.setProperty('--flicker', FLICKER_TIME + 'ms');
-
-
-// -- 3 · The machine's memory ------------------------------------------------
-
-// How many times the visitor has turned the light off since the page loaded.
-let presses = 0;
-
-// The timer of the next thing the machine plans to do.
-// null means nothing is planned.
-let pending = null;
-
-
-// -- 4 · Two small helpers ---------------------------------------------------
-
-// Replace the text of the status line.
-function say(sentence) {
-  readout.textContent = sentence;
+  // "On the card" is a fact about the state, not a separate counter that
+  // could drift out of step with it.
+  oncardEl.textContent = state === 'marked' || state === 'erasing' ? '1' : '0';
 }
 
-// Do one step of the show after `ms` milliseconds, and remember its timer, so
-// that a visitor who reaches the switch first can cancel whatever is planned.
-// Every step the machine performs is scheduled through here.
-function after(ms, step) {
-  pending = window.setTimeout(step, ms);
+/**
+ * Move to `next`, cancelling whatever was planned. `ms` schedules the next
+ * move; leave it out and the machine rests in `next` until a press arrives.
+ */
+function enter(next, ms) {
+  window.clearTimeout(timer);
+  timer = null;
+
+  state = next;
+  render();
+
+  if (ms !== undefined) {
+    timer = window.setTimeout(tick, ms);
+  }
 }
 
+/** The one timer callback. It only ever moves the machine one step forward. */
+function tick() {
+  timer = null;
 
-// -- 5 · How long to wait ----------------------------------------------------
+  if (state === 'marked') {
+    enter('erasing', ERASE_MS);
+    readout.textContent = 'The arm arrives, and the mark begins to go.';
+  } else if (state === 'erasing') {
+    enter('retracting', RETRACT_MS);
+    readout.textContent = 'Wiped clean. The arm withdraws.';
+  } else if (state === 'retracting') {
+    enter('blank');
+    readout.textContent = 'Blank again, exactly as you found it. Make another.';
+  }
+}
 
-// A random number of milliseconds from MIN_WAIT up to MAX_WAIT.
+/** A random pause between WAIT_MIN and WAIT_MAX, in whole milliseconds. */
 function randomWait() {
-  // Math.random() gives 0 up to (but never) 1.
-  // Multiply by the width of the range, then slide the result up by MIN_WAIT.
-  // Math.round() turns it into a whole number of milliseconds.
-  return Math.round(MIN_WAIT + Math.random() * (MAX_WAIT - MIN_WAIT));
+  return Math.round(WAIT_MIN + Math.random() * (WAIT_MAX - WAIT_MIN));
 }
 
+// -- The one control -------------------------------------------------------
 
-// -- 6 · The one thing the machine does --------------------------------------
-
-// Go dark — and then have the switch back on `wait` milliseconds after the
-// press, no matter how long the hand takes to get there.
-// Leave `wait` out and it is a fresh random number: `= randomWait()` is a
-// default value, worked out again on every call that does not pass one in.
-function goDark(wait = randomWait()) {
-  document.body.classList.add('is-dark');
-  say('Off. The room is dark…');
-
-  // Step 1 — the hand slides in, and the last HAND_REACH milliseconds of the
-  // wait belong to that slide: it arrives exactly as `wait` runs out, so the
-  // light comes back on the moment the number promised.
-  after(wait - HAND_REACH, function () {
-    unit.classList.add('is-hand');
-    say('A hand comes out of the dark…');
-
-    // Step 2 — it has arrived: the switch is pushed over, and the room lights
-    // up. The lever turning is CSS (it follows the checkbox); this line only
-    // sets the checkbox.
-    after(HAND_REACH, function () {
-      lever.checked = true;
-      document.body.classList.remove('is-dark');
-      say('Click — the switch turned itself back on. Bright again.');
-
-      // Step 3 — the hand lets go and slides back out of sight.
-      after(HAND_HOLD, function () {
-        unit.classList.remove('is-hand');
-        pending = null;
-      });
-    });
-  });
-}
-
-
-// -- 7 · The switch ----------------------------------------------------------
-
-// "change" fires when the visitor flips the switch — mouse, finger or
-// space bar. The browser has already updated lever.checked by now.
-lever.addEventListener('change', function () {
-
-  // The light just came ON: the visitor beat the machine to it.
-  if (lever.checked) {
-    // Cancel whatever the machine had planned and stand down. Sending the
-    // hand home is part of that: it may be halfway in.
-    clearTimeout(pending);
-    pending = null;
-    document.body.classList.remove('is-dark');
-    document.body.classList.remove('is-flickering');
-    unit.classList.remove('is-hand');
-    say('Bright again. The switch wants it that way.');
+makeBtn.addEventListener('click', () => {
+  // The arm is working. Refuse the press rather than queuing it — a queue is
+  // how a machine ends up doing two things at once.
+  if (state === 'erasing' || state === 'retracting') {
+    readout.textContent = 'The arm is already at work. Let it finish.';
     return;
   }
 
-  // The light just went OFF. Count the press.
-  presses = presses + 1;
+  made += 1;
+  madeEl.textContent = made;
 
-  // Show the new tally. Assigning a number to textContent turns it into a
-  // string on the way in, so no String() call is needed.
-  counter.textContent = presses;
-
-  // Every fifth press the light refuses to go quietly. `%` is the remainder:
-  // presses % 5 is 0 exactly at 5, 10, 15 — the multiples of five.
-  if (presses % SPECIAL_EVERY === 0) {
-    document.body.classList.add('is-flickering');
-    say('Off… but something is wrong with the light.');
-
-    // A second of flicker (all of it CSS), then dark — but this time for a
-    // long, fixed three seconds rather than the short random wait. The hand
-    // comes at the end of it either way.
-    after(FLICKER_TIME, function () {
-      document.body.classList.remove('is-flickering');
-      goDark(DARK_AFTER_FLICKER);
-    });
+  // Pressing while the ink is still there does not add a second mark — it
+  // restarts the wait, which is exactly the machine being patient with you.
+  if (state === 'marked') {
+    enter('marked', randomWait());
+    readout.textContent = 'Another mark, on top of the first. It will not help.';
     return;
   }
 
-  // Any other press: straight to the dark.
-  goDark();
+  enter('marked', randomWait());
+  readout.textContent = 'A mark. The arm is on its way.';
 });
+
+// Open in the state the markup already shows.
+enter('blank');
+
+/* =========================================================================
+   PART B — KEEP IT
+   =========================================================================
+
+       idle ──start──▶ running ──arm reaches the mark──▶ wiped
+         ▲               │                                │
+         │               │ survives eight visits         │
+         │               ▼                                │
+         │             kept                               │
+         └─────── after a beat, back to idle ─────────────┘
+
+   Each visit has two halves: the arm moves to a lane, then a moment later it
+   strikes. The pause is what makes the game fair — it is your reaction time.
+   A press is only read while `running`, and Start only works from `idle`, so
+   pressing everything forty times cannot stack rounds or start two timers.
+   ========================================================================= */
+
+const gameBox = document.getElementById('game-box');
+const gameMark = document.getElementById('game-mark');
+const gameEraser = document.getElementById('game-eraser');
+const gameStatus = document.getElementById('game-status');
+const scoreEl = document.getElementById('score');
+const bestEl = document.getElementById('best');
+const startBtn = document.getElementById('start');
+const moveBtn = document.getElementById('move');
+const resetBtn = document.getElementById('reset');
+
+const LANES = 3;
+const NAMES = ['left', 'centre', 'right'];
+
+const FIRST_VISIT_MS = 600;   // grace before the arm starts hunting
+const STRIKE_MS = 380;        // time to react once the arm has arrived
+const GAP_MS = 240;           // pause between visits
+const VISITS_TO_KEEP = 8;     // survive this many and the round is won
+const NEXT_ROUND_MS = 1100;   // how long the result stays on screen
+
+let gameState = 'idle';       // idle | running | kept | wiped
+let gameTimer = null;
+let markLane = 1;             // where the player's mark is
+let armLane = -1;             // where the arm is; -1 is off the board
+let visits = 0;
+let score = 0;
+let best = 0;
+
+/** Paint the board from the state. Same rule as render() above. */
+function paint(next) {
+  gameState = next;
+  gameBox.classList.toggle('is-running', next === 'running');
+  gameBox.classList.toggle('is-kept', next === 'kept');
+  gameBox.classList.toggle('is-wiped', next === 'wiped');
+}
+
+/** Put a piece in a lane. The CSS does the positioning from this one number. */
+function placeMark(lane) {
+  markLane = lane;
+  gameMark.style.setProperty('--lane', lane);
+}
+
+function placeArm(lane) {
+  armLane = lane;
+  gameEraser.style.setProperty('--lane', lane);
+}
+
+/** The one way a round ends, or the pause between one round and the next. */
+function stop() {
+  window.clearTimeout(gameTimer);
+  gameTimer = null;
+}
+
+/** Show a result, then clear the board so it can be played again. */
+function settle(result, message) {
+  stop();
+  paint(result);
+  gameStatus.textContent = message;
+
+  gameTimer = window.setTimeout(() => {
+    paint('idle');
+    gameTimer = null;
+    gameStatus.textContent = 'Ready. Press Start, then keep your mark moving.';
+  }, NEXT_ROUND_MS);
+}
+
+/** Half one of a visit: send the arm to a lane and give the player a moment. */
+function visit() {
+  gameTimer = null;
+
+  const lane = Math.floor(Math.random() * LANES);
+  placeArm(lane);
+  gameStatus.textContent = `The arm moves to the ${NAMES[lane]} lane.`;
+
+  gameTimer = window.setTimeout(strike, STRIKE_MS);
+}
+
+/** Half two: the arm comes down, and then it is too late to move. */
+function strike() {
+  gameTimer = null;
+
+  if (armLane === markLane) {
+    settle('wiped', `It came down on the ${NAMES[armLane]} lane, where your mark was.`);
+    return;
+  }
+
+  visits += 1;
+
+  if (visits >= VISITS_TO_KEEP) {
+    score += 1;
+    best = Math.max(best, score);
+    scoreEl.textContent = score;
+    bestEl.textContent = best;
+    settle('kept', 'It left without your mark. Point to you.');
+    return;
+  }
+
+  gameTimer = window.setTimeout(visit, GAP_MS);
+}
+
+function startRound() {
+  // Start only means something from a resting board. Pressing it mid-round
+  // is ignored, not queued — a queued round is how a game ends up running
+  // two timers at once.
+  if (gameState !== 'idle') {
+    return;
+  }
+
+  stop();
+  visits = 0;
+  placeMark(1);
+  placeArm(-1);
+  paint('running');
+  gameStatus.textContent = 'Round started. The arm is coming.';
+
+  gameTimer = window.setTimeout(visit, FIRST_VISIT_MS);
+}
+
+startBtn.addEventListener('click', startRound);
+
+moveBtn.addEventListener('click', () => {
+  if (gameState !== 'running') {
+    return;
+  }
+
+  placeMark((markLane + 1) % LANES);
+  gameStatus.textContent = `Your mark moves to the ${NAMES[markLane]} lane.`;
+});
+
+resetBtn.addEventListener('click', () => {
+  stop();
+  score = 0;
+  best = 0;
+  visits = 0;
+  placeMark(1);
+  placeArm(-1);
+  paint('idle');
+  scoreEl.textContent = '0';
+  bestEl.textContent = '0';
+  gameStatus.textContent = 'Back to the start. Ready when you are.';
+});
+
+// Open on a resting board.
+paint('idle');

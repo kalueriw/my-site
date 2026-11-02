@@ -3,43 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project ideas · Li Wei</title>
-  <link rel="icon" href="favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>Project ideas · Qiao Yi</title>
+  <meta name="description" content="Five projects Qiao Yi might build — a campus map, a recipe finder for three ingredients, a photo portfolio, a band page, and a guide to hometown food — each with the specific person it is for.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
+
   <header id="site-header"></header>
 
-  <main>
-    <h1>Project ideas</h1>
+  <main id="main">
+    <section class="section wrap">
+      <p class="eyebrow">Shortlist, not wish list</p>
+      <h1>Five things I might build</h1>
+      <p class="lede">
+        One idea is not a choice — it is a decision you have already made.
+        Five is enough to compare them: each one names a real person it is
+        for, and says what would make it worth the work.
+      </p>
+    </section>
 
-    <h2>Things I might build</h2>
-    <ul>
-      <li>A site about the food in my hometown</li>
-      <li>A portfolio for my photographs</li>
-      <li>A guide for new students on campus</li>
-      <li>A page for my band</li>
-      <li>A recipe converter for people who cook alone</li>
-    </ul>
+    <!-- An unordered list: these five have no order. One is not "first",
+         it is just one of them. -->
+    <section class="section wrap" aria-labelledby="ideas">
+      <h2 id="ideas">The ideas</h2>
+      <ul class="idea-list">
+        <li>
+          <span class="idea-name">Campus map</span>
+          <p>A map where you can search a building by the room number on your
+            timetable and see the shortest door-to-door route, indoors.</p>
+        </li>
+        <li>
+          <span class="idea-name">Ingredient-fusion recipes</span>
+          <p>Type in the three things left in your fridge; get a recipe that
+            actually uses them, with a substitution for whatever you do not
+            have.</p>
+        </li>
+        <li>
+          <span class="idea-name">Photo portfolio</span>
+          <p>A calendar of photographs with nothing on the page except the
+            picture, the place, and the date.</p>
+        </li>
+        <li>
+          <span class="idea-name">Band page</span>
+          <p>One page for a local band: the next show, the last recording, and
+            a way to book them without a DM.</p>
+        </li>
+        <li>
+          <span class="idea-name">Hometown food</span>
+          <p>A guide to what to order in my hometown and what each dish is
+            actually like, written for someone who has never eaten it.</p>
+        </li>
+      </ul>
+    </section>
 
-    <h2>Who each one is for</h2>
-    <dl>
-      <dt>Hometown food</dt>
-      <dd>For students who just moved here.</dd>
+    <!-- A description list: a name and its answer, in pairs. "Everyone" is not
+         a person; every dd below names a group small enough to picture. -->
+    <section class="section wrap" aria-labelledby="who">
+      <h2 id="who">Who each one is for</h2>
+      <dl class="audience">
+        <dt>Campus map</dt>
+        <dd>First-year students in their first week, who can name a building
+          and still cannot find it.</dd>
 
-      <dt>Photo portfolio</dt>
-      <dd>For places I want to apply to.</dd>
+        <dt>Ingredient-fusion recipes</dt>
+        <dd>Students cooking alone in a dorm kitchen: three ingredients, one
+          hob, no car.</dd>
 
-      <!-- one <dt> and one <dd> per idea -->
-    </dl>
+        <dt>Photo portfolio</dt>
+        <dd>The one person who screens applications, who will give it ninety
+          seconds before deciding.</dd>
 
-    <h2>How I will build it</h2>
-    <ol>
-      <li>Sketch it</li>
-      <li>Write the HTML</li>
-      <li>Style it</li>
-    </ol>
+        <dt>Band page</dt>
+        <dd>Someone who heard the band at a show last month and wants to know
+          when the next one is.</dd>
+
+        <dt>Hometown food</dt>
+        <dd>Classmates from other provinces who have never seen this food and
+          do not know what to order.</dd>
+      </dl>
+    </section>
+
+    <!-- An ordered list: this one has a real order. Step 3 before step 1 is
+         not a different style, it is a different project. -->
+    <section class="section wrap" aria-labelledby="how">
+      <h2 id="how">How I would build the campus map</h2>
+      <ol class="steps">
+        <li>Walk the route myself, twice, and write down the room numbers and
+          the doors on paper.</li>
+        <li>Write the HTML: a list of buildings, a list of rooms, and one
+          search box.</li>
+        <li>Style it so the map reads on a phone held in one hand, outside.</li>
+        <li>Make the search work, then make it work with the keyboard.</li>
+        <li>Give it to ten first-years and watch where they get lost.</li>
+      </ol>
+    </section>
   </main>
 
   <footer id="site-footer"></footer>

@@ -1,13 +1,22 @@
-<nav>
-  <a class="logo" href="index.html">◆ Li Wei</a>
+<!-- nav.html — a FRAGMENT, not a page.
+     No <!DOCTYPE>, no <html>, no <head>: nav.js fetches this file and drops
+     its contents inside <header id="site-header"> on every page. That is why
+     validating this file on its own at validator.w3.org will always fail.
+     Validate the five real pages instead. -->
 
-  <ul class="links">
+<nav class="site-nav wrap wrap--wide" aria-label="Main">
+  <a class="brand" href="index.html">
+    <img class="brand-mark" src="favicon.svg" alt="" width="24" height="24">
+    Qiao Yi
+  </a>
+
+  <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
     <li><a href="quotes.html">Quotes</a></li>
-    <li><a href="project.html">Project ideas</a></li>
-    <li><a href="machine.html">The useless machine</a></li>
+    <li><a href="project.html">Projects</a></li>
+    <li><a href="machine.html">The machine</a></li>
     <li><a href="about.html">About</a></li>
   </ul>
 
-  <a class="action" href="about.html#contact">Contact</a>
+  <a class="nav-cta" href="about.html#contact">Contact</a>
 </nav>

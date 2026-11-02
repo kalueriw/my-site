@@ -3,27 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Li Wei</title>
-  <link rel="icon" href="favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>Qiao Yi — Computer Science, BiUH</title>
+  <meta name="description" content="Qiao Yi's hand-written website: a collection of quotes, five project ideas, and one machine that erases whatever you make.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
+
   <header id="site-header"></header>
 
-  <main>
+  <main id="main">
+    <!-- The hero: one wide picture, cropped to a fixed height rather than
+         squashed, then the name and one sentence about the site. -->
     <section class="hero">
-      <img src="images/hero.jpg" alt="The BiUH campus at sunrise, seen from the lake">
-      <h1>Li Wei</h1>
-      <p>Computer Science at BiUH — and a website written entirely by hand.</p>
+      <img class="hero-img" src="images/hero.svg" width="1600" height="900"
+           alt="The campus at sunrise seen across the lake: a long hall with a colonnade, a clock tower, and the sun's broken reflection on the water.">
+      <div class="wrap hero-text">
+        <h1>Qiao Yi</h1>
+        <p class="lede">
+          Computer Science at BiUH, and a website written one line at a time
+          by hand — no page builder, no template, no shortcut.
+        </p>
+      </div>
     </section>
 
-    <h2>On this site</h2>
-    <ul>
-      <li><a href="quotes.html">Quotes</a> — things worth reading twice</li>
-      <li><a href="project.html">Project ideas</a> — what I might build, and for whom</li>
-      <li><a href="about.html">About and contact</a> — who I am, and how to reach me</li>
-    </ul>
+    <!-- The overview. Each entry says what you will find inside, not
+         "click here": a link is more useful when it tells you where it goes. -->
+    <section class="section wrap" aria-labelledby="on-this-site">
+      <p class="eyebrow">Start here</p>
+      <h2 id="on-this-site">What is on this site</h2>
+
+      <ul class="entries">
+        <li>
+          <a class="entry" href="quotes.html">
+            <span class="entry-title">Quotes</span>
+            <span class="entry-desc">
+              Twenty lines worth reading twice — books, speeches, songs and
+              films — each one with who said it and where it comes from, and
+              a new one picked at random every time you load the page.
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="entry" href="project.html">
+            <span class="entry-title">Project ideas</span>
+            <span class="entry-desc">
+              Five things I might build, each with the exact person it is for
+              and the order I would build it in — not a wish list, a shortlist.
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="entry" href="about.html">
+            <span class="entry-title">About</span>
+            <span class="entry-desc">
+              What I am learning, which references I actually use, and the one
+              address that reaches me.
+            </span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- The machine gets its own dark band: it is the best thing here, and
+         it should not be something you only find by reading the nav. -->
+    <section class="section wrap">
+      <div class="callout">
+        <div>
+          <h2>The eraser that waits</h2>
+          <p>
+            Sixty years before it had a name, this was a thought experiment.
+            Now it is a blank card, a brass arm, and one rule: whatever you
+            make, it un-makes.
+          </p>
+        </div>
+        <a class="btn" href="machine.html">Make a mark</a>
+      </div>
+    </section>
   </main>
 
   <footer id="site-footer"></footer>

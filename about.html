@@ -3,32 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About · Li Wei</title>
-  <link rel="icon" href="favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>About · Qiao Yi</title>
+  <meta name="description" content="Who writes this site, what Qiao Yi is learning, and how to get in touch.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
+
   <header id="site-header"></header>
 
-  <main>
-    <h1>About me</h1>
-    <p>I study Computer Science at BiUH. This site is
-      <strong>written by hand</strong>, one line at a time.</p>
+  <main id="main">
+    <section class="section wrap">
+      <p class="eyebrow">About</p>
+      <h1>Qiao Yi</h1>
+      <p class="lede">
+        I study Computer Science at BiUH. This site is
+        <strong>written by hand</strong>, one line at a time — which means
+        when something breaks, I am the one who has to understand why.
+      </p>
+    </section>
 
-    <h2>What I am learning</h2>
-    <ul>
-      <li>HTML — what each part of a page <em>is</em></li>
-      <li>CSS — what it looks like</li>
-      <li>JavaScript — what it does</li>
-    </ul>
-    <p>Most of my answers come from
-      <a href="https://developer.mozilla.org">MDN Web Docs</a>.</p>
+    <section class="section wrap" aria-labelledby="learning">
+      <h2 id="learning">What I am learning</h2>
+      <ul>
+        <li><strong>HTML</strong> — what each part of a page <em>is</em>, and
+          why the right element makes the page work for more people.</li>
+        <li><strong>CSS</strong> — what it looks like, and how one rule can
+          change twenty cards at once.</li>
+        <li><strong>JavaScript</strong> — what it does, and how to keep it from
+          getting into a state it cannot get out of.</li>
+      </ul>
+      <p>
+        Most of my answers come from
+        <a href="https://developer.mozilla.org">MDN Web Docs</a>; the second
+        place I check is <a href="https://validator.w3.org">the W3C
+        validator</a>, which is less forgiving and more useful.
+      </p>
+    </section>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>Write to me at
-        <a href="mailto:liwei@example.com">liwei@example.com</a>.</p>
+    <section class="section wrap" aria-labelledby="how-built">
+      <h2 id="how-built">How this site is put together</h2>
+      <p>
+        Five pages share one stylesheet and one navigation. The navigation is
+        written once, in <code>nav.html</code>, and a small script fetches it
+        into every page — so adding a sixth page means editing one file, not
+        five. The machine page keeps its own stylesheet because it draws a
+        switch, a hand and a dark room, which nothing else needs.
+      </p>
+      <p>
+        Everything is plain HTML, CSS and JavaScript. There is no framework,
+        no build step, and no dependency to keep up to date.
+      </p>
+    </section>
+
+    <section class="section wrap" id="contact" aria-labelledby="contact-title">
+      <h2 id="contact-title">Contact</h2>
+      <p>
+        The only address that reaches me:
+        <a href="mailto:X20250076@stu.hibiuh.edu.cn">X20250076@stu.hibiuh.edu.cn</a>
+      </p>
+      <p class="muted">
+        I read everything and answer most things within a day.
+      </p>
     </section>
   </main>
 

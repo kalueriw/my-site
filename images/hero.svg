@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <!-- The campus at sunrise, from the lake. Drawn by hand in the site's own
+       colours: paper, ink, ochre and amber. Used as a real <img> with
+       object-fit: cover, so the frame may crop it on narrow screens; the sun
+       and the roofline sit near the horizontal centre for that reason. -->
+  <title>The BiUH campus at sunrise, seen from the lake</title>
+
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F7E7D3"/>
+      <stop offset="0.55" stop-color="#FBF3E7"/>
+      <stop offset="1" stop-color="#FDFAF4"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#F0A94B" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#EEB878" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#EEB878" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E9DCC8"/>
+      <stop offset="0.35" stop-color="#EFE4D2"/>
+      <stop offset="1" stop-color="#F8F2E7"/>
+    </linearGradient>
+
+    <linearGradient id="tower" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8E3415"/>
+      <stop offset="0.6" stop-color="#B4441F"/>
+      <stop offset="1" stop-color="#9C3A18"/>
+    </linearGradient>
+
+    <!-- The reflection is the skyline flipped, faded, and blurred just
+         enough to read as water rather than a second building. -->
+    <filter id="ripple" x="-5%" y="-5%" width="110%" height="110%">
+      <feGaussianBlur stdDeviation="3 1.2"/>
+    </filter>
+
+    <clipPath id="lake">
+      <rect x="0" y="566" width="1600" height="334"/>
+    </clipPath>
+  </defs>
+
+  <!-- sky -->
+  <rect width="1600" height="900" fill="url(#sky)"/>
+
+  <!-- the sun, low and still below the roofline -->
+  <circle cx="800" cy="470" r="300" fill="url(#glow)"/>
+  <circle cx="800" cy="470" r="104" fill="#F0A94B"/>
+  <circle cx="800" cy="470" r="104" fill="none" stroke="#FDFAF4" stroke-opacity="0.35" stroke-width="2"/>
+
+  <!-- three thin clouds, drifting right of the tower -->
+  <g fill="#FFFFFF" opacity="0.55">
+    <rect x="1010" y="212" width="210" height="9" rx="4.5"/>
+    <rect x="1076" y="238" width="132" height="7" rx="3.5"/>
+    <rect x="236" y="286" width="168" height="8" rx="4"/>
+    <rect x="300" y="308" width="96" height="6" rx="3"/>
+  </g>
+
+  <!-- distant ridge line, very pale, behind everything built -->
+  <path d="M0 560 L0 520 Q120 496 236 512 Q352 528 470 508 Q588 488 706 510
+           Q824 532 942 506 Q1060 480 1178 504 Q1296 528 1414 506 Q1532 484 1600 500
+           L1600 560 Z" fill="#EBDCC6"/>
+
+  <!-- the main hall: a long roof, a pediment, a colonnade -->
+  <g>
+    <rect x="352" y="452" width="596" height="108" fill="#C2552C"/>
+    <path d="M352 452 L650 396 L948 452 Z" fill="#8E3415"/>
+    <rect x="330" y="446" width="640" height="12" rx="3" fill="#7A2C11"/>
+
+    <!-- pediment over the door -->
+    <path d="M596 452 L650 418 L704 452 Z" fill="#F3EDE2"/>
+    <circle cx="650" cy="440" r="7" fill="#D9822B"/>
+
+    <!-- colonnade: light slots between darker piers -->
+    <g fill="#F6EBDC" opacity="0.9">
+      <rect x="388" y="482" width="26" height="60" rx="13"/>
+      <rect x="444" y="482" width="26" height="60" rx="13"/>
+      <rect x="500" y="482" width="26" height="60" rx="13"/>
+      <rect x="726" y="482" width="26" height="60" rx="13"/>
+      <rect x="782" y="482" width="26" height="60" rx="13"/>
+      <rect x="838" y="482" width="26" height="60" rx="13"/>
+      <rect x="894" y="482" width="26" height="60" rx="13"/>
+    </g>
+  </g>
+
+  <!-- the tower: the one vertical in a horizontal picture -->
+  <g>
+    <rect x="978" y="352" width="104" height="208" fill="url(#tower)"/>
+    <path d="M978 352 L1030 296 L1082 352 Z" fill="#7A2C11"/>
+    <rect x="1026" y="256" width="8" height="44" fill="#7A2C11"/>
+    <circle cx="1030" cy="252" r="9" fill="#D9822B"/>
+    <!-- a clock face, blank on purpose: it is sunrise, not a time -->
+    <circle cx="1030" cy="396" r="24" fill="#F6EBDC"/>
+    <circle cx="1030" cy="396" r="24" fill="none" stroke="#8E3415" stroke-width="3"/>
+    <path d="M1030 396 L1030 380 M1030 396 L1044 402" stroke="#8E3415" stroke-width="3.5" stroke-linecap="round"/>
+    <rect x="1004" y="444" width="18" height="52" rx="9" fill="#F6EBDC" opacity="0.85"/>
+    <rect x="1038" y="444" width="18" height="52" rx="9" fill="#F6EBDC" opacity="0.85"/>
+  </g>
+
+  <!-- the low block to the right, set back and lighter: distance -->
+  <g fill="#D07A4E">
+    <rect x="1112" y="486" width="286" height="74"/>
+    <path d="M1112 486 L1255 452 L1398 486 Z" fill="#B95F35"/>
+  </g>
+  <g fill="#F6EBDC" opacity="0.8">
+    <rect x="1140" y="506" width="16" height="34" rx="8"/>
+    <rect x="1178" y="506" width="16" height="34" rx="8"/>
+    <rect x="1216" y="506" width="16" height="34" rx="8"/>
+    <rect x="1290" y="506" width="16" height="34" rx="8"/>
+    <rect x="1328" y="506" width="16" height="34" rx="8"/>
+    <rect x="1366" y="506" width="16" height="34" rx="8"/>
+  </g>
+
+  <!-- trees along the water's edge, left and right -->
+  <g>
+    <ellipse cx="196" cy="536" rx="46" ry="54" fill="#7E8A62"/>
+    <ellipse cx="152" cy="552" rx="34" ry="38" fill="#6B7650"/>
+    <rect x="190" y="552" width="10" height="30" fill="#5B4A38"/>
+
+    <ellipse cx="1444" cy="542" rx="42" ry="48" fill="#7E8A62"/>
+    <ellipse cx="1492" cy="556" rx="30" ry="34" fill="#6B7650"/>
+    <rect x="1440" y="556" width="9" height="26" fill="#5B4A38"/>
+  </g>
+
+  <!-- three birds, small enough to be a detail rather than a subject -->
+  <g fill="none" stroke="#6E6861" stroke-width="4" stroke-linecap="round" opacity="0.55">
+    <path d="M1180 214 q14 -12 28 0 q14 -12 28 0"/>
+    <path d="M1262 168 q10 -9 20 0 q10 -9 20 0"/>
+    <path d="M428 206 q11 -10 22 0 q11 -10 22 0"/>
+  </g>
+
+  <!-- the lake -->
+  <rect x="0" y="560" width="1600" height="340" fill="url(#water)"/>
+
+  <!-- the far edge of the water, a single ink line -->
+  <rect x="0" y="558" width="1600" height="3" fill="#C9B79C"/>
+
+  <!-- reflection: the whole skyline, flipped about the waterline and faded -->
+  <g clip-path="url(#lake)" filter="url(#ripple)" opacity="0.3">
+    <g transform="translate(0 1120) scale(1 -1)">
+      <rect x="352" y="452" width="596" height="108" fill="#C2552C"/>
+      <path d="M352 452 L650 396 L948 452 Z" fill="#8E3415"/>
+      <rect x="978" y="352" width="104" height="208" fill="#B4441F"/>
+      <path d="M978 352 L1030 296 L1082 352 Z" fill="#7A2C11"/>
+      <rect x="1112" y="486" width="286" height="74" fill="#D07A4E"/>
+      <circle cx="800" cy="470" r="104" fill="#F0A94B"/>
+      <ellipse cx="196" cy="536" rx="46" ry="54" fill="#7E8A62"/>
+      <ellipse cx="1444" cy="542" rx="42" ry="48" fill="#7E8A62"/>
+    </g>
+  </g>
+
+  <!-- ripples: the same line at five widths, so the water has a grain -->
+  <g stroke="#C9B79C" stroke-linecap="round" fill="none">
+    <path d="M120 640 H520" stroke-width="3" opacity="0.5"/>
+    <path d="M700 640 H1010" stroke-width="3" opacity="0.7"/>
+    <path d="M1080 640 H1460" stroke-width="3" opacity="0.4"/>
+
+    <path d="M240 700 H620" stroke-width="2.5" opacity="0.35"/>
+    <path d="M760 706 H1120" stroke-width="2.5" opacity="0.5"/>
+    <path d="M1180 696 H1400" stroke-width="2.5" opacity="0.3"/>
+
+    <path d="M60 772 H430" stroke-width="2" opacity="0.3"/>
+    <path d="M520 780 H980" stroke-width="2" opacity="0.45"/>
+    <path d="M1040 766 H1300" stroke-width="2" opacity="0.25"/>
+
+    <path d="M300 848 H760" stroke-width="2" opacity="0.25"/>
+    <path d="M860 842 H1240" stroke-width="2" opacity="0.3"/>
+  </g>
+
+  <!-- the sun's own path on the water: broken into short strokes -->
+  <g stroke="#F0A94B" stroke-linecap="round" fill="none" opacity="0.5">
+    <path d="M742 606 H858" stroke-width="9"/>
+    <path d="M756 636 H842" stroke-width="7"/>
+    <path d="M722 668 H878" stroke-width="8"/>
+    <path d="M766 700 H820" stroke-width="6"/>
+    <path d="M736 736 H864" stroke-width="7"/>
+    <path d="M772 774 H828" stroke-width="5"/>
+    <path d="M700 818 H900" stroke-width="6" opacity="0.6"/>
+    <path d="M780 862 H820" stroke-width="4"/>
+  </g>
+</svg>

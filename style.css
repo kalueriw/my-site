@@ -1,89 +1,794 @@
-/* style.css — one file, linked from every page */
+/* ==========================================================================
+   my-site — one stylesheet, five pages
+   --------------------------------------------------------------------------
+   Reading order:
+     1  Tokens        — every colour and size, named once
+     2  Reset & base  — the floor every browser starts from
+     3  Layout        — the columns
+     4  Typography    — sizes, set once, inherited everywhere
+     5  Links, buttons, skip link
+     6  Nav (injected by nav.js)
+     7  Site footer (injected by nav.js)
+     8  Hero
+     9  Entry cards   — the homepage's three doors
+    10  Quote cards   — ONE rule, twenty cards
+    11  Spotlight     — the random quote band
+    12  Project lists — ul, dl, ol, each doing its own job
+    13  Callout       — the dark block advertising the machine
+    14  Small screens & reduced motion
+   ========================================================================== */
 
-/* 1 · Text: set it once on body, everything inside inherits it */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  line-height: 1.5;
-  color: #1f2937;
-  background: #fbfaf7;
+/* 1 · Tokens ---------------------------------------------------------------
+   A custom property is a value with a name. Change it here and it changes
+   everywhere; that is the same argument as using a class instead of twenty
+   inline styles, one level up. */
+:root {
+  /* paper: four warm off-whites, darkest to lightest */
+  --paper: #FBF7F0;          /* the page itself */
+  --paper-raised: #FFFFFF;   /* cards sitting on the page */
+  --paper-sunk: #F3EDE2;     /* quiet panels, the spotlight band */
+
+  /* ink: three text weights. All three clear 4.5:1 on --paper. */
+  --ink: #1C1917;            /* body text, nearly black */
+  --ink-soft: #4A453F;       /* secondary text */
+  --ink-faint: #6E6861;      /* captions, quote sources */
+
+  --rule: #DCD6C9;           /* hairlines: borders, dividers */
+  --accent: #B4441F;         /* the one loud colour: ochre red */
+  --accent-dark: #8E3415;    /* its hover state */
+  --accent-soft: #F0DDD2;    /* its wash: nav highlight, tags */
+  --amber: #D9822B;          /* the machine's light, and only that */
+
+  --measure: 66ch;           /* a comfortable line of text */
+  --radius: 10px;
+  --shadow: 0 12px 32px rgb(28 25 23 / .07);
+
+  --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 }
 
-/* 2 · The content column */
-main {
-  max-width: 48rem;
-  margin: 0 auto;           /* centred */
-  padding: 1rem 2rem;
+/* 2 · Reset & base ---------------------------------------------------------
+   Only the handful of browser defaults that get in the way. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;      /* padding and border grow inward */
+}
+
+html {
+  -webkit-text-size-adjust: 100%;   /* no auto-zoom on a phone held sideways */
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, .95rem + .25vw, 1.125rem);   /* 16 → 18 px */
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;             /* never wider than its box */
 }
 
 img {
-  max-width: 100%;          /* never wider than its box */
-  height: auto;
+  height: auto;                /* keep the proportions */
 }
 
-/* 3 · The homepage hero: one wide photo, cropped to fit */
-.hero img {
+/* 3 · Layout ---------------------------------------------------------------
+   One column, centred, with the same gutters on every page. */
+.wrap {
   width: 100%;
-  height: 20rem;
-  object-fit: cover;        /* fill the box, crop the rest — never squash */
-  border-radius: 10px;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
-/* 4 · The header: logo left, links centred, action right */
-nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 2rem;
+.wrap--wide {
+  max-width: 74rem;            /* for the quote grid and the machine */
 }
 
-nav .links {
-  display: flex;
-  gap: 1.5rem;
-  margin: 0 auto;           /* pushes it to the centre */
+main {
+  display: block;              /* old browsers: <main> is inline by default */
+}
+
+.section {
+  padding-block: clamp(2rem, 5vw, 3.25rem);
+}
+
+.section + .section {
+  padding-top: 0;              /* sections own their bottom space only */
+}
+
+[id] {
+  scroll-margin-top: 1.5rem;   /* an anchored heading never hides under the top */
+}
+
+/* 4 · Typography ----------------------------------------------------------- */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 .5em;
+  text-wrap: balance;          /* split long headings into even lines */
+}
+
+h1 {
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+}
+
+h2 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;           /* stops one word dangling on its own line */
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.lede {
+  font-size: clamp(1.05rem, 1rem + .4vw, 1.25rem);
+  color: var(--ink-soft);
+  max-width: 44ch;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 .75rem;
+}
+
+.muted {
+  color: var(--ink-faint);
+}
+
+/* A heading a screen reader needs but the eye does not — it keeps the
+   document's outline correct without adding a line of visible text. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
   padding: 0;
-  list-style: none;         /* no bullets */
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
-nav a {
-  color: #334155;
-  text-decoration: none;    /* no underlines */
+/* 5 · Links & buttons ------------------------------------------------------ */
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
 }
 
-nav .logo {
-  font-weight: 800;
-  color: #c2410c;
+a:hover {
+  color: var(--accent-dark);
 }
 
-nav .action {
-  border: 1.5px solid #0369a1;
-  border-radius: 99px;      /* a pill */
-  padding: .3em 1em;
-  color: #0369a1;
+/* One focus ring, for everything, keyboard only. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
-nav a:hover {
-  color: #c2410c;
+.btn {
+  display: inline-block;
+  padding: .65em 1.15em;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-/* 5 · One quote card — the box model, on all twenty at once */
+.btn:hover {
+  background: var(--accent-dark);
+  color: #fff;
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink);
+}
+
+.btn--ghost:hover {
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+
+/* The skip link is the first thing a keyboard meets. Off-screen until it
+   takes focus, then it slides into view. */
+.skip {
+  position: fixed;
+  top: .75rem;
+  left: .75rem;
+  z-index: 300;
+  padding: .7em 1.2em;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform .18s ease;
+}
+
+.skip:focus {
+  transform: none;
+  color: var(--paper);
+}
+
+/* 6 · Nav ------------------------------------------------------------------
+   The markup lives in nav.html and is injected into <header id="site-header">.
+   These rules are here because style.css is the one file every page loads. */
+#site-header {
+  /* The nav arrives one fetch after the page paints. Reserving its height
+     means the content below does not jump when it lands. */
+  min-height: 3.6rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;             /* on a narrow phone the links drop to a new row */
+  align-items: center;
+  gap: .35rem 1rem;
+  padding-block: .85rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -.01em;
+}
+
+.brand:hover {
+  color: var(--accent);
+}
+
+.brand-mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-links a {
+  display: block;
+  padding: .35em .7em;
+  border-radius: 99px;
+  color: var(--ink-soft);
+  font-size: .94rem;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+
+/* aria-current is set by nav.js on the link for the page you are on. */
+.nav-links a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.nav-cta {
+  margin-left: auto;
+  padding: .4em .95em;
+  border: 1px solid var(--accent);
+  border-radius: 99px;
+  color: var(--accent);
+  font-size: .9rem;
+  text-decoration: none;
+}
+
+.nav-cta:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Shown only when the fetch fails — almost always because the page was
+   opened from file:// instead of a local server. */
+.nav-fallback {
+  margin: 0;
+  padding-block: 1rem;
+  color: var(--ink-soft);
+  font-size: .9rem;
+}
+
+/* 7 · Site footer ----------------------------------------------------------
+   An ID selector on purpose. Every quote card also contains a <footer>, so a
+   bare `footer { }` rule here would repaint all twenty card footers too. */
+#site-footer {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  border-top: 1px solid var(--rule);
+  padding-block: 2rem;
+  color: var(--ink-faint);
+  font-size: .9rem;
+}
+
+.site-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+#site-footer p {
+  margin: 0;
+}
+
+#site-footer address {
+  font-style: normal;
+}
+
+#site-footer a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+#site-footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* 8 · Hero -----------------------------------------------------------------
+   The image is a real <img> so the object-fit lesson still applies: a fixed
+   height box, width 100%, and the picture cropped rather than squashed. */
+.hero-img {
+  width: 100%;
+  height: clamp(16rem, 42vw, 26rem);
+  object-fit: cover;           /* fill the box, crop the overflow */
+  object-position: center 42%; /* keep the sun and the roofline in frame */
+}
+
+.hero-text {
+  padding-block: clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 3vw, 2rem);
+}
+
+.hero-text h1 {
+  margin-bottom: .35em;
+}
+
+.hero-text .lede {
+  margin-bottom: 0;
+}
+
+/* 9 · Entry cards ---------------------------------------------------------- */
+.entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  height: 100%;
+  padding: 1.35rem 1.45rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.entry:hover {
+  border-color: var(--accent);
+  color: inherit;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.entry-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-serif);
+  font-size: 1.22rem;
+  font-weight: 600;
+}
+
+.entry-title::after {
+  content: "→";
+  font-family: var(--font-sans);
+  font-size: .95rem;
+  color: var(--accent);
+  transition: transform .18s ease;
+}
+
+.entry:hover .entry-title::after {
+  transform: translateX(3px);
+}
+
+.entry-desc {
+  color: var(--ink-soft);
+  font-size: .96rem;
+  line-height: 1.55;
+}
+
+/* 10 · Quote cards ---------------------------------------------------------
+   ONE rule for all twenty cards. This is the whole argument for a class:
+   padding, border, radius, background and max-width are set once and every
+   card obeys. Twenty inline styles would be twenty chances to disagree. */
 .quote {
-  max-width: 34rem;
-  margin-bottom: 1.5rem;    /* space outside */
-  padding: 1.1em 1.3em;     /* space inside */
-  background: #fff;
-  border: 1px solid #dcd8d0;
-  border-left: 4px solid #c2410c;
-  border-radius: 10px;
+  max-width: 34rem;                       /* a line you can read without turning your head */
+  padding: 1.25rem 1.4rem;                /* space inside the card */
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);          /* the thin outer frame */
+  border-left: 4px solid var(--accent);   /* the spine */
+  border-radius: var(--radius);           /* rounded corners */
+  margin: 0;
 }
 
 .quote blockquote {
-  margin: 0;                /* drop the browser's indent inside the card */
+  margin: 0;
 }
 
-/* 6 · The site footer: by id, because every quote has a <footer> too */
-#site-footer {
-  padding: 1rem 2rem;
-  border-top: 1px solid #dcd8d0;
-  color: #6b7280;
+.quote p {
+  margin: 0 0 .55em;
+}
+
+.quote p:last-child {
+  margin-bottom: 0;
+}
+
+/* This is the CARD's footer — its source line. It must not look like the
+   site footer, which is why #site-footer is an id and this is scoped. */
+.quote footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .2rem .55rem;
+  margin-top: .9rem;
+  padding-top: .7rem;
+  border-top: 1px dashed var(--rule);
+  font-size: .82rem;
+  line-height: 1.4;
+}
+
+.quote cite {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.quote .source {
+  font-family: var(--font-mono);
+  font-size: .92em;
+  color: var(--ink-faint);
+}
+
+.quote .source::before {
+  content: "—";
+  margin-right: .45em;
+  color: var(--rule);
+}
+
+.quote-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
+  align-items: start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 11 · Spotlight -----------------------------------------------------------
+   The band at the top of quotes.html. quotes.js clones one of the cards into
+   it, so the clone keeps the .quote class and inherits every rule above. */
+.spotlight {
+  background: var(--paper-sunk);
+  border-block: 1px solid var(--rule);
+  padding-block: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.spotlight-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2rem;
+  justify-content: space-between;
+}
+
+.spotlight .quote {
+  flex: 1 1 22rem;
+  max-width: 40rem;
+  border-left-width: 6px;
+  box-shadow: var(--shadow);
+}
+
+.spotlight .quote blockquote p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 1rem + .55vw, 1.4rem);
+  line-height: 1.45;
+}
+
+.spotlight-label {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 .6rem;
+}
+
+/* 12 · Project lists ------------------------------------------------------- */
+.idea-list {
+  display: grid;
+  gap: .75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;            /* order does not matter here, so no markers */
+}
+
+.idea-list li {
+  padding: 1.05rem 1.25rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.idea-name {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.16rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.idea-list p {
+  margin: .3rem 0 0;
+  color: var(--ink-soft);
+  font-size: .96rem;
+}
+
+/* A description list is a question and its answer: the idea, then who it
+   is for. A grid makes the pairs line up as pairs. */
+.audience {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: .55rem 1.75rem;
+  margin: 0;
+}
+
+.audience dt {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.audience dd {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+/* An ordered list, numbered by the browser, drawn as circles by CSS. */
+.steps {
+  display: grid;
+  gap: .8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  padding-left: 2.75rem;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: .1rem;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* A second description list, on the machine page: the four properties of a
+   useless machine, each named and explained. */
+.definitions {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: .9rem 2rem;
+  margin: 1.5rem 0 0;
+}
+
+.definitions dt {
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-top: .15rem;
+}
+
+.definitions dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: .96rem;
+}
+
+/* 13 · Callout ------------------------------------------------------------- */
+.callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: #E8E1D7;
+}
+
+.callout h2 {
+  margin: 0 0 .3rem;
+  color: var(--paper);
+  font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+}
+
+.callout p {
+  margin: 0;
+  color: #BFB5A8;
+  max-width: 46ch;
+}
+
+.callout .btn {
+  background: var(--amber);
+  color: #2A1A0C;
+  flex: none;
+}
+
+.callout .btn:hover {
+  background: #E79544;
+  color: #2A1A0C;
+}
+
+/* 14 · Small screens & reduced motion -------------------------------------- */
+@media (max-width: 40rem) {
+  /* Two rows, not four: the brand and the Contact pill share the first row,
+     and the links move to their own full-width strip. The strip scrolls
+     sideways if it has to, which is better than a nav that eats a third of
+     the screen before you reach the content. */
+  .nav-links {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-inline: calc(clamp(1rem, 4vw, 2rem) * -1);
+    padding-inline: clamp(1rem, 4vw, 2rem);
+    overflow-x: auto;
+    scrollbar-width: none;           /* Firefox */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;                   /* Chrome, Safari */
+  }
+
+  .nav-links a {
+    white-space: nowrap;
+  }
+
+  .nav-cta {
+    margin-left: auto;
+  }
+
+  /* Two columns of dt/dd become one stacked pair. */
+  .audience,
+  .definitions {
+    grid-template-columns: 1fr;
+    gap: .1rem;
+  }
+
+  .audience dd,
+  .definitions dd {
+    margin-bottom: .85rem;
+  }
+
+  .audience dd:last-child,
+  .definitions dd:last-child {
+    margin-bottom: 0;
+  }
+
+  .definitions dt {
+    margin-top: .5rem;
+  }
+
+  .spotlight-inner {
+    display: block;
+  }
+
+  .spotlight .btn {
+    margin-top: 1rem;
+  }
+
+  .callout .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* A pulse of motion is decoration; a visitor who asked it to stop gets to
+   keep the content without the movement. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

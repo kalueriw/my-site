@@ -1,292 +1,300 @@
-/* machine.css — the useless light switch on machine.html.
-   style.css still does the nav, the heading and the page column; this file
-   only draws the wall switch, the hand and the darkness over the page. */
+/* ==========================================================================
+   machine.css — the card, the ink, the arm, and the game
+   --------------------------------------------------------------------------
+   Loaded only by machine.html, after style.css. Colours come from the tokens
+   in style.css, so this page still belongs to the site.
 
-/* 1 · The darkness. It covers the whole screen but never blocks it:
-   pointer-events: none lets clicks pass through. Its opacity follows the
-   "is-dark" class that machine.js puts on the body. */
-.darkness {
-  position: fixed;
-  inset: 0;                      /* all four edges at 0: the whole screen */
-  z-index: 90;                   /* above the page, below the switch */
-  background: rgb(3 7 18 / .92); /* night, almost opaque */
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 600ms ease;
+   The two timings that matter are set as custom properties on <html> by
+   machine.js: --erase (the whole pass of the arm) and --retract (its return).
+   CSS and JavaScript read the same numbers, so they cannot drift apart.
+
+   Reading order:
+    1  The desk
+    2  The card
+    3  The ink
+    4  The arm
+    5  The status lines
+    6  The game
+    7  Reduced motion
+   ========================================================================== */
+
+/* 1 · The desk -------------------------------------------------------------
+   Everything the machine moves lives in here and is clipped by it, so the
+   arm can be parked outside the card and simply not be visible. */
+.machine-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(16rem, 38vw, 21rem);
+  overflow: hidden;                    /* clips the parked arm */
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-sunk);
 }
 
-body.is-dark .darkness {
+/* 2 · The card -------------------------------------------------------------
+   A sheet of paper: white, faintly ruled, sitting above the desk. */
+/* Both the card and the ink are sized as a share of the stage rather than in
+   rem, so their proportions stay the same at every width. That is what lets
+   the wipe below be timed once, and be right on a phone as well as a desktop. */
+.paper-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 82%;
+  height: 76%;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 1.5rem,
+      #EFE7D9 1.5rem calc(1.5rem + 1px)
+    ),
+    var(--paper-raised);
+  box-shadow: 0 10px 26px rgb(28 25 23 / .13);
+}
+
+/* 3 · The ink --------------------------------------------------------------
+   Hidden until there is a mark. The clip is what the arm "erases": the ink
+   is cut away from the right, so the ink disappears exactly as the head
+   passes over it. There is always a clip-path value to animate from, so the
+   transition is a shape-to-shape change rather than a switch from none. */
+.mark {
+  width: 22%;                          /* of the card */
+  height: auto;
+  opacity: 0;
+  clip-path: inset(0 0 0 0);
+  transition: opacity 140ms ease;
+}
+
+.ink {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  opacity: .88;
+}
+
+.is-marked .mark,
+.is-erasing .mark {
   opacity: 1;
 }
 
-/* 2 · The wall plate the switch sits in. It stays above the darkness, so
-   the switch — and the hand — can be seen even in the dark. */
-.light-unit {
-  position: relative;            /* needed so z-index applies */
-  z-index: 100;                  /* above the darkness (90) */
-  width: 7rem;
-  height: 10rem;
-  margin: 2rem auto 2.5rem;      /* centred on the page */
-  border-radius: 12px;
-  background: linear-gradient(180deg, #faf8f2, #e8e4da);
-  box-shadow:
-    inset 0 1px 0 #fff,
-    0 8px 20px rgb(0 0 0 / .2);
-  transition: filter 600ms ease; /* dims in the dark, brightens back */
+/* The wipe. It is delayed so that it begins when the head reaches the mark,
+   and it is short, so the ink is gone as the head leaves. Both numbers are
+   fractions of --erase, so the sync survives any change to the overall
+   timing. The card is 82% of the stage and the ink 22% of the card, which
+   puts the ink between 41% and 59% of the stage at every width — that is
+   why two fixed fractions are enough.
+
+   The clip is kept on during the retract as well, and only the erasing pass
+   animates it. If it were allowed to snap back the moment the arm starts
+   home, the ink would reappear for the length of the fade-out. */
+.is-erasing .mark,
+.is-retracting .mark {
+  clip-path: inset(0 100% 0 0);
 }
 
-/* two screws, one in each top corner */
-.light-unit::before,
-.light-unit::after {
-  content: "";
-  position: absolute;
-  top: .6rem;
-  width: .5rem;
-  height: .5rem;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #cbd5e1, #64748b);
-}
-
-.light-unit::before { left: .6rem; }
-.light-unit::after { right: .6rem; }
-
-/* 3 · The switch — the real checkbox, dressed as a paddle you press up and
-   down. The thing you see, click and focus is the control itself.
-
-   Two layers. The input is the dark socket cut into the plate; the paddle
-   that rocks inside it is drawn by ::before. A rocker tips about a
-   horizontal line through its middle — press the top in and the bottom comes
-   out — which is what rotateX on that axis does. Three things carry the
-   depth: the tilt, the shading of the paddle, and the shadow it casts on the
-   plate, which swaps ends with every press. */
-.switch {
-  appearance: none;              /* drop the browser's square checkbox */
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 2.8rem;
-  height: 4.4rem;
-  margin: 0;
-  border: 0;
-  border-radius: 10px;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  touch-action: manipulation;    /* no 300 ms tap delay on phones */
-  z-index: 2;                    /* under the hand (3), over the plate */
-  transition: box-shadow .3s;
-  /* the socket: a dark well, with the plate catching the light on its rim */
-  background: linear-gradient(180deg, #57534e, #3f3a34 45%, #292524);
-  box-shadow:
-    inset 0 4px 9px rgb(0 0 0 / .8),
-    inset 0 -1px 3px rgb(255 255 255 / .1),
-    0 1px 0 rgb(255 255 255 / .9);
-}
-
-/* The paddle. perspective() goes inside the transform so it tilts the paddle
-   only — putting it on the plate would pull the hand into 3D space too. */
-.switch::before {
-  content: "";
-  position: absolute;
-  inset: .22rem;                 /* the paddle sits inside the socket */
-  border-radius: 8px;
-  transform-origin: 50% 50%;     /* the rocking axis: across the middle */
+.is-erasing .mark {
   transition:
-    transform .28s cubic-bezier(.4, 1.7, .5, 1),  /* a click, with a snap */
-    background .28s,
-    box-shadow .28s;
-  /* OFF: the top half stands proud, the bottom is pushed in */
-  transform: perspective(160px) rotateX(-22deg);
-  background: linear-gradient(180deg, #ffffff, #e2e8f0 36%, #94a3b8 54%, #475569);
-  box-shadow:
-    0 -3px 7px rgb(0 0 0 / .45),            /* the shadow it casts upwards */
-    inset 0 1px 0 rgb(255 255 255 / .95);   /* the lit top edge */
+    clip-path calc(var(--erase, 900ms) * .25)
+      linear
+      calc(var(--erase, 900ms) * .73);
 }
 
-/* ON: the top is the end that went in, so the shading runs the other way and
-   the bottom is the lit edge — and the paddle glows, because the light it
-   holds is on */
-.switch:checked::before {
-  transform: perspective(160px) rotateX(22deg);
-  background: linear-gradient(180deg, #92400e, #d97706 40%, #fbbf24 56%, #fde68a);
-  box-shadow:
-    0 3px 7px rgb(0 0 0 / .45),             /* the shadow it casts downwards */
-    0 0 14px rgb(245 158 11 / .8),
-    inset 0 -1px 0 rgb(255 255 255 / .95);  /* the lit bottom edge */
-}
-
-/* the light spills out of the socket as well */
-.switch:checked {
-  box-shadow:
-    inset 0 4px 9px rgb(0 0 0 / .8),
-    inset 0 -1px 3px rgb(255 255 255 / .1),
-    0 1px 0 rgb(255 255 255 / .9),
-    0 0 22px rgb(245 158 11 / .85);
-}
-
-/* Keyboard focus gets its own ring, drawn on the toggle itself. */
-.switch:focus-visible {
-  outline: 3px solid #7dd3fc;
-  outline-offset: 3px;
-}
-
-/* 4 · The label, engraved under the toggle. A tap on it flips the switch. */
-.switch-label {
+/* 4 · The arm --------------------------------------------------------------
+   A brass rod with a soft eraser on the end that touches the paper. The
+   whole unit slides left; the rod runs off to the right and is clipped. */
+.eraser {
   position: absolute;
-  left: 50%;
-  bottom: 1.4rem;
-  transform: translateX(-50%);
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #57534e;
-  cursor: pointer;
-}
-
-/* 5 · While the room is dark the plate dims a little — night-time — but it
-   stays visible above the darkness, so you can watch the switch work. */
-body.is-dark .light-unit {
-  filter: brightness(.8);
-}
-
-/* 6 · The line of text under the switch stays visible in the dark too. */
-.machine-status {
-  position: relative;
-  z-index: 100;                  /* above the darkness */
-  min-height: 1.5rem;            /* reserve the line: no jump when it changes */
-  color: #6b7280;
-}
-
-/* 7 · The tally under the story. It stays above the darkness with the rest
-   of the things the visitor needs to read (z-index 100), so the number keeps
-   climbing in the dark too. */
-.machine-counter {
-  position: relative;
-  z-index: 100;                  /* above the darkness (90) */
-  font-size: .85rem;
-  font-variant-numeric: tabular-nums;  /* every digit the same width: no jitter */
-  color: #6b7280;                /* dark enough for the light page, light
-                                    enough to read on the night-time page */
-}
-
-/* 8 · The hand. Two boxes do the work: the clip is exactly the plate and
-   hides everything outside it, so the hand parked beside the plate is simply
-   not there — nothing to see until machine.js slides it in. */
-.hand-clip {
-  position: absolute;
-  inset: 0;                      /* exactly the plate's box */
-  overflow: hidden;              /* anything past the plate is cut off */
-  border-radius: 12px;           /* same corners as the plate */
-  z-index: 3;                    /* in front of the switch */
-  pointer-events: none;          /* clicks fall through to the switch */
-}
-
-/* The finger that slides in. .hand is only the track it travels along: an
-   invisible box, longer than the plate is wide, that machine.js slides. The
-   finger is the only thing actually drawn. */
-.hand {
-  position: absolute;
-  left: -3.8rem;                 /* parked outside the plate: clipped away */
-  top: 40%;                      /* level with the top half of the paddle */
-  width: 3.5rem;
-  height: 1.05rem;
-  transform: translateY(-50%);
-  /* matches HAND_REACH in machine.js: the slide has to be over by the time
-     the switch flips */
-  transition: left .28s cubic-bezier(.34, 1.2, .64, 1);
-}
-
-/* The finger, filling the track end to end. It is longer than the plate is
-   wide, so its root is always outside and clipped away: it reads as coming
-   in from behind the wall, and there is no palm to draw. */
-.finger {
-  position: absolute;
-  inset: 0;
-  border-radius: 99px;
-  background: linear-gradient(180deg, #f5cca4, #dd9f70 55%, #c1875c);
-  filter: drop-shadow(0 3px 5px rgb(0 0 0 / .4));
-}
-
-/* the nail at the tip — the detail that makes it a finger, not a sausage */
-.finger::after {
-  content: "";
-  position: absolute;
-  right: .26rem;
   top: 50%;
-  width: .54rem;
-  height: .4rem;
+  left: calc(100% + 1.5rem);           /* parked clear of the card, shadow and all */
+  z-index: 2;
+  display: flex;
+  align-items: center;
   transform: translateY(-50%);
-  border-radius: 45%;
-  background: #fbe3ca;
-  box-shadow: inset 0 0 0 .5px rgb(170 110 70 / .3);
+  pointer-events: none;
+  transition: left var(--retract, 600ms) cubic-bezier(.4, 0, .8, .6);
 }
 
-/* The arrived position. 3.5 − 0.88 = 2.62rem at the tip, so it presses
-   0.3rem past the paddle's left edge (2.32rem) and the root is still off
-   the plate, where the clip cuts it. */
-.light-unit.is-hand .hand {
-  left: -.88rem;
+.eraser-head {
+  flex: none;
+  width: clamp(2.6rem, 7vw, 3.4rem);
+  height: clamp(1.8rem, 5vw, 2.2rem);
+  border-radius: 5px;
+  background: linear-gradient(180deg, #FFF7E9, #EBD9BC);
+  box-shadow:
+    0 4px 12px rgb(28 25 23 / .2),
+    inset 0 -4px 0 #D3BE99,
+    inset 0 1px 0 #fff;
 }
 
-/* 9 · The flicker. Every fifth press the light refuses to die quietly: the
-   darkness layer jumps between bright and dark, like a bulb on its way out.
-   Each stop below is one brightness level; machine.js adds "is-flickering".
-
-   Three dips, roughly a third of a second apart — so with FLICKER_TIME at
-   one second this flashes three times a second. The last dip does not come
-   back: that is the light dying, and the room stays dark from there. */
-@keyframes flicker {
-  0%   { opacity: 0; }      /* bright */
-  16%  { opacity: 1; }      /* dip 1: dark */
-  30%  { opacity: .1; }
-  48%  { opacity: 1; }      /* dip 2 */
-  62%  { opacity: .12; }
-  80%  { opacity: 1; }      /* dip 3 — and it stays out */
-  100% { opacity: 1; }
+.eraser-arm {
+  flex: none;
+  width: 40rem;                        /* runs off-stage and is clipped */
+  height: .5rem;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #E2A65C, #B77B2E 60%, #94601F);
+  box-shadow: 0 2px 5px rgb(28 25 23 / .2);
 }
 
-/* forwards holds that last frame, so the room stays dark after the animation
-   ends and the handover to .is-dark happens with no jump. */
-body.is-flickering .darkness {
-  animation: flicker var(--flicker, 2s) linear forwards;
+/* The pass. The arm stops with the head's right edge just past the mark's
+   left edge — 41% of the stage, less the width of the head itself. Expressed
+   this way it lands correctly whatever width the head happens to be.
+
+   The travel is linear on purpose, and it is the one deliberate compromise
+   in this file: the wipe below is timed as a fraction of --erase, so the
+   arm's position has to advance at a constant rate for the ink to disappear
+   exactly where the eraser is. An eased arm looks smoother and wipes in the
+   wrong place. A machine moving at a constant speed is also, in fairness,
+   what a machine does. */
+.is-erasing .eraser {
+  left: calc(39% - clamp(2.6rem, 7vw, 3.4rem));
+  transition: left var(--erase, 900ms) linear;
 }
 
-/* The slow version of the same story, for the media query further down. */
-@keyframes flicker-calm {
-  0%   { opacity: 0; }
-  25%  { opacity: 1; }
-  50%  { opacity: 0; }
-  75%  { opacity: 1; }
-  100% { opacity: 1; }
+/* The return: back out to the right, at the same speed it came. */
+.is-retracting .eraser {
+  left: calc(100% + 1.5rem);
+  transition: left var(--retract, 600ms) cubic-bezier(.4, 0, .8, .6);
 }
 
-/* 10 · Hover is a bonus for mouse users only, never the only way to read
-   something. A phone never gets stuck in a hover state. */
-@media (hover: hover) {
-  .switch:hover {
-    filter: brightness(1.05);
-  }
+.machine-actions {
+  margin: 1.5rem 0 0;
 }
 
-/* 11 · A visitor who asked for less motion still gets the whole story, just
-   told in slow moves. The strobe above flashes three times a second, the
-   limit for photosensitive eyes — so here it becomes two slow dips instead,
-   about twice per second. */
+.machine-button {
+  padding: .8em 1.6em;
+  font-size: 1rem;
+}
+
+/* 5 · The status lines ---------------------------------------------------- */
+.machine-status {
+  min-height: 1.6em;                   /* reserve the line: no jump */
+  margin: 1.1rem 0 .3rem;
+  color: var(--ink-soft);
+}
+
+.machine-counter {
+  margin: 0;
+  color: var(--ink-faint);
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 6 · The game ------------------------------------------------------------ */
+.game {
+  margin-top: 1.75rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.game-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: clamp(10rem, 26vw, 13rem);
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--paper-sunk);
+  transition: background-color 200ms ease;
+}
+
+.lane {
+  border-right: 1px dashed var(--rule);
+}
+
+.lane:last-of-type {
+  border-right: 0;
+}
+
+/* Both pieces are placed by a single number, --lane, which JavaScript sets
+   to 0, 1 or 2. No pixel measurement happens anywhere. The eraser also
+   accepts -1, which puts it off the left edge and out of sight. */
+.game-mark,
+.game-eraser {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--lane) * 33.333% + 16.6666%);
+  transform: translate(-50%, -50%);
+  transition: left 150ms cubic-bezier(.3, .9, .4, 1);
+}
+
+.game-mark {
+  --lane: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--accent);
+  border-radius: 50%;
+  background: rgb(180 68 31 / .12);
+}
+
+.game-eraser {
+  --lane: -1;
+  width: 3rem;
+  height: 1.4rem;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #FFF7E9, #EBD9BC);
+  box-shadow:
+    0 3px 8px rgb(28 25 23 / .22),
+    inset 0 -2px 0 #D3BE99;
+}
+
+/* The moment the arm lands on the mark. */
+.game.is-wiped .game-board {
+  background: #F6E3DC;
+}
+
+.game.is-kept .game-board {
+  background: #E8EFE1;
+}
+
+.game-status {
+  min-height: 1.6em;
+  margin: 1.1rem 0 0;
+  color: var(--ink-soft);
+  font-size: .96rem;
+}
+
+.game-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: .35rem;
+  color: var(--ink-faint);
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-meta strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+/* 7 · Reduced motion ------------------------------------------------------
+   The arm still has to move — it is the machine — but a visitor who asked
+   for less motion gets shorter, plainer travel rather than the eased sweep. */
 @media (prefers-reduced-motion: reduce) {
-  .darkness {
-    transition-duration: 150ms;
+  .eraser,
+  .is-erasing .eraser,
+  .is-retracting .eraser {
+    transition-timing-function: linear;
   }
 
-  .light-unit {
-    transition-duration: 150ms;
+  .is-erasing .mark {
+    transition-timing-function: linear;
   }
 
-  .hand {
-    transition-duration: 150ms;
-  }
-
-  body.is-flickering .darkness {
-    animation-name: flicker-calm;
+  .game-mark,
+  .game-eraser {
+    transition-duration: 60ms;
   }
 }
