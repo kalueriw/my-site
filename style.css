@@ -40,8 +40,12 @@
   --amber: #D9822B;          /* the machine's light, and only that */
 
   --measure: 66ch;           /* a comfortable line of text */
+  --measure-wide: 74rem;     /* the page's outer grid */
   --radius: 10px;
+  --radius-lg: 16px;
+  --rule-strong: #C9C1B2;
   --shadow: 0 12px 32px rgb(28 25 23 / .07);
+  --shadow-lift: 0 24px 56px rgb(28 25 23 / .11);
 
   --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
@@ -63,7 +67,9 @@ html {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background:
+    radial-gradient(70rem 34rem at 50% -18rem, #FFFDF9 0%, transparent 70%),
+    var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: clamp(1rem, .95rem + .25vw, 1.125rem);   /* 16 → 18 px */
@@ -91,7 +97,7 @@ img {
 }
 
 .wrap--wide {
-  max-width: 74rem;            /* for the quote grid and the machine */
+  max-width: var(--measure-wide);   /* the quote grid, the machine, the index */
 }
 
 main {
@@ -106,8 +112,110 @@ main {
   padding-top: 0;              /* sections own their bottom space only */
 }
 
+/* A page's opening block: the title on the left, the promise of the page on
+   the right. Every inner page uses the same shape, so moving between pages
+   feels like turning pages of one book rather than visiting five sites. */
+.page-head {
+  display: grid;
+  gap: clamp(.9rem, 2.5vw, 1.75rem);
+  padding-block: clamp(2.75rem, 6vw, 4.75rem) clamp(1.75rem, 4vw, 2.75rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -.03em;
+}
+
+.page-head .lede {
+  margin: 0;
+  max-width: 40ch;
+}
+
+.page-head-copy {
+  justify-self: end;
+  width: 100%;
+  max-width: 38ch;
+}
+
+.page-head-meta {
+  margin: 1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+@media (min-width: 56rem) {
+  .page-head {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    align-items: end;
+    column-gap: clamp(2rem, 6vw, 6rem);
+  }
+}
+
+/* On a phone the page's promise belongs directly under its title, not in a
+   column pushed over to the right. */
+@media (max-width: 55.99rem) {
+  .page-head-copy {
+    justify-self: start;
+    max-width: 100%;
+  }
+}
+
+/* A heading that holds a left rail and a wider reading column. Used for the
+   project lists, the about page and the machine's explanation. */
+.section-split {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.section-body {
+  max-width: 62ch;
+}
+
+@media (min-width: 56rem) {
+  .section-split {
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    column-gap: clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .section-side {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+/* A small header above a list or grid: the name of the set, and one line
+   that says how to read it. */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.section-note {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
 [id] {
-  scroll-margin-top: 1.5rem;   /* an anchored heading never hides under the top */
+  scroll-margin-top: 5.5rem;   /* clears the sticky header */
 }
 
 /* 4 · Typography ----------------------------------------------------------- */
@@ -116,14 +224,14 @@ h2,
 h3 {
   font-family: var(--font-serif);
   font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   margin: 0 0 .5em;
   text-wrap: balance;          /* split long headings into even lines */
 }
 
 h1 {
-  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
 }
 
 h2 {
@@ -150,12 +258,23 @@ p:last-child {
 }
 
 .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
   font-family: var(--font-mono);
-  font-size: .75rem;
+  font-size: .72rem;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--accent);
-  margin: 0 0 .75rem;
+  margin: 0 0 .9rem;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: currentColor;
+  opacity: .55;
 }
 
 .muted {
@@ -251,10 +370,16 @@ a:hover {
    These rules are here because style.css is the one file every page loads. */
 #site-header {
   /* The nav arrives one fetch after the page paints. Reserving its height
-     means the content below does not jump when it lands. */
-  min-height: 3.6rem;
+     means the content below does not jump when it lands. Sticky, with a
+     translucent paper wash, so the index stays one move away on long pages. */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 3.9rem;
   border-bottom: 1px solid var(--rule);
-  background: var(--paper);
+  background: rgb(251 247 240 / .93);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
 }
 
 .site-nav {
@@ -262,19 +387,16 @@ a:hover {
   flex-wrap: wrap;             /* on a narrow phone the links drop to a new row */
   align-items: center;
   gap: .35rem 1rem;
-  padding-block: .85rem;
+  padding-block: .65rem;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
+  gap: .65rem;
   font-family: var(--font-serif);
-  font-size: 1.05rem;
-  font-weight: 700;
   color: var(--ink);
   text-decoration: none;
-  letter-spacing: -.01em;
 }
 
 .brand:hover {
@@ -282,9 +404,30 @@ a:hover {
 }
 
 .brand-mark {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   flex: none;
+}
+
+.brand-copy {
+  display: grid;
+  gap: .1rem;
+  line-height: 1.05;
+}
+
+.brand-name {
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.brand-site {
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  font-weight: 400;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
 .nav-links {
@@ -301,8 +444,9 @@ a:hover {
   padding: .35em .7em;
   border-radius: 99px;
   color: var(--ink-soft);
-  font-size: .94rem;
+  font-size: .92rem;
   text-decoration: none;
+  transition: background-color .16s ease, color .16s ease;
 }
 
 .nav-links a:hover {
@@ -323,8 +467,9 @@ a:hover {
   border: 1px solid var(--accent);
   border-radius: 99px;
   color: var(--accent);
-  font-size: .9rem;
+  font-size: .88rem;
   text-decoration: none;
+  transition: background-color .16s ease, color .16s ease;
 }
 
 .nav-cta:hover {
@@ -347,9 +492,9 @@ a:hover {
 #site-footer {
   margin-top: clamp(3rem, 8vw, 5rem);
   border-top: 1px solid var(--rule);
-  padding-block: 2rem;
+  padding-block: 1.75rem;
   color: var(--ink-faint);
-  font-size: .9rem;
+  font-size: .85rem;
 }
 
 .site-footer-inner {
@@ -358,6 +503,19 @@ a:hover {
   gap: .5rem 1.5rem;
   justify-content: space-between;
   align-items: baseline;
+}
+
+.footer-top {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.footer-top:hover {
+  color: var(--accent);
 }
 
 #site-footer p {
@@ -383,21 +541,46 @@ a:hover {
    height box, width 100%, and the picture cropped rather than squashed. */
 .hero-img {
   width: 100%;
-  height: clamp(16rem, 42vw, 26rem);
+  height: clamp(17rem, 44vw, 30rem);
   object-fit: cover;           /* fill the box, crop the overflow */
   object-position: center 42%; /* keep the sun and the roofline in frame */
 }
 
 .hero-text {
-  padding-block: clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 3vw, 2rem);
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding-block: clamp(2rem, 4.5vw, 3.25rem) clamp(2rem, 4vw, 2.75rem);
 }
 
 .hero-text h1 {
-  margin-bottom: .35em;
+  margin: 0;
+  font-size: clamp(2.6rem, 7.5vw, 5rem);
+  line-height: 1.0;
+  letter-spacing: -.035em;
 }
 
 .hero-text .lede {
   margin-bottom: 0;
+  max-width: 38ch;
+}
+
+.hero-meta {
+  margin: 1.1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* On a wide screen the title and the sentence share one line: the title
+   holds the left edge, the sentence sits on the baseline at the right. */
+@media (min-width: 56rem) {
+  .hero-text {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
+    align-items: end;
+    column-gap: clamp(2rem, 5vw, 5rem);
+  }
 }
 
 /* 9 · Entry cards ---------------------------------------------------------- */
@@ -410,15 +593,22 @@ a:hover {
   list-style: none;
 }
 
+/* Three doors, three columns — never a lonely third card on its own row. */
+@media (min-width: 56rem) {
+  .entries {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .entry {
-  display: flex;
-  flex-direction: column;
-  gap: .4rem;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: .65rem;
   height: 100%;
-  padding: 1.35rem 1.45rem;
+  padding: 1.45rem 1.5rem 1.55rem;
   border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  background: var(--paper-raised);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FEFBF5 100%);
   color: inherit;
   text-decoration: none;
   transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
@@ -427,36 +617,47 @@ a:hover {
 .entry:hover {
   border-color: var(--accent);
   color: inherit;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
 }
 
-.entry-title {
+.entry-top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  font-family: var(--font-serif);
-  font-size: 1.22rem;
-  font-weight: 600;
 }
 
-.entry-title::after {
-  content: "→";
-  font-family: var(--font-sans);
-  font-size: .95rem;
+.entry-num {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  color: var(--ink-faint);
+}
+
+.entry-arrow {
   color: var(--accent);
+  font-size: 1.1rem;
+  line-height: 1;
   transition: transform .18s ease;
 }
 
-.entry:hover .entry-title::after {
-  transform: translateX(3px);
+.entry:hover .entry-arrow {
+  transform: translate(3px, -3px);
+}
+
+.entry-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -.015em;
 }
 
 .entry-desc {
   color: var(--ink-soft);
-  font-size: .96rem;
-  line-height: 1.55;
+  font-size: .95rem;
+  line-height: 1.6;
 }
 
 /* 10 · Quote cards ---------------------------------------------------------
@@ -471,6 +672,11 @@ a:hover {
   border-left: 4px solid var(--accent);   /* the spine */
   border-radius: var(--radius);           /* rounded corners */
   margin: 0;
+  transition: box-shadow .2s ease;
+}
+
+.quote:hover {
+  box-shadow: var(--shadow);
 }
 
 .quote blockquote {
@@ -525,15 +731,49 @@ a:hover {
   margin: 0;
   padding: 0;
   list-style: none;
+  counter-reset: quote;
+}
+
+.quote-grid > li {
+  counter-increment: quote;
+}
+
+/* A quiet index number above each card: twenty entries, numbered like pages,
+   drawn by CSS so the markup stays one clean <article>. */
+.quote-grid > li::before {
+  content: counter(quote, decimal-leading-zero);
+  display: block;
+  margin: 0 0 .5rem .25rem;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  color: var(--ink-faint);
 }
 
 /* 11 · Spotlight -----------------------------------------------------------
    The band at the top of quotes.html. quotes.js clones one of the cards into
    it, so the clone keeps the .quote class and inherits every rule above. */
 .spotlight {
+  position: relative;
+  overflow: hidden;
   background: var(--paper-sunk);
   border-block: 1px solid var(--rule);
-  padding-block: clamp(1.75rem, 4vw, 2.75rem);
+  padding-block: clamp(2rem, 4.5vw, 3.25rem);
+}
+
+/* One enormous quotation mark, almost the colour of the paper. It is
+   decoration and is hidden from assistive technology by ::before. */
+.spotlight::before {
+  content: "“";
+  position: absolute;
+  top: -3.5rem;
+  left: max(-1rem, calc(50% - 38rem));
+  font-family: var(--font-serif);
+  font-size: clamp(12rem, 26vw, 22rem);
+  line-height: 1;
+  color: var(--accent);
+  opacity: .06;
+  pointer-events: none;
 }
 
 .spotlight-inner {
@@ -571,25 +811,58 @@ a:hover {
 /* 12 · Project lists ------------------------------------------------------- */
 .idea-list {
   display: grid;
-  gap: .75rem;
+  gap: .9rem;
   margin: 0;
   padding: 0;
   list-style: none;            /* order does not matter here, so no markers */
+  counter-reset: idea;
 }
 
 .idea-list li {
-  padding: 1.05rem 1.25rem;
+  position: relative;
+  padding: 2.25rem 1.35rem 1.25rem;
   border: 1px solid var(--rule);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--paper-raised);
+  counter-increment: idea;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.idea-list li:hover {
+  border-color: var(--rule-strong);
+  box-shadow: var(--shadow);
+}
+
+.idea-list li::before {
+  content: counter(idea, decimal-leading-zero);
+  position: absolute;
+  top: 1.05rem;
+  left: 1.4rem;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  color: var(--accent);
+}
+
+@media (min-width: 56rem) {
+  .idea-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Five ideas over two columns: the fifth gets the full row rather than
+     leaving a hole where a sixth ought to be. */
+  .idea-list li:last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .idea-name {
   display: block;
   font-family: var(--font-serif);
-  font-size: 1.16rem;
+  font-size: 1.22rem;
   font-weight: 600;
   line-height: 1.3;
+  letter-spacing: -.01em;
 }
 
 .idea-list p {
@@ -678,27 +951,41 @@ a:hover {
 
 /* 13 · Callout ------------------------------------------------------------- */
 .callout {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 1.25rem 2rem;
-  padding: clamp(1.35rem, 3vw, 2rem);
-  border-radius: var(--radius);
-  background: var(--ink);
+  gap: 1.5rem 2.5rem;
+  overflow: hidden;
+  padding: clamp(1.75rem, 4vw, 3rem);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(40rem 20rem at 100% 0%, rgb(217 130 43 / .12), transparent 60%),
+    linear-gradient(135deg, #1C1917 0%, #2A2420 100%);
   color: #E8E1D7;
 }
 
+.callout-kicker {
+  margin: 0 0 .9rem;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
 .callout h2 {
-  margin: 0 0 .3rem;
+  margin: 0 0 .45rem;
   color: var(--paper);
-  font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  line-height: 1.1;
 }
 
 .callout p {
   margin: 0;
   color: #BFB5A8;
-  max-width: 46ch;
+  max-width: 48ch;
 }
 
 .callout .btn {
@@ -710,6 +997,32 @@ a:hover {
 .callout .btn:hover {
   background: #E79544;
   color: #2A1A0C;
+}
+
+/* 13b · Contact card ------------------------------------------------------
+   The one loud link on the About page, on its own sheet of paper. */
+.contact-card {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--paper-raised);
+}
+
+.contact-card .eyebrow {
+  margin-bottom: .75rem;
+}
+
+.contact-card h2 {
+  margin-bottom: .35rem;
+}
+
+.contact-email {
+  display: inline-block;
+  margin-top: .4rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  letter-spacing: -.01em;
+  word-break: break-word;
 }
 
 /* 14 · Small screens & reduced motion -------------------------------------- */

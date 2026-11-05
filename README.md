@@ -19,10 +19,10 @@ From this folder, either:
 
 | File | What it is |
 |---|---|
-| `index.html` | Hero image, name, one sentence, and the three entries |
+| `index.html` | Hero image, site title, one sentence, and the three entries |
 | `quotes.html` | 20 quotes in English; one picked at random on load |
 | `project.html` | 5 project ideas, each with the person it is for |
-| `machine.html` | The useless machine (an eraser), plus the game *Keep it* |
+| `machine.html` | One useless machine: write a word, watch it erased, keep the record |
 | `about.html` | Who I am, what I am learning, and `#contact` |
 
 `nav.html` and `footer.html` are **fragments**, not pages: no `<!DOCTYPE>`,
@@ -56,24 +56,25 @@ radius, background and max-width once; all twenty cards obey. The site
 footer is `#site-footer` — an **id**, not a `footer` tag selector — because
 every quote card contains a `<footer>` of its own.
 
-**6 · The useless machine.** One button and one blank card. Press it, a mark
-appears, a brass arm wipes the mark away, the arm withdraws, and the card is
-blank again. It is in four states: `blank`, `marked`, `erasing`,
-`retracting`. Minsky described the idea in 1952; Shannon built the switch
-version in 1950. This one is the same joke reversed: it does not switch
-itself back on, it undoes what you did.
+**6 · The useless machine.** One card, one brass arm, and a field for writing
+the mark. Typing previews the word on the card; pressing the button commits
+it, the arm wipes it away, the arm withdraws, and the card is blank again. It
+is in four states: `blank`, `marked`, `erasing`, `retracting`. The ledger
+beside the machine keeps the last eight words it has taken, the all-time
+count, and milestones at 1, 10, 25 and 50 — all in `localStorage`, so the
+record survives a reload even though the card never does. The status line
+changes at 1, 5, 10, 25, 50 and 100 marks. Minsky described the idea in 1952;
+Shannon built the switch version in 1950. This one is the same joke reversed:
+it does not switch itself back on, it undoes what you did.
 
-**7 · No state bugs.** Both interactives are state machines. One variable
-holds the state, one function paints the page from it, and one timer is ever
-alive. Classes are never removed "somewhere else" — `render()` derives them
-every time, so nothing can be left behind. Pressing the machine's button
-while the arm is working is refused, not queued. Verified by hammering it:
+**7 · No state bugs.** The machine is a state machine. One variable holds the
+state, one function paints the page from it, and one timer is ever alive.
+Classes are never removed "somewhere else" — `render()` derives them every
+time, so nothing can be left behind. Pressing the button while the arm is
+working is refused, not queued. Verified by hammering it:
 
 - 30 rapid presses, then settle → back to `blank`, no `is-*` class left
 - a press mid-`erasing` → refused, the cycle still completes
-- game: 40 rapid `Move` presses → the lane stays in range and the score is unchanged
-- game: `Start` three times in a row → one round only
-- game: `Reset` mid-round → `idle`, score zero, arm off the board
 
 **8 · Final pass.** `node tools/check.mjs` checks every link and image with
 exact-case matching (so `Hero.jpg` vs `hero.jpg` cannot slip through), plus
@@ -99,6 +100,5 @@ tools/check.mjs                      ← not loaded by any page
 - The fonts are system fonts plus Georgia, so there is nothing to download and
   nothing to fail — but the exact rendering differs a little between Windows,
   macOS and Android. That is expected.
-- The game *Keep it* is played with one button and a three-lane board. The
-  board itself is decorative and hidden from screen readers; every result and
-  every move is announced in the status line instead.
+- The ledger and the all-time count use `localStorage`. In a private window
+  they work for the visit and disappear with the tab.

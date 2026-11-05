@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qiao Yi — Computer Science, BiUH</title>
-  <meta name="description" content="Qiao Yi's hand-written website: a collection of quotes, five project ideas, and one machine that erases whatever you make.">
+  <title>Learning HTML — Quotes, Projects, and a Machine</title>
+  <meta name="description" content="A small hand-written site built while learning HTML: twenty quotes, five project ideas, and one machine that erases whatever you make.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,51 +15,74 @@
 
   <main id="main">
     <!-- The hero: one wide picture, cropped to a fixed height rather than
-         squashed, then the name and one sentence about the site. -->
+         squashed, then the site title and one sentence about the site. -->
     <section class="hero">
       <img class="hero-img" src="images/hero.svg" width="1600" height="900"
            alt="The campus at sunrise seen across the lake: a long hall with a colonnade, a clock tower, and the sun's broken reflection on the water.">
-      <div class="wrap hero-text">
-        <h1>Qiao Yi</h1>
-        <p class="lede">
-          Computer Science at BiUH, and a website written one line at a time
-          by hand — no page builder, no template, no shortcut.
-        </p>
+      <div class="wrap wrap--wide hero-text">
+        <div class="hero-title">
+          <p class="eyebrow">A hand-written site · Vol. 1</p>
+          <h1>Learning HTML</h1>
+        </div>
+        <div class="hero-copy">
+          <p class="lede">
+            A notebook of twenty quotes, five project ideas, and one small
+            machine that erases whatever you write — built in plain HTML, CSS
+            and JavaScript.
+          </p>
+          <p class="hero-meta">2026 · Five pages · No build step</p>
+        </div>
       </div>
     </section>
 
     <!-- The overview. Each entry says what you will find inside, not
          "click here": a link is more useful when it tells you where it goes. -->
-    <section class="section wrap" aria-labelledby="on-this-site">
-      <p class="eyebrow">Start here</p>
-      <h2 id="on-this-site">What is on this site</h2>
+    <section class="section wrap wrap--wide" aria-labelledby="on-this-site">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Contents</p>
+          <h2 id="on-this-site">Three ways in</h2>
+        </div>
+        <p class="section-note">Quotes · Projects · About</p>
+      </div>
 
       <ul class="entries">
         <li>
           <a class="entry" href="quotes.html">
+            <span class="entry-top">
+              <span class="entry-num">01</span>
+              <span class="entry-arrow" aria-hidden="true">↗</span>
+            </span>
             <span class="entry-title">Quotes</span>
             <span class="entry-desc">
-              Twenty lines worth reading twice — books, speeches, songs and
-              films — each one with who said it and where it comes from, and
-              a new one picked at random every time you load the page.
+              Twenty lines that earned a second reading — novels, speeches,
+              songs, films, and one saying from my grandmother.
             </span>
           </a>
         </li>
         <li>
           <a class="entry" href="project.html">
+            <span class="entry-top">
+              <span class="entry-num">02</span>
+              <span class="entry-arrow" aria-hidden="true">↗</span>
+            </span>
             <span class="entry-title">Project ideas</span>
             <span class="entry-desc">
               Five things I might build, each with the exact person it is for
-              and the order I would build it in — not a wish list, a shortlist.
+              and the order I would build it in.
             </span>
           </a>
         </li>
         <li>
           <a class="entry" href="about.html">
+            <span class="entry-top">
+              <span class="entry-num">03</span>
+              <span class="entry-arrow" aria-hidden="true">↗</span>
+            </span>
             <span class="entry-title">About</span>
             <span class="entry-desc">
-              What I am learning, which references I actually use, and the one
-              address that reaches me.
+              What I am learning, the references I trust, and the one address
+              that reaches me.
             </span>
           </a>
         </li>
@@ -68,17 +91,18 @@
 
     <!-- The machine gets its own dark band: it is the best thing here, and
          it should not be something you only find by reading the nav. -->
-    <section class="section wrap">
+    <section class="section wrap wrap--wide">
       <div class="callout">
         <div>
-          <h2>The eraser that waits</h2>
+          <p class="callout-kicker">The machine · interactive</p>
+          <h2>It erases whatever you write.</h2>
           <p>
-            Sixty years before it had a name, this was a thought experiment.
-            Now it is a blank card, a brass arm, and one rule: whatever you
-            make, it un-makes.
+            A blank card, a brass arm, and one rule: whatever you make, it
+            un-makes. Write a word and watch it go — the ledger remembers
+            what the card does not.
           </p>
         </div>
-        <a class="btn" href="machine.html">Make a mark</a>
+        <a class="btn" href="machine.html">Try the machine</a>
       </div>
     </section>
   </main>

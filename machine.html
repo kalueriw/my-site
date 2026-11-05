@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The eraser that waits · Qiao Yi</title>
-  <meta name="description" content="A useless machine: one button, one blank card. Make a mark and a brass arm erases it. Then a game where you try to keep your mark alive.">
+  <title>The eraser that waits · Learning HTML</title>
+  <meta name="description" content="A useless machine: one card, one brass arm. Write a word, leave it, and the machine erases it. The ledger beside it remembers what the card does not.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="machine.css">
@@ -15,130 +15,140 @@
   <header id="site-header"></header>
 
   <main id="main">
-    <section class="section wrap">
-      <p class="eyebrow">The useless machine</p>
-      <h1>The eraser that waits</h1>
-      <p class="lede">
-        You make a mark. It makes sure you never did.
-      </p>
+    <section class="page-head wrap wrap--wide">
+      <div>
+        <p class="eyebrow">03 · The useless machine</p>
+        <h1>The eraser that waits</h1>
+      </div>
+      <div class="page-head-copy">
+        <p class="lede">
+          You make a mark. It makes sure you never did.
+        </p>
+        <p class="page-head-meta">One card · One arm · One rule</p>
+      </div>
     </section>
 
     <!-- ============================ The machine ============================ -->
-    <section class="wrap" aria-labelledby="machine-title">
+    <section class="wrap wrap--wide machine-layout" aria-labelledby="machine-title">
       <h2 class="visually-hidden" id="machine-title">The machine</h2>
 
-      <div class="machine-stage" id="stage">
-        <!-- The card. aria-hidden because the status line below tells the
-             whole story in words; nothing here is information you would
-             lose by not seeing it. -->
-        <div class="paper-card" aria-hidden="true">
-          <svg class="mark" id="mark" viewBox="0 0 100 76" width="100" height="76">
-            <path class="ink" d="M26 52 C18 38 30 18 50 16 C70 14 84 28 76 42
-                                 C68 56 44 60 32 50 C24 43 28 32 40 30"/>
-            <path class="ink" d="M34 62 C46 56 64 58 74 52"/>
-          </svg>
+      <div class="machine-main">
+        <div class="machine-stage" id="stage">
+          <!-- The card. aria-hidden because the status line below tells the
+               whole story in words; nothing here is information you would
+               lose by not seeing it. Clicking it puts the cursor in the
+               field below. -->
+          <div class="paper-card" id="paper" aria-hidden="true">
+            <div class="mark" id="mark">
+              <svg class="squiggle" viewBox="0 0 100 76" width="100" height="76">
+                <path class="ink" d="M26 52 C18 38 30 18 50 16 C70 14 84 28 76 42
+                                     C68 56 44 60 32 50 C24 43 28 32 40 30"/>
+                <path class="ink" d="M34 62 C46 56 64 58 74 52"/>
+              </svg>
+              <span class="mark-word" id="mark-word"></span>
+            </div>
+            <span class="card-hint">click and type</span>
+          </div>
+
+          <!-- The arm. It is parked off the card to the right, and the stage
+               clips it, so at rest it simply is not there. machine.css moves
+               it; this element has no behaviour of its own. -->
+          <div class="eraser" aria-hidden="true">
+            <span class="eraser-head"></span>
+            <span class="eraser-arm"></span>
+          </div>
         </div>
 
-        <!-- The arm. It is parked off the card to the right, and the stage
-             clips it, so at rest it simply is not there. machine.css moves
-             it; this element has no behaviour of its own. -->
-        <div class="eraser" aria-hidden="true">
-          <span class="eraser-head"></span>
-          <span class="eraser-arm"></span>
-        </div>
+        <!-- The word is optional: blank makes the machine erase the default
+             squiggle, anything typed makes it erase your words instead. -->
+        <form class="mark-form" id="mark-form">
+          <label class="visually-hidden" for="mark-text">
+            The word the machine should erase
+          </label>
+          <input class="mark-text" id="mark-text" type="text" maxlength="24"
+                 placeholder="Write a word — or leave it blank" autocomplete="off">
+          <button class="btn machine-button" id="make" type="submit">
+            Make a mark
+          </button>
+        </form>
+
+        <!-- role="status" so a screen reader hears the machine work. -->
+        <p class="machine-status" id="status" role="status">
+          Blank. Write a word, then make a mark.
+        </p>
+
+        <p class="machine-counter">
+          On the card: <span id="oncard">0</span>
+        </p>
       </div>
 
-      <!-- One control. A real <button>, so Tab reaches it and Space fires it. -->
-      <p class="machine-actions">
-        <button class="btn machine-button" id="make" type="button">
-          Make a mark
-        </button>
-      </p>
+      <!-- The ledger. The machine erases the mark; it does not erase the
+           record. This is the reason to come back: the list remembers what
+           the card refuses to. -->
+      <aside class="ledger" aria-labelledby="ledger-title">
+        <p class="eyebrow">The ledger</p>
+        <h2 id="ledger-title">It keeps what it erases.</h2>
+        <p class="ledger-total">
+          <strong id="erased">0</strong> marks taken
+        </p>
 
-      <!-- role="status" so a screen reader hears the machine work. -->
-      <p class="machine-status" id="status" role="status">
-        Blank. Press the button and make a mark.
-      </p>
+        <ol class="ledger-list" id="ledger-list"></ol>
+        <p class="ledger-empty" id="ledger-empty">
+          Nothing yet. Write something and let it go.
+        </p>
 
-      <p class="machine-counter">
-        Marks made: <span id="made">0</span> ·
-        On the card: <span id="oncard">0</span>
-      </p>
+        <p class="ledger-label">Milestones</p>
+        <ul class="milestones">
+          <li class="milestone" data-at="1">1</li>
+          <li class="milestone" data-at="10">10</li>
+          <li class="milestone" data-at="25">25</li>
+          <li class="milestone" data-at="50">50</li>
+        </ul>
+      </aside>
     </section>
 
     <!-- =============================== Why ================================ -->
-    <section class="section wrap" aria-labelledby="why">
-      <h2 id="why">Why this is a useless machine</h2>
-      <p>
-        In 1952 the mathematician Marvin Minsky described a machine whose only
-        job was to switch itself off. Claude Shannon built one in 1950 as a
-        joke: a box with one switch, and a hand inside that flipped the switch
-        back.
-      </p>
-      <p>
-        This one is that joke in the other direction. Instead of switching
-        itself back on, it undoes what you just did. The result is the same:
-        the machine ends where it began, so it can never finish.
-      </p>
-      <p>It has the four parts a useless machine needs. Remove one and it
-         becomes something else:</p>
-      <dl class="definitions">
-        <dt>Simple</dt>
-        <dd>One button. Nothing to learn, nothing to configure, no way to
-          read the instructions wrong.</dd>
-
-        <dt>Unexpected</dt>
-        <dd>It does not erase some other mark, or the wrong mark. It erases
-          the one you just made, carefully, and looks pleased about it.</dd>
-
-        <dt>Back to the start</dt>
-        <dd>The card is blank, the arm is parked, the button says the same
-          thing. You can do it again immediately, and it will be the same
-          every time.</dd>
-
-        <dt>Funny, then not</dt>
-        <dd>The first time it is a gag. By the fifth it is a machine with a
-          small amount of power that it will not give up.</dd>
-      </dl>
-    </section>
-
-    <!-- ============================== The game ============================ -->
-    <section class="section wrap" id="game" aria-labelledby="game-title">
-      <p class="eyebrow">Play</p>
-      <h2 id="game-title">Keep it</h2>
-      <p class="lede">
-        This time the arm is coming for your mark. It moves one lane at a
-        time; keep your mark out of whichever lane it is in. Three lanes, one
-        button, eight visits to survive.
-      </p>
-
-      <div class="game" id="game-box">
-        <!-- Decoration only: the status line below narrates every move,
-             so the game is playable without seeing the board. -->
-        <div class="game-board" aria-hidden="true">
-          <span class="lane"></span>
-          <span class="lane"></span>
-          <span class="lane"></span>
-          <span class="game-mark" id="game-mark"></span>
-          <span class="game-eraser" id="game-eraser"></span>
-        </div>
-
-        <p class="game-status" id="game-status" role="status">
-          Ready. Press Start, then keep your mark moving.
+    <section class="section wrap wrap--wide section-split" aria-labelledby="why">
+      <div class="section-side">
+        <p class="eyebrow">The idea</p>
+        <h2 id="why">Why this is a useless machine</h2>
+        <p class="muted">
+          Minsky described it in 1952. Shannon built the switch version in
+          1950. Either way, the machine ends where it began.
         </p>
+      </div>
+      <div class="section-body">
+        <p>
+          In 1952 the mathematician Marvin Minsky described a machine whose
+          only job was to switch itself off. Claude Shannon built one in 1950
+          as a joke: a box with one switch, and a hand inside that flipped the
+          switch back.
+        </p>
+        <p>
+          This one is that joke in the other direction. Instead of switching
+          itself back on, it undoes what you just did. The result is the same:
+          the machine ends where it began, so it can never finish.
+        </p>
+        <p>It has the four parts a useless machine needs. Remove one and it
+           becomes something else:</p>
+        <dl class="definitions">
+          <dt>Simple</dt>
+          <dd>One field and one button. Nothing to learn, nothing to configure,
+            no way to read the instructions wrong.</dd>
 
-        <div class="game-meta">
-          <span>Kept <strong id="score">0</strong></span>
-          <span>Best <strong id="best">0</strong></span>
-        </div>
+          <dt>Unexpected</dt>
+          <dd>It does not erase some other mark, or the wrong mark. It erases
+            the one you just made, carefully, and looks pleased about it.</dd>
 
-        <div class="game-actions">
-          <button class="btn" id="start" type="button">Start a round</button>
-          <button class="btn" id="move" type="button">Move the mark</button>
-          <button class="btn btn--ghost" id="reset" type="button">
-            Back to the start
-          </button>
-        </div>
+          <dt>Back to the start</dt>
+          <dd>The card is blank, the arm is parked, the button says the same
+            thing. You can do it again immediately, and it will be the same
+            every time.</dd>
+
+          <dt>Funny, then not</dt>
+          <dd>The first time it is a gag. By the fifth it is a machine with a
+            small amount of power that it will not give up.</dd>
+        </dl>
       </div>
     </section>
   </main>

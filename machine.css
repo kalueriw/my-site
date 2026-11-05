@@ -1,5 +1,5 @@
 /* ==========================================================================
-   machine.css — the card, the ink, the arm, and the game
+   machine.css — the card, the ink, the arm, and the ledger
    --------------------------------------------------------------------------
    Loaded only by machine.html, after style.css. Colours come from the tokens
    in style.css, so this page still belongs to the site.
@@ -13,9 +13,10 @@
     2  The card
     3  The ink
     4  The arm
-    5  The status lines
-    6  The game
-    7  Reduced motion
+    5  Writing and status
+    6  Layout and ledger
+    7  Small screens
+    8  Reduced motion
    ========================================================================== */
 
 /* 1 · The desk -------------------------------------------------------------
@@ -25,10 +26,10 @@
   position: relative;
   display: grid;
   place-items: center;
-  height: clamp(16rem, 38vw, 21rem);
+  height: clamp(17rem, 40vw, 24rem);
   overflow: hidden;                    /* clips the parked arm */
   border: 1px solid var(--rule);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--paper-sunk);
 }
 
@@ -60,11 +61,62 @@
    passes over it. There is always a clip-path value to animate from, so the
    transition is a shape-to-shape change rather than a switch from none. */
 .mark {
-  width: 22%;                          /* of the card */
-  height: auto;
+  display: grid;
+  place-items: center;
+  width: 86%;                          /* of the card */
+  height: 80%;
   opacity: 0;
   clip-path: inset(0 0 0 0);
   transition: opacity 140ms ease;
+}
+
+.squiggle {
+  width: 27%;                          /* of the mark box, ~22% of the card */
+  height: auto;
+}
+
+.mark-word {
+  display: none;
+  max-width: 100%;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.5rem, 5vw, 3rem);
+  line-height: 1.12;
+  color: var(--ink);
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.mark.has-word .squiggle {
+  display: none;
+}
+
+.mark.has-word .mark-word {
+  display: block;
+}
+
+/* The instruction on the blank card. It disappears the moment there is a
+   word to look at, and returns when the card is empty again. */
+.card-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  opacity: .65;
+  pointer-events: none;
+}
+
+.is-marked .card-hint,
+.is-erasing .card-hint,
+.is-retracting .card-hint,
+.is-writing .card-hint {
+  display: none;
 }
 
 .ink {
@@ -76,7 +128,8 @@
 }
 
 .is-marked .mark,
-.is-erasing .mark {
+.is-erasing .mark,
+.is-writing .mark {
   opacity: 1;
 }
 
@@ -159,8 +212,39 @@
   transition: left var(--retract, 600ms) cubic-bezier(.4, 0, .8, .6);
 }
 
-.machine-actions {
-  margin: 1.5rem 0 0;
+/* The ledger's empty line is toggled with the hidden attribute. */
+[hidden] {
+  display: none !important;
+}
+
+/* 4c · Writing the mark ---------------------------------------------------
+   The field and the button sit on one line; the field takes the room it can. */
+.mark-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin-top: 1.5rem;
+}
+
+.mark-text {
+  flex: 1 1 14rem;
+  min-width: 0;
+  padding: .68em 1.05em;
+  border: 1px solid var(--rule);
+  border-radius: 99px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;                     /* 16px: no zoom-on-focus on iOS */
+}
+
+.mark-text::placeholder {
+  color: var(--ink-faint);
+}
+
+.mark-text:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .machine-button {
@@ -182,101 +266,155 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* 6 · The game ------------------------------------------------------------ */
-.game {
-  margin-top: 1.75rem;
-  padding: clamp(1.25rem, 3vw, 2rem);
+/* 6b · The machine page's two-column layout -------------------------------
+   The machine is the performance; the ledger is the souvenir. On a wide
+   screen they stand side by side, with the ledger held in view while the
+   arm works. */
+.machine-layout {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: start;
+}
+
+.machine-main {
+  min-width: 0;
+}
+
+.paper-card {
+  cursor: text;
+}
+
+.ledger {
+  padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--rule);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--paper-raised);
 }
 
-.game-board {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  height: clamp(10rem, 26vw, 13rem);
-  overflow: hidden;
-  border-radius: var(--radius);
-  background: var(--paper-sunk);
-  transition: background-color 200ms ease;
+@media (min-width: 60rem) {
+  .machine-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(16rem, .6fr);
+    column-gap: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .ledger {
+    position: sticky;
+    top: 5.5rem;
+  }
 }
 
-.lane {
-  border-right: 1px dashed var(--rule);
+.ledger h2 {
+  margin-bottom: .4rem;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  line-height: 1.15;
 }
 
-.lane:last-of-type {
-  border-right: 0;
-}
-
-/* Both pieces are placed by a single number, --lane, which JavaScript sets
-   to 0, 1 or 2. No pixel measurement happens anywhere. The eraser also
-   accepts -1, which puts it off the left edge and out of sight. */
-.game-mark,
-.game-eraser {
-  position: absolute;
-  top: 50%;
-  left: calc(var(--lane) * 33.333% + 16.6666%);
-  transform: translate(-50%, -50%);
-  transition: left 150ms cubic-bezier(.3, .9, .4, 1);
-}
-
-.game-mark {
-  --lane: 1;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 3px solid var(--accent);
-  border-radius: 50%;
-  background: rgb(180 68 31 / .12);
-}
-
-.game-eraser {
-  --lane: -1;
-  width: 3rem;
-  height: 1.4rem;
-  border-radius: 4px;
-  background: linear-gradient(180deg, #FFF7E9, #EBD9BC);
-  box-shadow:
-    0 3px 8px rgb(28 25 23 / .22),
-    inset 0 -2px 0 #D3BE99;
-}
-
-/* The moment the arm lands on the mark. */
-.game.is-wiped .game-board {
-  background: #F6E3DC;
-}
-
-.game.is-kept .game-board {
-  background: #E8EFE1;
-}
-
-.game-status {
-  min-height: 1.6em;
-  margin: 1.1rem 0 0;
-  color: var(--ink-soft);
-  font-size: .96rem;
-}
-
-.game-meta {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: .35rem;
+.ledger-total {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
   color: var(--ink-faint);
-  font-size: .85rem;
-  font-variant-numeric: tabular-nums;
 }
 
-.game-meta strong {
+.ledger-total strong {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
   color: var(--ink);
-  font-size: 1rem;
 }
 
-.game-actions {
+.ledger-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ledger-list li {
   display: flex;
-  flex-wrap: wrap;
-  gap: .75rem;
-  margin-top: 1.25rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .5rem 0;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.ledger-word {
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  font-style: italic;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.ledger-tag {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: .58rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ledger-empty {
+  margin: .25rem 0 0;
+  color: var(--ink-faint);
+  font-size: .9rem;
+  font-style: italic;
+}
+
+.ledger-label {
+  margin: 1.35rem 0 .6rem;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.milestones {
+  display: flex;
+  gap: .4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestone {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  color: var(--ink-faint);
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.milestone.is-earned {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 40rem) {
+  /* On a phone the field and the button stack; a squeezed field is worse
+     than an extra line. */
+  .mark-form {
+    display: grid;
+  }
+
+  .machine-button {
+    width: 100%;
+  }
 }
 
 /* 7 · Reduced motion ------------------------------------------------------
@@ -291,10 +429,5 @@
 
   .is-erasing .mark {
     transition-timing-function: linear;
-  }
-
-  .game-mark,
-  .game-eraser {
-    transition-duration: 60ms;
   }
 }

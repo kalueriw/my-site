@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project ideas · Qiao Yi</title>
+  <title>Project ideas · Learning HTML</title>
   <meta name="description" content="Five projects Qiao Yi might build — a campus map, a recipe finder for three ingredients, a photo portfolio, a band page, and a guide to hometown food — each with the specific person it is for.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
@@ -14,20 +14,29 @@
   <header id="site-header"></header>
 
   <main id="main">
-    <section class="section wrap">
-      <p class="eyebrow">Shortlist, not wish list</p>
-      <h1>Five things I might build</h1>
-      <p class="lede">
-        One idea is not a choice — it is a decision you have already made.
-        Five is enough to compare them: each one names a real person it is
-        for, and says what would make it worth the work.
-      </p>
+    <section class="page-head wrap wrap--wide">
+      <div>
+        <p class="eyebrow">02 · Ideas</p>
+        <h1>Five things I might build</h1>
+      </div>
+      <div class="page-head-copy">
+        <p class="lede">
+          One idea is not a choice — it is a decision you have already made.
+          Five is enough to compare them: each one names a real person it is
+          for, and says what would make it worth the work.
+        </p>
+        <p class="page-head-meta">5 ideas · 1 build order</p>
+      </div>
     </section>
 
     <!-- An unordered list: these five have no order. One is not "first",
          it is just one of them. -->
-    <section class="section wrap" aria-labelledby="ideas">
-      <h2 id="ideas">The ideas</h2>
+    <section class="section wrap wrap--wide" aria-labelledby="ideas">
+      <div class="section-head">
+        <h2 id="ideas">The ideas</h2>
+        <p class="section-note">Order does not matter</p>
+      </div>
+
       <ul class="idea-list">
         <li>
           <span class="idea-name">Campus map</span>
@@ -60,9 +69,17 @@
 
     <!-- A description list: a name and its answer, in pairs. "Everyone" is not
          a person; every dd below names a group small enough to picture. -->
-    <section class="section wrap" aria-labelledby="who">
-      <h2 id="who">Who each one is for</h2>
-      <dl class="audience">
+    <section class="section wrap wrap--wide section-split" aria-labelledby="who">
+      <div class="section-side">
+        <p class="eyebrow">Audience</p>
+        <h2 id="who">Who each one is for</h2>
+        <p class="muted">
+          “Everyone” is not a person. Each answer below names a group small
+          enough to picture.
+        </p>
+      </div>
+      <div class="section-body">
+        <dl class="audience">
         <dt>Campus map</dt>
         <dd>First-year students in their first week, who can name a building
           and still cannot find it.</dd>
@@ -82,22 +99,32 @@
         <dt>Hometown food</dt>
         <dd>Classmates from other provinces who have never seen this food and
           do not know what to order.</dd>
-      </dl>
+        </dl>
+      </div>
     </section>
 
     <!-- An ordered list: this one has a real order. Step 3 before step 1 is
          not a different style, it is a different project. -->
-    <section class="section wrap" aria-labelledby="how">
-      <h2 id="how">How I would build the campus map</h2>
-      <ol class="steps">
+    <section class="section wrap wrap--wide section-split" aria-labelledby="how">
+      <div class="section-side">
+        <p class="eyebrow">Build order</p>
+        <h2 id="how">How I would build the campus map</h2>
+        <p class="muted">
+          Step 3 before step 1 is not a different style. It is a different
+          project.
+        </p>
+      </div>
+      <div class="section-body">
+        <ol class="steps">
         <li>Walk the route myself, twice, and write down the room numbers and
           the doors on paper.</li>
         <li>Write the HTML: a list of buildings, a list of rooms, and one
           search box.</li>
         <li>Style it so the map reads on a phone held in one hand, outside.</li>
         <li>Make the search work, then make it work with the keyboard.</li>
-        <li>Give it to ten first-years and watch where they get lost.</li>
-      </ol>
+          <li>Give it to ten first-years and watch where they get lost.</li>
+        </ol>
+      </div>
     </section>
   </main>
 

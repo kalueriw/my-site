@@ -1,13 +1,12 @@
-// machine.js — two machines on machine.html.
+// machine.js — the eraser.
 //
-//   Part A: the eraser. You make a mark; an arm wipes it off.
-//   Part B: the game. You try to keep a mark alive while the arm hunts it.
+//   You write a word; the arm wipes it off. The ledger keeps the record.
 //
-// Both are written the same way, and that is the point of the file: each is a
-// small STATE MACHINE. One variable says which state we are in, one function
-// moves between states, one timer is ever alive, and the page is painted from
-// the state rather than edited by hand. That last rule is what makes a double
-// click harmless: there is never a half-finished page to clean up.
+// It is written as a small STATE MACHINE. One variable says which state we
+// are in, one function moves between states, one timer is ever alive, and the
+// page is painted from the state rather than edited by hand. That last rule
+// is what makes a double click harmless: there is never a half-finished page
+// to clean up.
 
 'use strict';
 
@@ -19,7 +18,7 @@
 
        blank        card empty      arm parked off the right
          │
-         │  you press the button
+         │  you submit the form
          ▼
        marked       ink showing     arm parked          ── after a wait ──┐
          │                                                              │
@@ -36,18 +35,25 @@
 
    Two rules make the machine impossible to break:
 
-     1. Presses are only accepted in `blank` and `marked`. Once the arm has
-        set off, the machine is busy and a press is refused, not queued.
+     1. Submissions are only accepted in `blank` and `marked`. Once the arm
+        has set off, the machine is busy and a press is refused, not queued.
      2. Every timer goes through enter(), which cancels the previous one
         first. There is never more than one alive, so no stale callback can
         fire into a later state.
    ========================================================================= */
 
 const stage = document.getElementById('stage');
-const makeBtn = document.getElementById('make');
+const paper = document.getElementById('paper');
+const markBox = document.getElementById('mark');
+const markWord = document.getElementById('mark-word');
+const markForm = document.getElementById('mark-form');
+const markInput = document.getElementById('mark-text');
 const readout = document.getElementById('status');
-const madeEl = document.getElementById('made');
+const erasedEl = document.getElementById('erased');
 const oncardEl = document.getElementById('oncard');
+const ledgerList = document.getElementById('ledger-list');
+const ledgerEmpty = document.getElementById('ledger-empty');
+const milestones = Array.from(document.querySelectorAll('.milestone'));
 
 // -- Timings, in milliseconds ----------------------------------------------
 
@@ -61,11 +67,95 @@ const RETRACT_MS = 600;    // and its return
 document.documentElement.style.setProperty('--erase', ERASE_MS + 'ms');
 document.documentElement.style.setProperty('--retract', RETRACT_MS + 'ms');
 
+// -- The all-time count ----------------------------------------------------
+// The number survives a reload, which is the small reason to come back: the
+// machine remembers that you were here even though the card never does.
+
+const ERASED_KEY = 'eraser.marks';
+const WORDS_KEY = 'eraser.words';
+const MAX_WORD = 24;
+const MAX_LEDGER = 8;
+
+function readErased() {
+  try {
+    const stored = Number(window.localStorage.getItem(ERASED_KEY));
+    return Number.isFinite(stored) && stored > 0 ? Math.floor(stored) : 0;
+  } catch (error) {
+    return 0;                    // storage can be blocked; the count still works
+  }
+}
+
+function saveErased(n) {
+  try {
+    window.localStorage.setItem(ERASED_KEY, String(n));
+  } catch (error) {
+    // Private mode: the count is correct for this visit and gone next time.
+  }
+}
+
+function readWords() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(WORDS_KEY));
+    if (!Array.isArray(stored)) {
+      return [];
+    }
+    return stored
+      .filter((word) => typeof word === 'string')
+      .slice(0, MAX_LEDGER);
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveWords() {
+  try {
+    window.localStorage.setItem(WORDS_KEY, JSON.stringify(words));
+  } catch (error) {
+    // Private mode: the ledger lives for this visit only.
+  }
+}
+
 // -- State -----------------------------------------------------------------
 
 let state = 'blank';
 let timer = null;          // the only live timeout, or null
-let made = 0;
+let erased = readErased();
+let words = readWords();
+let lastWord = '';         // what the arm is taking back this cycle
+
+erasedEl.textContent = erased;
+
+/** The ledger: newest first, with the most recent marked "just now". */
+function renderLedger() {
+  ledgerList.replaceChildren(...words.map((word, index) => {
+    const item = document.createElement('li');
+    const label = document.createElement('span');
+    label.className = 'ledger-word';
+    label.textContent = word;
+
+    const tag = document.createElement('span');
+    tag.className = 'ledger-tag';
+    tag.textContent = index === 0 ? 'just now' : 'taken';
+
+    item.append(label, tag);
+    return item;
+  }));
+
+  ledgerEmpty.hidden = words.length > 0;
+}
+
+/** The record is the reward: each milestone stays lit once it is reached. */
+function renderMilestones() {
+  for (const milestone of milestones) {
+    milestone.classList.toggle(
+      'is-earned',
+      erased >= Number(milestone.dataset.at)
+    );
+  }
+}
+
+renderLedger();
+renderMilestones();
 
 /**
  * Paint the page from `state`. This is the ONLY place the stage's classes
@@ -75,15 +165,21 @@ function render() {
   stage.classList.toggle('is-marked', state === 'marked');
   stage.classList.toggle('is-erasing', state === 'erasing');
   stage.classList.toggle('is-retracting', state === 'retracting');
+  stage.classList.toggle(
+    'is-writing',
+    state === 'blank' && markInput.value.trim() !== ''
+  );
 
-  // "On the card" is a fact about the state, not a separate counter that
-  // could drift out of step with it.
-  oncardEl.textContent = state === 'marked' || state === 'erasing' ? '1' : '0';
+  // "On the card" follows what is visible: a mark being erased, or the word
+  // waiting in the field as a preview.
+  const onCard = state === 'marked' || state === 'erasing'
+    || (state === 'blank' && markInput.value.trim() !== '');
+  oncardEl.textContent = onCard ? '1' : '0';
 }
 
 /**
  * Move to `next`, cancelling whatever was planned. `ms` schedules the next
- * move; leave it out and the machine rests in `next` until a press arrives.
+ * move; leave it out and the machine rests in `next` until a submission.
  */
 function enter(next, ms) {
   window.clearTimeout(timer);
@@ -97,11 +193,56 @@ function enter(next, ms) {
   }
 }
 
+const AFTER_ERASE = [
+  'Blank again, exactly as you found it. Make another.',
+  'Gone. The machine looks pleased with itself.',
+  'Un-made, carefully, and without haste.',
+  'The card is clean. You are not the first to try.',
+  'It does not remember the mark. It remembers the motion.'
+];
+
+/**
+ * The machine gets a little more familiar with every mark. These lines are
+ * the reward for staying past the first press.
+ */
+function completionLine(n) {
+  if (n === 1) {
+    return 'Blank again, exactly as you found it. Make another.';
+  }
+  if (n === 5) {
+    return 'Five. It is getting good at this. You are getting predictable.';
+  }
+  if (n === 10) {
+    return 'Ten marks, every one erased. The machine is warmed up.';
+  }
+  if (n === 25) {
+    return 'Twenty-five. The arm could do this all day.';
+  }
+  if (n === 50) {
+    return 'Fifty. Nobody is counting. Except the machine.';
+  }
+  if (n === 100) {
+    return 'One hundred marks. Neither of you can stop now.';
+  }
+  return AFTER_ERASE[n % AFTER_ERASE.length];
+}
+
 /** The one timer callback. It only ever moves the machine one step forward. */
 function tick() {
   timer = null;
 
   if (state === 'marked') {
+    erased += 1;
+    erasedEl.textContent = erased;
+    saveErased(erased);
+    renderMilestones();
+
+    // The card loses the mark; the ledger gains it.
+    words.unshift(lastWord || 'a squiggle');
+    words = words.slice(0, MAX_LEDGER);
+    saveWords();
+    renderLedger();
+
     enter('erasing', ERASE_MS);
     readout.textContent = 'The arm arrives, and the mark begins to go.';
   } else if (state === 'erasing') {
@@ -109,7 +250,19 @@ function tick() {
     readout.textContent = 'Wiped clean. The arm withdraws.';
   } else if (state === 'retracting') {
     enter('blank');
-    readout.textContent = 'Blank again, exactly as you found it. Make another.';
+
+    // Clear the field only if it still holds the word just erased. If the
+    // visitor started typing the next one mid-erase, put that word on the
+    // card instead.
+    if (readWord() === lastWord) {
+      markInput.value = '';
+      showWord('');
+    } else {
+      showWord(readWord());
+    }
+
+    render();
+    readout.textContent = completionLine(erased);
   }
 }
 
@@ -118,9 +271,57 @@ function randomWait() {
   return Math.round(WAIT_MIN + Math.random() * (WAIT_MAX - WAIT_MIN));
 }
 
+/**
+ * Put the typed word on the card, or put the default squiggle back if the
+ * field is empty. textContent, never innerHTML: the word is the visitor's.
+ */
+function readWord() {
+  return markInput.value.trim().slice(0, MAX_WORD);
+}
+
+function showWord(word) {
+  if (word === '') {
+    markWord.textContent = '';
+    markBox.classList.remove('has-word');
+    return;
+  }
+
+  markWord.textContent = word;
+  markBox.classList.add('has-word');
+}
+
+// A few words get a reply. They are small rewards for trying things.
+const REACTIONS = {
+  stop: 'It has heard that before.',
+  hello: 'It does not say hello back.',
+  again: 'That word keeps coming back.',
+  erase: 'That is the job.',
+  remember: 'It will not.',
+  why: 'It does not explain itself.'
+};
+
+// Live preview: the word appears on the card as it is typed. While the arm
+// is working, the field holds the next word without disturbing the mark
+// being erased.
+markInput.addEventListener('input', () => {
+  if (state === 'blank') {
+    const word = readWord();
+    showWord(word);
+    render();
+    readout.textContent = word === ''
+      ? 'Blank. Write a word, then make a mark.'
+      : `“${word}” is on the card. Press the button when you are ready.`;
+  }
+});
+
+// The paper is the obvious place to click if you want to write on it.
+paper.addEventListener('click', () => markInput.focus());
+
 // -- The one control -------------------------------------------------------
 
-makeBtn.addEventListener('click', () => {
+markForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
   // The arm is working. Refuse the press rather than queuing it — a queue is
   // how a machine ends up doing two things at once.
   if (state === 'erasing' || state === 'retracting') {
@@ -128,181 +329,32 @@ makeBtn.addEventListener('click', () => {
     return;
   }
 
-  made += 1;
-  madeEl.textContent = made;
+  const word = readWord();
+  showWord(word);
+  lastWord = word;
 
-  // Pressing while the ink is still there does not add a second mark — it
+  const reaction = REACTIONS[word.toLowerCase()];
+
+  // Submitting while the ink is still there does not add a second mark — it
   // restarts the wait, which is exactly the machine being patient with you.
   if (state === 'marked') {
     enter('marked', randomWait());
-    readout.textContent = 'Another mark, on top of the first. It will not help.';
+    readout.textContent = reaction || (word === ''
+      ? 'Another mark, on top of the first. It will not help.'
+      : `“${word}” replaces the first mark. It will not help.`);
     return;
   }
 
   enter('marked', randomWait());
-  readout.textContent = 'A mark. The arm is on its way.';
+  readout.textContent = reaction || (word === ''
+    ? 'A mark. The arm is on its way.'
+    : `“${word}” — the arm will take it back.`);
 });
 
-// Open in the state the markup already shows.
+// Open in the state the markup already shows. A returning visitor gets a
+// line that notices them; a first visitor gets the instructions.
+if (erased > 0) {
+  readout.textContent = 'The card is blank, as always. Write something.';
+}
 enter('blank');
 
-/* =========================================================================
-   PART B — KEEP IT
-   =========================================================================
-
-       idle ──start──▶ running ──arm reaches the mark──▶ wiped
-         ▲               │                                │
-         │               │ survives eight visits         │
-         │               ▼                                │
-         │             kept                               │
-         └─────── after a beat, back to idle ─────────────┘
-
-   Each visit has two halves: the arm moves to a lane, then a moment later it
-   strikes. The pause is what makes the game fair — it is your reaction time.
-   A press is only read while `running`, and Start only works from `idle`, so
-   pressing everything forty times cannot stack rounds or start two timers.
-   ========================================================================= */
-
-const gameBox = document.getElementById('game-box');
-const gameMark = document.getElementById('game-mark');
-const gameEraser = document.getElementById('game-eraser');
-const gameStatus = document.getElementById('game-status');
-const scoreEl = document.getElementById('score');
-const bestEl = document.getElementById('best');
-const startBtn = document.getElementById('start');
-const moveBtn = document.getElementById('move');
-const resetBtn = document.getElementById('reset');
-
-const LANES = 3;
-const NAMES = ['left', 'centre', 'right'];
-
-const FIRST_VISIT_MS = 600;   // grace before the arm starts hunting
-const STRIKE_MS = 380;        // time to react once the arm has arrived
-const GAP_MS = 240;           // pause between visits
-const VISITS_TO_KEEP = 8;     // survive this many and the round is won
-const NEXT_ROUND_MS = 1100;   // how long the result stays on screen
-
-let gameState = 'idle';       // idle | running | kept | wiped
-let gameTimer = null;
-let markLane = 1;             // where the player's mark is
-let armLane = -1;             // where the arm is; -1 is off the board
-let visits = 0;
-let score = 0;
-let best = 0;
-
-/** Paint the board from the state. Same rule as render() above. */
-function paint(next) {
-  gameState = next;
-  gameBox.classList.toggle('is-running', next === 'running');
-  gameBox.classList.toggle('is-kept', next === 'kept');
-  gameBox.classList.toggle('is-wiped', next === 'wiped');
-}
-
-/** Put a piece in a lane. The CSS does the positioning from this one number. */
-function placeMark(lane) {
-  markLane = lane;
-  gameMark.style.setProperty('--lane', lane);
-}
-
-function placeArm(lane) {
-  armLane = lane;
-  gameEraser.style.setProperty('--lane', lane);
-}
-
-/** The one way a round ends, or the pause between one round and the next. */
-function stop() {
-  window.clearTimeout(gameTimer);
-  gameTimer = null;
-}
-
-/** Show a result, then clear the board so it can be played again. */
-function settle(result, message) {
-  stop();
-  paint(result);
-  gameStatus.textContent = message;
-
-  gameTimer = window.setTimeout(() => {
-    paint('idle');
-    gameTimer = null;
-    gameStatus.textContent = 'Ready. Press Start, then keep your mark moving.';
-  }, NEXT_ROUND_MS);
-}
-
-/** Half one of a visit: send the arm to a lane and give the player a moment. */
-function visit() {
-  gameTimer = null;
-
-  const lane = Math.floor(Math.random() * LANES);
-  placeArm(lane);
-  gameStatus.textContent = `The arm moves to the ${NAMES[lane]} lane.`;
-
-  gameTimer = window.setTimeout(strike, STRIKE_MS);
-}
-
-/** Half two: the arm comes down, and then it is too late to move. */
-function strike() {
-  gameTimer = null;
-
-  if (armLane === markLane) {
-    settle('wiped', `It came down on the ${NAMES[armLane]} lane, where your mark was.`);
-    return;
-  }
-
-  visits += 1;
-
-  if (visits >= VISITS_TO_KEEP) {
-    score += 1;
-    best = Math.max(best, score);
-    scoreEl.textContent = score;
-    bestEl.textContent = best;
-    settle('kept', 'It left without your mark. Point to you.');
-    return;
-  }
-
-  gameTimer = window.setTimeout(visit, GAP_MS);
-}
-
-function startRound() {
-  // Start only means something from a resting board. Pressing it mid-round
-  // is ignored, not queued — a queued round is how a game ends up running
-  // two timers at once.
-  if (gameState !== 'idle') {
-    return;
-  }
-
-  stop();
-  visits = 0;
-  placeMark(1);
-  placeArm(-1);
-  paint('running');
-  gameStatus.textContent = 'Round started. The arm is coming.';
-
-  gameTimer = window.setTimeout(visit, FIRST_VISIT_MS);
-}
-
-startBtn.addEventListener('click', startRound);
-
-moveBtn.addEventListener('click', () => {
-  if (gameState !== 'running') {
-    return;
-  }
-
-  placeMark((markLane + 1) % LANES);
-  gameStatus.textContent = `Your mark moves to the ${NAMES[markLane]} lane.`;
-});
-
-resetBtn.addEventListener('click', () => {
-  stop();
-  score = 0;
-  best = 0;
-  visits = 0;
-  placeMark(1);
-  placeArm(-1);
-  paint('idle');
-  scoreEl.textContent = '0';
-  bestEl.textContent = '0';
-  gameStatus.textContent = 'Back to the start. Ready when you are.';
-});
-
-// Open on a resting board.
-paint('idle');

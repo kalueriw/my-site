@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quotes · Qiao Yi</title>
+  <title>Quotes · Learning HTML</title>
   <meta name="description" content="Twenty quotations in English — books, speeches, songs, films and one saying from home — each with its author and its source.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
@@ -14,14 +14,19 @@
   <header id="site-header"></header>
 
   <main id="main">
-    <section class="section wrap wrap--wide">
-      <p class="eyebrow">Read twice</p>
-      <h1>Quotes</h1>
-      <p class="lede">
-        Twenty lines worth reading twice — from books, speeches, songs and
-        films, and one from my grandmother. Every entry carries the words, the
-        person who said them, and the place they come from.
-      </p>
+    <section class="page-head wrap wrap--wide">
+      <div>
+        <p class="eyebrow">01 · Reading</p>
+        <h1>Quotes</h1>
+      </div>
+      <div class="page-head-copy">
+        <p class="lede">
+          Twenty lines worth reading twice — from books, speeches, songs and
+          films, and one from my grandmother. Every entry carries the words,
+          the person who said them, and the place they come from.
+        </p>
+        <p class="page-head-meta">20 entries · One shown at random</p>
+      </div>
     </section>
 
     <!-- The spotlight band. quotes.js copies one random card from the list
@@ -41,7 +46,10 @@
     </section>
 
     <section class="section wrap wrap--wide" aria-labelledby="all-quotes">
-      <h2 id="all-quotes">All twenty</h2>
+      <div class="section-head">
+        <h2 id="all-quotes">All twenty</h2>
+        <p class="section-note">Books · Speeches · Songs · Film</p>
+      </div>
 
       <ul class="quote-grid">
 
