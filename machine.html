@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The eraser that waits · Learning HTML</title>
-  <meta name="description" content="A useless machine: one card, one brass arm. Write a word, leave it, and the machine erases it. The ledger beside it remembers what the card does not.">
+  <title>Night shift at the useless machine · Learning HTML</title>
+  <meta name="description" content="A useless machine on the night shift: twelve switches, one hand, sixty seconds. The machine turns them off; you turn them back on. Chase your best score.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="machine.css">
@@ -18,13 +18,14 @@
     <section class="page-head wrap wrap--wide">
       <div>
         <p class="eyebrow">03 · The useless machine</p>
-        <h1>The eraser that waits</h1>
+        <h1>Night shift at the useless machine</h1>
       </div>
       <div class="page-head-copy">
         <p class="lede">
-          You make a mark. It makes sure you never did.
+          The machine turns the switches off. You turn them back on. Sixty
+          seconds, twelve switches, no point at all.
         </p>
-        <p class="page-head-meta">One card · One arm · One rule</p>
+        <p class="page-head-meta">60 seconds · 12 switches · 1 machine</p>
       </div>
     </section>
 
@@ -33,77 +34,176 @@
       <h2 class="visually-hidden" id="machine-title">The machine</h2>
 
       <div class="machine-main">
-        <div class="machine-stage" id="stage">
-          <!-- The card. aria-hidden because the status line below tells the
-               whole story in words; nothing here is information you would
-               lose by not seeing it. Clicking it puts the cursor in the
-               field below. -->
-          <div class="paper-card" id="paper" aria-hidden="true">
-            <div class="mark" id="mark">
-              <svg class="squiggle" viewBox="0 0 100 76" width="100" height="76">
-                <path class="ink" d="M26 52 C18 38 30 18 50 16 C70 14 84 28 76 42
-                                     C68 56 44 60 32 50 C24 43 28 32 40 30"/>
-                <path class="ink" d="M34 62 C46 56 64 58 74 52"/>
-              </svg>
-              <span class="mark-word" id="mark-word"></span>
-            </div>
-            <span class="card-hint">click and type</span>
+        <div class="shift-panel" id="panel">
+          <div class="shift-top">
+            <span class="shift-mark">U.S.M. · Night shift</span>
+            <span class="shift-state" id="shift-state">Ready</span>
           </div>
 
-          <!-- The arm. It is parked off the card to the right, and the stage
-               clips it, so at rest it simply is not there. machine.css moves
-               it; this element has no behaviour of its own. -->
-          <div class="eraser" aria-hidden="true">
-            <span class="eraser-head"></span>
-            <span class="eraser-arm"></span>
+          <div class="shift-hud">
+            <div class="hud-stat">
+              <span class="hud-label">Time</span>
+              <strong id="time">1:00</strong>
+            </div>
+            <div class="hud-stat">
+              <span class="hud-label">Score</span>
+              <strong id="score">0</strong>
+            </div>
+            <div class="hud-stat">
+              <span class="hud-label">Combo</span>
+              <strong id="combo">×1</strong>
+            </div>
+            <div class="hud-stat">
+              <span class="hud-label">Best</span>
+              <strong id="best">0</strong>
+            </div>
+          </div>
+
+          <div class="timer-track" aria-hidden="true">
+            <span id="timer-fill"></span>
+          </div>
+
+          <div class="switch-board" id="board" role="group" aria-label="Twelve switches"
+               tabindex="-1">
+            <span class="combo-flash" id="combo-flash" aria-hidden="true"></span>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 1" data-unit="0">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 2" data-unit="1">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 3" data-unit="2">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 4" data-unit="3">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 5" data-unit="4">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 6" data-unit="5">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 7" data-unit="6">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 8" data-unit="7">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 9" data-unit="8">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 10" data-unit="9">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 11" data-unit="10">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+            <button class="unit is-on" type="button" role="switch" aria-checked="true"
+                    aria-label="Switch 12" data-unit="11">
+              <span class="unit-lamp" aria-hidden="true"></span>
+              <span class="unit-lever" aria-hidden="true"></span>
+              <span class="unit-hand" aria-hidden="true"></span>
+              <span class="unit-pop" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <!-- Start and end are the same panel, swapped by machine.js. -->
+          <div class="game-overlay" id="overlay">
+            <div class="overlay-card" role="dialog" aria-modal="true"
+                 aria-labelledby="overlay-title">
+              <p class="eyebrow">The shift</p>
+              <h2 id="overlay-title">Twelve switches. Sixty seconds.</h2>
+              <p id="overlay-copy">
+                The machine will turn them off. You turn them back on. It has
+                never lost the board — the score is the only thing you keep.
+              </p>
+              <ul class="overlay-rules" id="overlay-rules">
+                <li>Re-on a switch within 2.5 seconds to grow the combo.</li>
+                <li>Clear all twelve for a 100-point perfect panel.</li>
+                <li>Sixty seconds. The hand gets faster.</li>
+              </ul>
+              <button class="btn" id="start" type="button">Start the shift</button>
+              <p class="overlay-best">Best shift: <strong id="overlay-best">0</strong></p>
+            </div>
           </div>
         </div>
 
-        <!-- The word is optional: blank makes the machine erase the default
-             squiggle, anything typed makes it erase your words instead. -->
-        <form class="mark-form" id="mark-form">
-          <label class="visually-hidden" for="mark-text">
-            The word the machine should erase
-          </label>
-          <input class="mark-text" id="mark-text" type="text" maxlength="24"
-                 placeholder="Write a word — or leave it blank" autocomplete="off">
-          <button class="btn machine-button" id="make" type="submit">
-            Make a mark
-          </button>
-        </form>
-
-        <!-- role="status" so a screen reader hears the machine work. -->
-        <p class="machine-status" id="status" role="status">
-          Blank. Write a word, then make a mark.
-        </p>
-
-        <p class="machine-counter">
-          On the card: <span id="oncard">0</span>
+        <p class="game-status" id="status" role="status">
+          Ready. Start the shift when you are.
         </p>
       </div>
 
-      <!-- The ledger. The machine erases the mark; it does not erase the
-           record. This is the reason to come back: the list remembers what
-           the card refuses to. -->
-      <aside class="ledger" aria-labelledby="ledger-title">
-        <p class="eyebrow">The ledger</p>
-        <h2 id="ledger-title">It keeps what it erases.</h2>
-        <p class="ledger-total">
-          <strong id="erased">0</strong> marks taken
-        </p>
+      <!-- The record. The machine keeps the switches; the visitor keeps the score. -->
+      <aside class="ledger" aria-labelledby="record-title">
+        <p class="eyebrow">The record</p>
+        <h2 id="record-title">It keeps the switches. You keep the score.</h2>
 
-        <ol class="ledger-list" id="ledger-list"></ol>
-        <p class="ledger-empty" id="ledger-empty">
-          Nothing yet. Write something and let it go.
-        </p>
+        <dl class="record-stats">
+          <div>
+            <dt>Best shift</dt>
+            <dd id="record-best">0</dd>
+          </div>
+          <div>
+            <dt>Shifts worked</dt>
+            <dd id="record-shifts">0</dd>
+          </div>
+          <div>
+            <dt>Longest combo</dt>
+            <dd id="record-combo">×1</dd>
+          </div>
+        </dl>
 
-        <p class="ledger-label">Milestones</p>
-        <ul class="milestones">
-          <li class="milestone" data-at="1">1</li>
-          <li class="milestone" data-at="10">10</li>
-          <li class="milestone" data-at="25">25</li>
-          <li class="milestone" data-at="50">50</li>
-        </ul>
+        <p class="record-label">Best shifts</p>
+        <ol class="score-list" id="score-list"></ol>
+
+        <p class="record-note">
+          The machine has never lost. The score is the only thing that stays.
+        </p>
       </aside>
     </section>
 
@@ -113,8 +213,8 @@
         <p class="eyebrow">The idea</p>
         <h2 id="why">Why this is a useless machine</h2>
         <p class="muted">
-          Minsky described it in 1952. Shannon built the switch version in
-          1950. Either way, the machine ends where it began.
+          Claude Shannon built one in 1950. Marvin Minsky described it in
+          1952. Either way, the machine ends where it began.
         </p>
       </div>
       <div class="section-body">
@@ -125,28 +225,28 @@
           switch back.
         </p>
         <p>
-          This one is that joke in the other direction. Instead of switching
-          itself back on, it undoes what you just did. The result is the same:
-          the machine ends where it began, so it can never finish.
+          This page is that machine on a night shift. Twelve switches, one
+          hand, sixty seconds. You cannot win the board — the machine will keep
+          turning switches off — but you can keep a score. That is the whole
+          joke, and the only reason to go again.
         </p>
         <p>It has the four parts a useless machine needs. Remove one and it
            becomes something else:</p>
         <dl class="definitions">
           <dt>Simple</dt>
-          <dd>One field and one button. Nothing to learn, nothing to configure,
-            no way to read the instructions wrong.</dd>
+          <dd>Twelve switches and one job. Nothing to learn, nothing to
+            configure, no way to read the instructions wrong.</dd>
 
           <dt>Unexpected</dt>
-          <dd>It does not erase some other mark, or the wrong mark. It erases
-            the one you just made, carefully, and looks pleased about it.</dd>
+          <dd>It does not turn off the switch you are watching. It turns off
+            the one you just turned on, and looks pleased about it.</dd>
 
           <dt>Back to the start</dt>
-          <dd>The card is blank, the arm is parked, the button says the same
-            thing. You can do it again immediately, and it will be the same
-            every time.</dd>
+          <dd>When the shift ends, the switches are off and the hand is inside.
+            You can start again immediately, and it will be the same.</dd>
 
           <dt>Funny, then not</dt>
-          <dd>The first time it is a gag. By the fifth it is a machine with a
+          <dd>The first shift is a gag. By the fifth it is a machine with a
             small amount of power that it will not give up.</dd>
         </dl>
       </div>

@@ -1,275 +1,505 @@
 /* ==========================================================================
-   machine.css — the card, the ink, the arm, and the ledger
+   machine.css — the night shift panel
    --------------------------------------------------------------------------
    Loaded only by machine.html, after style.css. Colours come from the tokens
    in style.css, so this page still belongs to the site.
 
-   The two timings that matter are set as custom properties on <html> by
-   machine.js: --erase (the whole pass of the arm) and --retract (its return).
-   CSS and JavaScript read the same numbers, so they cannot drift apart.
-
    Reading order:
-    1  The desk
-    2  The card
-    3  The ink
-    4  The arm
-    5  Writing and status
-    6  Layout and ledger
-    7  Small screens
-    8  Reduced motion
+    1  The panel and the shift clock
+    2  The board and its twelve switches
+    3  The hand, the pop, and the perfect flash
+    4  The start / end overlay
+    5  Layout and the record
+    6  Small screens & reduced motion
    ========================================================================== */
 
-/* 1 · The desk -------------------------------------------------------------
-   Everything the machine moves lives in here and is clipped by it, so the
-   arm can be parked outside the card and simply not be visible. */
-.machine-stage {
-  position: relative;
-  display: grid;
-  place-items: center;
-  height: clamp(17rem, 40vw, 24rem);
-  overflow: hidden;                    /* clips the parked arm */
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-lg);
-  background: var(--paper-sunk);
-}
-
-/* 2 · The card -------------------------------------------------------------
-   A sheet of paper: white, faintly ruled, sitting above the desk. */
-/* Both the card and the ink are sized as a share of the stage rather than in
-   rem, so their proportions stay the same at every width. That is what lets
-   the wipe below be timed once, and be right on a phone as well as a desktop. */
-.paper-card {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 82%;
-  height: 76%;
-  border-radius: 6px;
-  background:
-    repeating-linear-gradient(
-      180deg,
-      transparent 0 1.5rem,
-      #EFE7D9 1.5rem calc(1.5rem + 1px)
-    ),
-    var(--paper-raised);
-  box-shadow: 0 10px 26px rgb(28 25 23 / .13);
-}
-
-/* 3 · The ink --------------------------------------------------------------
-   Hidden until there is a mark. The clip is what the arm "erases": the ink
-   is cut away from the right, so the ink disappears exactly as the head
-   passes over it. There is always a clip-path value to animate from, so the
-   transition is a shape-to-shape change rather than a switch from none. */
-.mark {
-  display: grid;
-  place-items: center;
-  width: 86%;                          /* of the card */
-  height: 80%;
-  opacity: 0;
-  clip-path: inset(0 0 0 0);
-  transition: opacity 140ms ease;
-}
-
-.squiggle {
-  width: 27%;                          /* of the mark box, ~22% of the card */
-  height: auto;
-}
-
-.mark-word {
-  display: none;
-  max-width: 100%;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: clamp(1.5rem, 5vw, 3rem);
-  line-height: 1.12;
-  color: var(--ink);
-  text-align: center;
-  overflow-wrap: anywhere;
-  text-wrap: balance;
-}
-
-.mark.has-word .squiggle {
-  display: none;
-}
-
-.mark.has-word .mark-word {
-  display: block;
-}
-
-/* The instruction on the blank card. It disappears the moment there is a
-   word to look at, and returns when the card is empty again. */
-.card-hint {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-mono);
-  font-size: .64rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  opacity: .65;
-  pointer-events: none;
-}
-
-.is-marked .card-hint,
-.is-erasing .card-hint,
-.is-retracting .card-hint,
-.is-writing .card-hint {
-  display: none;
-}
-
-.ink {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 3.6;
-  stroke-linecap: round;
-  opacity: .88;
-}
-
-.is-marked .mark,
-.is-erasing .mark,
-.is-writing .mark {
-  opacity: 1;
-}
-
-/* The wipe. It is delayed so that it begins when the head reaches the mark,
-   and it is short, so the ink is gone as the head leaves. Both numbers are
-   fractions of --erase, so the sync survives any change to the overall
-   timing. The card is 82% of the stage and the ink 22% of the card, which
-   puts the ink between 41% and 59% of the stage at every width — that is
-   why two fixed fractions are enough.
-
-   The clip is kept on during the retract as well, and only the erasing pass
-   animates it. If it were allowed to snap back the moment the arm starts
-   home, the ink would reappear for the length of the fade-out. */
-.is-erasing .mark,
-.is-retracting .mark {
-  clip-path: inset(0 100% 0 0);
-}
-
-.is-erasing .mark {
-  transition:
-    clip-path calc(var(--erase, 900ms) * .25)
-      linear
-      calc(var(--erase, 900ms) * .73);
-}
-
-/* 4 · The arm --------------------------------------------------------------
-   A brass rod with a soft eraser on the end that touches the paper. The
-   whole unit slides left; the rod runs off to the right and is clipped. */
-.eraser {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 1.5rem);           /* parked clear of the card, shadow and all */
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  transform: translateY(-50%);
-  pointer-events: none;
-  transition: left var(--retract, 600ms) cubic-bezier(.4, 0, .8, .6);
-}
-
-.eraser-head {
-  flex: none;
-  width: clamp(2.6rem, 7vw, 3.4rem);
-  height: clamp(1.8rem, 5vw, 2.2rem);
-  border-radius: 5px;
-  background: linear-gradient(180deg, #FFF7E9, #EBD9BC);
-  box-shadow:
-    0 4px 12px rgb(28 25 23 / .2),
-    inset 0 -4px 0 #D3BE99,
-    inset 0 1px 0 #fff;
-}
-
-.eraser-arm {
-  flex: none;
-  width: 40rem;                        /* runs off-stage and is clipped */
-  height: .5rem;
-  border-radius: 99px;
-  background: linear-gradient(180deg, #E2A65C, #B77B2E 60%, #94601F);
-  box-shadow: 0 2px 5px rgb(28 25 23 / .2);
-}
-
-/* The pass. The arm stops with the head's right edge just past the mark's
-   left edge — 41% of the stage, less the width of the head itself. Expressed
-   this way it lands correctly whatever width the head happens to be.
-
-   The travel is linear on purpose, and it is the one deliberate compromise
-   in this file: the wipe below is timed as a fraction of --erase, so the
-   arm's position has to advance at a constant rate for the ink to disappear
-   exactly where the eraser is. An eased arm looks smoother and wipes in the
-   wrong place. A machine moving at a constant speed is also, in fairness,
-   what a machine does. */
-.is-erasing .eraser {
-  left: calc(39% - clamp(2.6rem, 7vw, 3.4rem));
-  transition: left var(--erase, 900ms) linear;
-}
-
-/* The return: back out to the right, at the same speed it came. */
-.is-retracting .eraser {
-  left: calc(100% + 1.5rem);
-  transition: left var(--retract, 600ms) cubic-bezier(.4, 0, .8, .6);
-}
-
-/* The ledger's empty line is toggled with the hidden attribute. */
+/* 1 · The panel and the shift clock --------------------------------------- */
 [hidden] {
   display: none !important;
 }
 
-/* 4c · Writing the mark ---------------------------------------------------
-   The field and the button sit on one line; the field takes the room it can. */
-.mark-form {
+.shift-panel {
+  position: relative;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid #3A2112;
+  border-radius: 18px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / .018) 0 2px,
+      transparent 2px 8px
+    ),
+    linear-gradient(155deg, #7B4A28 0%, #5B321A 45%, #40220F 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .18),
+    inset 0 -2px 0 rgb(0 0 0 / .35),
+    0 30px 50px rgb(28 25 23 / .28);
+}
+
+.shift-top {
   display: flex;
   flex-wrap: wrap;
-  gap: .6rem;
-  margin-top: 1.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .35rem 1rem;
+  margin-bottom: .9rem;
+  font-family: var(--font-mono);
+  font-size: .64rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #D6B67B;
 }
 
-.mark-text {
-  flex: 1 1 14rem;
-  min-width: 0;
-  padding: .68em 1.05em;
-  border: 1px solid var(--rule);
+.shift-state {
+  color: #C9A66B;
+  opacity: .8;
+}
+
+.shift-hud {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .75rem;
+  margin-bottom: .8rem;
+}
+
+.hud-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #C9A66B;
+}
+
+.hud-stat strong {
+  display: block;
+  margin-top: .15rem;
+  font-family: var(--font-mono);
+  font-size: clamp(1.15rem, 2.8vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: #FBF7F0;
+}
+
+.shift-hud .hud-stat:last-child strong {
+  color: #D6B67B;
+}
+
+/* The combo is the number worth watching, so it is the biggest one. */
+.shift-hud .hud-stat:nth-child(3) strong {
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  color: #FFD58A;
+}
+
+.hud-stat strong.is-bumped {
+  animation: hud-bump .28s ease;
+}
+
+@keyframes hud-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.16); color: #FFD58A; }
+  100% { transform: scale(1); }
+}
+
+.timer-track {
+  height: .32rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
   border-radius: 99px;
-  background: var(--paper-raised);
+  background: #2A160B;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / .6);
+}
+
+.timer-track span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #C08A3E, #FFD58A);
+  transition: width .1s linear;
+}
+
+.shift-panel.is-final .timer-track span {
+  background: linear-gradient(90deg, var(--accent), #FF9C5B);
+}
+
+/* 2 · The board and its twelve switches ----------------------------------- */
+.switch-board:focus {
+  outline: none;
+}
+
+.switch-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(.5rem, 1.2vw, .8rem);
+  padding: clamp(.65rem, 1.6vw, 1rem);
+  border-radius: 12px;
+  background: #241209;
+  box-shadow:
+    inset 0 6px 18px rgb(0 0 0 / .55),
+    inset 0 -1px 0 rgb(255 255 255 / .06);
+}
+
+/* A board-sized combo stamp. It sits above the switches, not inside one. */
+.combo-flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: clamp(2.4rem, 7vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: #FFE3A3;
+  text-shadow:
+    0 0 .6rem rgb(255 194 92 / .75),
+    0 0 2.2rem rgb(255 160 50 / .45);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.combo-flash.is-showing {
+  animation: combo-flash .72s ease-out;
+}
+
+@keyframes combo-flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.35) rotate(-7deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.16) rotate(2deg);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+}
+
+.unit {
+  position: relative;
+  display: block;
+  aspect-ratio: 1.25 / 1;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #3A2112;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #5A3018, #3A1E0E);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .12),
+    inset 0 -2px 0 rgb(0 0 0 / .25);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .12s ease, box-shadow .12s ease, transform .08s ease;
+}
+
+.unit:active {
+  transform: scale(.97);
+}
+
+/* The press: a quick squeeze, a glow, a ring that runs inward, and a bright
+   lamp. */
+.unit::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(255 214 130 / .5) 0%,
+    rgb(255 180 70 / .2) 38%,
+    transparent 68%
+  );
+  opacity: 0;
+  transform: scale(.3);
+  pointer-events: none;
+}
+
+.unit.is-hit::before {
+  animation: unit-burst .5s ease-out;
+}
+
+@keyframes unit-burst {
+  0% { opacity: .85; transform: scale(.25); }
+  70% { opacity: .22; }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+.unit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 0 rgb(255 194 92 / 0);
+  pointer-events: none;
+}
+
+.unit.is-hit {
+  animation: unit-hit .3s ease;
+}
+
+.unit.is-hit::after {
+  animation: unit-ring .38s ease-out;
+}
+
+.unit.is-hit .unit-lamp {
+  animation: lamp-hit .32s ease;
+}
+
+@keyframes unit-hit {
+  0% { transform: scale(1); }
+  35% { transform: scale(.94); }
+  70% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes unit-ring {
+  0% { box-shadow: inset 0 0 0 0 rgb(255 194 92 / .65); }
+  100% { box-shadow: inset 0 0 0 1.8rem rgb(255 194 92 / 0); }
+}
+
+@keyframes lamp-hit {
+  0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+  40% { transform: translateX(-50%) scale(1.35); filter: brightness(1.45); }
+  100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+}
+
+.unit:hover {
+  border-color: #C9A66B;
+}
+
+.unit:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: -3px;
+}
+
+.unit.is-on {
+  background: linear-gradient(180deg, #6A3B1E, #46250F);
+}
+
+.unit.is-targeted {
+  border-color: #FFC15E;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .12),
+    inset 0 0 18px rgb(255 185 80 / .22);
+}
+
+.unit-lamp {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: clamp(.8rem, 1.8vw, 1.05rem);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #2A160B;
+  box-shadow:
+    inset 0 2px 4px #000,
+    0 0 0 2px #8B6A37;
+  transition: background .18s ease, box-shadow .2s ease;
+}
+
+.unit.is-on .unit-lamp {
+  background: radial-gradient(circle at 35% 30%, #FFF4CF, #FFC15E 55%, #D9822B);
+  box-shadow:
+    inset 0 1px 2px #FFF,
+    0 0 0 2px #8B6A37,
+    0 0 .8rem rgb(255 185 80 / .8);
+}
+
+.unit-lever {
+  position: absolute;
+  left: 50%;
+  bottom: 20%;
+  width: clamp(.35rem, .8vw, .5rem);
+  height: clamp(1.4rem, 3.2vw, 2.1rem);
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(-28deg);
+  border-radius: 99px;
+  background: linear-gradient(90deg, #F0D9AF, #C79A55 55%, #8B642C);
+  box-shadow:
+    0 2px 4px rgb(0 0 0 / .4),
+    inset 0 1px 0 rgb(255 255 255 / .5);
+  transition: transform .16s cubic-bezier(.4, 1.5, .5, 1);
+}
+
+.unit.is-on .unit-lever {
+  transform: translateX(-50%) rotate(28deg);
+}
+
+/* 3 · The hand, the pop, and the perfect flash ---------------------------- */
+.unit-hand {
+  position: absolute;
+  right: -60%;
+  top: 55%;
+  z-index: 2;
+  width: 55%;
+  height: .32rem;
+  transform: translateY(-50%);
+  border-radius: 99px;
+  background: linear-gradient(180deg, #EFD09A, #8B5C23);
+  box-shadow: 0 2px 3px rgb(0 0 0 / .35);
+  transition: right .18s ease;
+}
+
+.unit-hand::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  width: 1.1rem;
+  height: .55rem;
+  transform: translateY(-50%);
+  border: 1px solid #C7AD84;
+  border-radius: 99px 99px 99px 3px;
+  background: linear-gradient(180deg, #FFF9EC, #EAD7B7);
+}
+
+.unit.is-targeted .unit-hand,
+.unit.is-flipping .unit-hand {
+  right: 0;
+}
+
+.unit-pop {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  z-index: 3;
+  transform: translate(-50%, 0);
+  color: #FFD58A;
+  font-family: var(--font-mono);
+  font-size: calc(1.2rem * var(--combo-scale, 1));
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow:
+    0 1px 4px rgb(0 0 0 / .5),
+    0 0 .8rem rgb(255 194 92 / .35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The combo count rides beside the points, in a small brass pill. */
+.unit-pop.has-combo::after {
+  content: attr(data-combo);
+  display: inline-block;
+  margin-left: .22em;
+  padding: .08em .35em;
+  border: 1px solid rgb(255 194 92 / .45);
+  border-radius: 99px;
+  background: rgb(255 194 92 / .16);
+  color: #FFF3D6;
+  font-size: .5em;
+  letter-spacing: .02em;
+  vertical-align: .22em;
+}
+
+.unit-pop.is-popping {
+  animation: unit-pop .8s ease-out;
+}
+
+@keyframes unit-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, .55rem) scale(.35) rotate(-5deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.22) rotate(2deg);
+  }
+  45% {
+    transform: translate(-50%, -.35rem) scale(1) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -2.2rem) scale(1.05);
+  }
+}
+
+.switch-board.is-perfect {
+  animation: perfect-flash .5s ease;
+}
+
+@keyframes perfect-flash {
+  0%, 100% {
+    background: #241209;
+  }
+  40% {
+    background: #5A3A16;
+    box-shadow:
+      inset 0 6px 18px rgb(0 0 0 / .35),
+      0 0 2rem rgb(255 185 80 / .35);
+  }
+}
+
+/* 4 · The start / end overlay -------------------------------------------- */
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 18px;
+  background: rgb(28 25 23 / .74);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.overlay-card {
+  width: min(100%, 27rem);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
   color: var(--ink);
-  font: inherit;
-  font-size: 1rem;                     /* 16px: no zoom-on-focus on iOS */
+  box-shadow: var(--shadow-lift);
 }
 
-.mark-text::placeholder {
-  color: var(--ink-faint);
+.overlay-card h2 {
+  margin-bottom: .5rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
 }
 
-.mark-text:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.machine-button {
-  padding: .8em 1.6em;
-  font-size: 1rem;
-}
-
-/* 5 · The status lines ---------------------------------------------------- */
-.machine-status {
-  min-height: 1.6em;                   /* reserve the line: no jump */
-  margin: 1.1rem 0 .3rem;
+.overlay-card p {
   color: var(--ink-soft);
 }
 
-.machine-counter {
-  margin: 0;
-  color: var(--ink-faint);
-  font-size: .85rem;
-  font-variant-numeric: tabular-nums;
+.overlay-rules {
+  margin: .9rem 0 1.15rem;
+  padding-left: 1.1rem;
+  color: var(--ink-soft);
+  font-size: .9rem;
+  line-height: 1.5;
 }
 
-/* 6b · The machine page's two-column layout -------------------------------
-   The machine is the performance; the ledger is the souvenir. On a wide
-   screen they stand side by side, with the ledger held in view while the
-   arm works. */
+.overlay-rules li {
+  margin: .28rem 0;
+}
+
+.overlay-card .btn {
+  margin-top: .35rem;
+}
+
+.overlay-best {
+  margin: 1rem 0 0;
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* 5 · Layout and the record ----------------------------------------------- */
 .machine-layout {
   display: grid;
   gap: clamp(1.5rem, 4vw, 2.5rem);
@@ -280,8 +510,10 @@
   min-width: 0;
 }
 
-.paper-card {
-  cursor: text;
+.game-status {
+  min-height: 1.6em;
+  margin: 1.1rem 0 0;
+  color: var(--ink-soft);
 }
 
 .ledger {
@@ -293,7 +525,7 @@
 
 @media (min-width: 60rem) {
   .machine-layout {
-    grid-template-columns: minmax(0, 1.4fr) minmax(16rem, .6fr);
+    grid-template-columns: minmax(0, 1.45fr) minmax(16rem, .55fr);
     column-gap: clamp(2rem, 4vw, 3.5rem);
   }
 
@@ -305,28 +537,52 @@
 
 .ledger h2 {
   margin-bottom: .4rem;
-  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
-  line-height: 1.15;
+  font-size: clamp(1.3rem, 2.4vw, 1.65rem);
+  line-height: 1.18;
 }
 
-.ledger-total {
-  margin: 0 0 1rem;
+.record-stats {
+  display: grid;
+  margin: 1rem 0 0;
+}
+
+.record-stats div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.record-stats dt {
+  color: var(--ink-soft);
+  font-size: .88rem;
+  line-height: 1.35;
+}
+
+.record-stats dd {
+  flex: none;
+  min-width: 3.5ch;
+  margin: 0;
   font-family: var(--font-mono);
-  font-size: .72rem;
-  letter-spacing: .1em;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.record-label {
+  margin: 1.25rem 0 .5rem;
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-.ledger-total strong {
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  font-weight: 600;
-  letter-spacing: -.02em;
-  color: var(--ink);
-}
-
-.ledger-list {
+.score-list {
   display: grid;
   gap: 0;
   margin: 0;
@@ -334,100 +590,78 @@
   list-style: none;
 }
 
-.ledger-list li {
+.score-list li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: .5rem 0;
+  padding: .45rem 0;
   border-bottom: 1px dashed var(--rule);
 }
 
-.ledger-word {
-  min-width: 0;
-  font-family: var(--font-serif);
-  font-size: 1.06rem;
-  font-style: italic;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
-.ledger-tag {
-  flex: none;
+.score-rank {
   font-family: var(--font-mono);
-  font-size: .58rem;
+  font-size: .66rem;
   letter-spacing: .12em;
-  text-transform: uppercase;
   color: var(--ink-faint);
 }
 
-.ledger-empty {
-  margin: .25rem 0 0;
+.score-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-empty {
   color: var(--ink-faint);
   font-size: .9rem;
   font-style: italic;
 }
 
-.ledger-label {
-  margin: 1.35rem 0 .6rem;
-  font-family: var(--font-mono);
-  font-size: .62rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
+.record-note {
+  margin: 1.1rem 0 0;
   color: var(--ink-faint);
+  font-size: .9rem;
+  font-style: italic;
 }
 
-.milestones {
-  display: flex;
-  gap: .4rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.milestone {
-  display: grid;
-  place-items: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1px solid var(--rule);
-  border-radius: 50%;
-  font-family: var(--font-mono);
-  font-size: .62rem;
-  color: var(--ink-faint);
-  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
-}
-
-.milestone.is-earned {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 700;
-}
-
+/* 6 · Small screens & reduced motion -------------------------------------- */
 @media (max-width: 40rem) {
-  /* On a phone the field and the button stack; a squeezed field is worse
-     than an extra line. */
-  .mark-form {
-    display: grid;
+  .switch-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .machine-button {
+  .shift-hud {
+    gap: .5rem;
+  }
+
+  .hud-label {
+    font-size: .6rem;
+  }
+
+  .overlay-card .btn {
     width: 100%;
   }
 }
 
-/* 7 · Reduced motion ------------------------------------------------------
-   The arm still has to move — it is the machine — but a visitor who asked
-   for less motion gets shorter, plainer travel rather than the eased sweep. */
 @media (prefers-reduced-motion: reduce) {
-  .eraser,
-  .is-erasing .eraser,
-  .is-retracting .eraser {
-    transition-timing-function: linear;
+  .unit,
+  .unit-lamp,
+  .unit-lever,
+  .unit-hand,
+  .timer-track span {
+    transition-duration: .01ms;
   }
 
-  .is-erasing .mark {
-    transition-timing-function: linear;
+  .unit-pop.is-popping,
+  .unit.is-hit,
+  .unit.is-hit::before,
+  .unit.is-hit::after,
+  .unit.is-hit .unit-lamp,
+  .hud-stat strong.is-bumped,
+  .combo-flash.is-showing,
+  .switch-board.is-perfect {
+    animation: none;
   }
 }

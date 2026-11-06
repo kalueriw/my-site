@@ -22,7 +22,7 @@ From this folder, either:
 | `index.html` | Hero image, site title, one sentence, and the three entries |
 | `quotes.html` | 20 quotes in English; one picked at random on load |
 | `project.html` | 5 project ideas, each with the person it is for |
-| `machine.html` | One useless machine: write a word, watch it erased, keep the record |
+| `machine.html` | A 60-second game: twelve switches, one hand, a local high score |
 | `about.html` | Who I am, what I am learning, and `#contact` |
 
 `nav.html` and `footer.html` are **fragments**, not pages: no `<!DOCTYPE>`,
@@ -56,25 +56,29 @@ radius, background and max-width once; all twenty cards obey. The site
 footer is `#site-footer` — an **id**, not a `footer` tag selector — because
 every quote card contains a `<footer>` of its own.
 
-**6 · The useless machine.** One card, one brass arm, and a field for writing
-the mark. Typing previews the word on the card; pressing the button commits
-it, the arm wipes it away, the arm withdraws, and the card is blank again. It
-is in four states: `blank`, `marked`, `erasing`, `retracting`. The ledger
-beside the machine keeps the last eight words it has taken, the all-time
-count, and milestones at 1, 10, 25 and 50 — all in `localStorage`, so the
-record survives a reload even though the card never does. The status line
-changes at 1, 5, 10, 25, 50 and 100 marks. Minsky described the idea in 1952;
-Shannon built the switch version in 1950. This one is the same joke reversed:
-it does not switch itself back on, it undoes what you did.
+**6 · The useless machine.** A walnut night-shift panel with twelve brass
+switches, twelve lamps, and one hand inside. The machine turns switches off;
+the visitor turns them back on. A shift is sixty seconds, the hand gets
+faster, and in the second half it can flip two switches at once. Each switch
+is worth 10 points, multiplied by the combo; switching a lamp back on within
+2.5 seconds of the last one keeps the chain alive. Clearing the whole board
+pays a 100-point "perfect panel" bonus. The record beside the board keeps the
+best shift, the number of shifts worked, the longest combo and the top three
+scores in `localStorage`.
+Minsky described the idea in 1952; Shannon built the switch version in 1950.
 
-**7 · No state bugs.** The machine is a state machine. One variable holds the
-state, one function paints the page from it, and one timer is ever alive.
-Classes are never removed "somewhere else" — `render()` derives them every
-time, so nothing can be left behind. Pressing the button while the arm is
-working is refused, not queued. Verified by hammering it:
+**7 · No runaway state.** The board is one state machine: `ready` → `running`
+→ `closed`. While running, exactly one machine timer schedules the next hand
+and one clock interval paints the remaining time; both are cleared on end and
+on restart. The twelve switches are real buttons with `aria-checked`; the
+player only changes the board, and the machine only changes it back. Verified:
 
-- 30 rapid presses, then settle → back to `blank`, no `is-*` class left
-- a press mid-`erasing` → refused, the cycle still completes
+- start → 60 seconds → `closed` once, with the result overlay and score
+- a switch turned on during a hand's telegraph keeps the hand's target, and
+  its class and `aria-checked` agree
+- rapid clicks do not start a second shift or stack machine timers
+- best shift, shifts worked, longest combo and the top three scores survive
+  a reload
 
 **8 · Final pass.** `node tools/check.mjs` checks every link and image with
 exact-case matching (so `Hero.jpg` vs `hero.jpg` cannot slip through), plus
@@ -100,5 +104,7 @@ tools/check.mjs                      ← not loaded by any page
 - The fonts are system fonts plus Georgia, so there is nothing to download and
   nothing to fail — but the exact rendering differs a little between Windows,
   macOS and Android. That is expected.
-- The ledger and the all-time count use `localStorage`. In a private window
-  they work for the visit and disappear with the tab.
+- The record, best shift and top scores use `localStorage`. In a private
+  window they work for the visit and disappear with the tab.
+- The shift is designed for pointer and touch. Every switch is a keyboard
+  button as well, but sixty seconds of twelve switches is a fast game.

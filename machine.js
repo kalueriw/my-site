@@ -1,360 +1,455 @@
-// machine.js — the eraser.
+// machine.js — night shift at the useless machine.
 //
-//   You write a word; the arm wipes it off. The ledger keeps the record.
+//   Twelve switches. The machine turns them off; you turn them back on.
+//   Sixty seconds. The score is the only thing that survives the shift.
 //
-// It is written as a small STATE MACHINE. One variable says which state we
-// are in, one function moves between states, one timer is ever alive, and the
-// page is painted from the state rather than edited by hand. That last rule
-// is what makes a double click harmless: there is never a half-finished page
-// to clean up.
+// The board is one small state machine:
+//
+//   ready ──start──▶ running ──time up──▶ closed ──start──▶ running
+//
+// While running, one machine timer schedules the next hand, and one clock
+// interval paints the remaining time. Both are cleared on stop. The player
+// only changes the twelve switch buttons; the machine only changes them back.
 
 'use strict';
 
-/* =========================================================================
-   PART A — THE ERASER
-   =========================================================================
+const units = Array.from(document.querySelectorAll('.unit'));
+const board = document.getElementById('board');
+const comboFlash = document.getElementById('combo-flash');
+const panel = document.getElementById('panel');
+const overlay = document.getElementById('overlay');
+const overlayTitle = document.getElementById('overlay-title');
+const overlayCopy = document.getElementById('overlay-copy');
+const overlayBest = document.getElementById('overlay-best');
+const overlayRules = document.getElementById('overlay-rules');
+const startBtn = document.getElementById('start');
+const statusEl = document.getElementById('status');
+const shiftState = document.getElementById('shift-state');
 
-   Four states, and each one is a picture of what you can see:
+const timeEl = document.getElementById('time');
+const scoreEl = document.getElementById('score');
+const comboEl = document.getElementById('combo');
+const bestEl = document.getElementById('best');
+const timerFill = document.getElementById('timer-fill');
 
-       blank        card empty      arm parked off the right
-         │
-         │  you submit the form
-         ▼
-       marked       ink showing     arm parked          ── after a wait ──┐
-         │                                                              │
-         │  the arm sets off                                            │
-         ▼                                                              │
-       erasing      ink wiping      arm crossing the card               │
-         │                                                              │
-         │  the ink is gone                                             │
-         ▼                                                              │
-       retracting   card empty      arm sliding back out                 │
-         │                                                              │
-         └──────────────────────────────────────────────────────────────┘
-                                 back to blank
+const recordBest = document.getElementById('record-best');
+const recordShifts = document.getElementById('record-shifts');
+const recordCombo = document.getElementById('record-combo');
+const scoreList = document.getElementById('score-list');
 
-   Two rules make the machine impossible to break:
+// -- The record ------------------------------------------------------------
 
-     1. Submissions are only accepted in `blank` and `marked`. Once the arm
-        has set off, the machine is busy and a press is refused, not queued.
-     2. Every timer goes through enter(), which cancels the previous one
-        first. There is never more than one alive, so no stale callback can
-        fire into a later state.
-   ========================================================================= */
+const BEST_KEY = 'shift.best';
+const SHIFTS_KEY = 'shift.count';
+const COMBO_KEY = 'shift.combo';
+const TOP_KEY = 'shift.top';
 
-const stage = document.getElementById('stage');
-const paper = document.getElementById('paper');
-const markBox = document.getElementById('mark');
-const markWord = document.getElementById('mark-word');
-const markForm = document.getElementById('mark-form');
-const markInput = document.getElementById('mark-text');
-const readout = document.getElementById('status');
-const erasedEl = document.getElementById('erased');
-const oncardEl = document.getElementById('oncard');
-const ledgerList = document.getElementById('ledger-list');
-const ledgerEmpty = document.getElementById('ledger-empty');
-const milestones = Array.from(document.querySelectorAll('.milestone'));
-
-// -- Timings, in milliseconds ----------------------------------------------
-
-const WAIT_MIN = 800;      // how long the machine lets the ink sit, at least
-const WAIT_MAX = 1400;     // …and at most
-const ERASE_MS = 900;      // the arm's whole pass across the card
-const RETRACT_MS = 600;    // and its return
-
-// Hand the two durations to CSS, so the transitions and these waits cannot
-// describe different amounts of time.
-document.documentElement.style.setProperty('--erase', ERASE_MS + 'ms');
-document.documentElement.style.setProperty('--retract', RETRACT_MS + 'ms');
-
-// -- The all-time count ----------------------------------------------------
-// The number survives a reload, which is the small reason to come back: the
-// machine remembers that you were here even though the card never does.
-
-const ERASED_KEY = 'eraser.marks';
-const WORDS_KEY = 'eraser.words';
-const MAX_WORD = 24;
-const MAX_LEDGER = 8;
-
-function readErased() {
+function readNumber(key) {
   try {
-    const stored = Number(window.localStorage.getItem(ERASED_KEY));
+    const stored = Number(window.localStorage.getItem(key));
     return Number.isFinite(stored) && stored > 0 ? Math.floor(stored) : 0;
   } catch (error) {
-    return 0;                    // storage can be blocked; the count still works
+    return 0;
   }
 }
 
-function saveErased(n) {
+function saveNumber(key, value) {
   try {
-    window.localStorage.setItem(ERASED_KEY, String(n));
+    window.localStorage.setItem(key, String(value));
   } catch (error) {
-    // Private mode: the count is correct for this visit and gone next time.
+    // Private mode: the record lives for this visit only.
   }
 }
 
-function readWords() {
+function readTop() {
   try {
-    const stored = JSON.parse(window.localStorage.getItem(WORDS_KEY));
+    const stored = JSON.parse(window.localStorage.getItem(TOP_KEY));
     if (!Array.isArray(stored)) {
       return [];
     }
     return stored
-      .filter((word) => typeof word === 'string')
-      .slice(0, MAX_LEDGER);
+      .map(Number)
+      .filter((value) => Number.isFinite(value))
+      .sort((a, b) => b - a)
+      .slice(0, 3);
   } catch (error) {
     return [];
   }
 }
 
-function saveWords() {
+function saveTop() {
   try {
-    window.localStorage.setItem(WORDS_KEY, JSON.stringify(words));
+    window.localStorage.setItem(TOP_KEY, JSON.stringify(scores));
   } catch (error) {
-    // Private mode: the ledger lives for this visit only.
+    // Private mode.
   }
 }
 
-// -- State -----------------------------------------------------------------
+let best = readNumber(BEST_KEY);
+let shifts = readNumber(SHIFTS_KEY);
+let bestCombo = readNumber(COMBO_KEY);
+let scores = readTop();
 
-let state = 'blank';
-let timer = null;          // the only live timeout, or null
-let erased = readErased();
-let words = readWords();
-let lastWord = '';         // what the arm is taking back this cycle
+// -- The shift -------------------------------------------------------------
 
-erasedEl.textContent = erased;
+const SHIFT_MS = 60000;          // one minute of night shift
+const COMBO_WINDOW = 2500;       // time to keep a combo alive
+const POINTS_PER_ON = 10;        // base points for switching one lamp back on
+const PERFECT_BONUS = 100;
 
-/** The ledger: newest first, with the most recent marked "just now". */
-function renderLedger() {
-  ledgerList.replaceChildren(...words.map((word, index) => {
+let running = false;
+let startedAt = 0;
+let remaining = SHIFT_MS;
+let score = 0;
+let combo = 0;
+let lastHitAt = 0;
+let perfectPending = true;
+
+let machineTimer = null;         // the next hand
+let clockTimer = null;           // the remaining-time interval
+const targeting = new Set();     // switch indexes with a hand out
+
+const states = new Array(units.length).fill(true);
+
+// The twelve switches start on, and the overlay sits over them.
+
+for (const [index, unit] of units.entries()) {
+  unit.addEventListener('click', () => pressUnit(index));
+}
+
+// -- Painting --------------------------------------------------------------
+
+function renderUnit(index) {
+  units[index].classList.toggle('is-on', states[index]);
+  units[index].setAttribute('aria-checked', String(states[index]));
+}
+
+function renderBoard() {
+  for (let index = 0; index < units.length; index += 1) {
+    renderUnit(index);
+  }
+}
+
+function allOn() {
+  return states.every(Boolean);
+}
+
+function updateHud() {
+  scoreEl.textContent = score;
+  comboEl.textContent = `×${combo > 1 ? combo : 1}`;
+  bestEl.textContent = Math.max(best, score);
+}
+
+/** Restart a short CSS pulse on a HUD number. */
+function bump(element) {
+  element.classList.remove('is-bumped');
+  void element.offsetWidth;
+  element.classList.add('is-bumped');
+}
+
+function updateRecord() {
+  recordBest.textContent = best;
+  recordShifts.textContent = shifts;
+  recordCombo.textContent = `×${bestCombo > 1 ? bestCombo : 1}`;
+  overlayBest.textContent = best;
+
+  scoreList.replaceChildren();
+
+  if (scores.length === 0) {
+    const empty = document.createElement('li');
+    empty.className = 'score-empty';
+    empty.textContent = 'No finished shifts yet.';
+    scoreList.append(empty);
+    return;
+  }
+
+  scores.forEach((value, index) => {
     const item = document.createElement('li');
-    const label = document.createElement('span');
-    label.className = 'ledger-word';
-    label.textContent = word;
-
-    const tag = document.createElement('span');
-    tag.className = 'ledger-tag';
-    tag.textContent = index === 0 ? 'just now' : 'taken';
-
-    item.append(label, tag);
-    return item;
-  }));
-
-  ledgerEmpty.hidden = words.length > 0;
+    const rank = document.createElement('span');
+    rank.className = 'score-rank';
+    rank.textContent = `0${index + 1}`;
+    const points = document.createElement('span');
+    points.className = 'score-value';
+    points.textContent = value;
+    item.append(rank, points);
+    scoreList.append(item);
+  });
 }
-
-/** The record is the reward: each milestone stays lit once it is reached. */
-function renderMilestones() {
-  for (const milestone of milestones) {
-    milestone.classList.toggle(
-      'is-earned',
-      erased >= Number(milestone.dataset.at)
-    );
-  }
-}
-
-renderLedger();
-renderMilestones();
 
 /**
- * Paint the page from `state`. This is the ONLY place the stage's classes
- * are set, which is why none of them can be left behind.
+ * A "+N" floats out of the switch. The higher the combo, the bigger the
+ * number and the brass combo pill beside it.
  */
-function render() {
-  stage.classList.toggle('is-marked', state === 'marked');
-  stage.classList.toggle('is-erasing', state === 'erasing');
-  stage.classList.toggle('is-retracting', state === 'retracting');
-  stage.classList.toggle(
-    'is-writing',
-    state === 'blank' && markInput.value.trim() !== ''
+function pop(unit, text, comboValue) {
+  const bubble = unit.querySelector('.unit-pop');
+  bubble.textContent = text;
+  bubble.dataset.combo = comboValue > 1 ? `×${comboValue}` : '';
+  bubble.classList.toggle('has-combo', comboValue > 1);
+  bubble.style.setProperty(
+    '--combo-scale',
+    String(Math.min(1.7, 1 + comboValue * 0.08))
   );
-
-  // "On the card" follows what is visible: a mark being erased, or the word
-  // waiting in the field as a preview.
-  const onCard = state === 'marked' || state === 'erasing'
-    || (state === 'blank' && markInput.value.trim() !== '');
-  oncardEl.textContent = onCard ? '1' : '0';
+  bubble.classList.remove('is-popping');
+  void bubble.offsetWidth;         // restart the animation
+  bubble.classList.add('is-popping');
 }
 
-/**
- * Move to `next`, cancelling whatever was planned. `ms` schedules the next
- * move; leave it out and the machine rests in `next` until a submission.
- */
-function enter(next, ms) {
-  window.clearTimeout(timer);
-  timer = null;
+/** A board-sized stamp: "x5" on a combo milestone, "PERFECT" on a full board. */
+function flashCombo(text) {
+  comboFlash.textContent = text;
+  comboFlash.classList.remove('is-showing');
+  void comboFlash.offsetWidth;
+  comboFlash.classList.add('is-showing');
+}
 
-  state = next;
-  render();
+// -- The clock -------------------------------------------------------------
 
-  if (ms !== undefined) {
-    timer = window.setTimeout(tick, ms);
+function formatTime(ms) {
+  const total = Math.ceil(ms / 1000);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
+function tickClock() {
+  if (!running) {
+    return;
+  }
+
+  remaining = Math.max(0, SHIFT_MS - (performance.now() - startedAt));
+  timeEl.textContent = formatTime(remaining);
+  timerFill.style.width = `${(remaining / SHIFT_MS) * 100}%`;
+  panel.classList.toggle('is-final', remaining <= 10000);
+
+  if (remaining === 0) {
+    endShift();
   }
 }
 
-const AFTER_ERASE = [
-  'Blank again, exactly as you found it. Make another.',
-  'Gone. The machine looks pleased with itself.',
-  'Un-made, carefully, and without haste.',
-  'The card is clean. You are not the first to try.',
-  'It does not remember the mark. It remembers the motion.'
-];
+// -- The machine -----------------------------------------------------------
 
-/**
- * The machine gets a little more familiar with every mark. These lines are
- * the reward for staying past the first press.
- */
-function completionLine(n) {
-  if (n === 1) {
-    return 'Blank again, exactly as you found it. Make another.';
-  }
-  if (n === 5) {
-    return 'Five. It is getting good at this. You are getting predictable.';
-  }
-  if (n === 10) {
-    return 'Ten marks, every one erased. The machine is warmed up.';
-  }
-  if (n === 25) {
-    return 'Twenty-five. The arm could do this all day.';
-  }
-  if (n === 50) {
-    return 'Fifty. Nobody is counting. Except the machine.';
-  }
-  if (n === 100) {
-    return 'One hundred marks. Neither of you can stop now.';
-  }
-  return AFTER_ERASE[n % AFTER_ERASE.length];
+function progress() {
+  return Math.min(1, (performance.now() - startedAt) / SHIFT_MS);
 }
 
-/** The one timer callback. It only ever moves the machine one step forward. */
-function tick() {
-  timer = null;
+function scheduleMachine(delay) {
+  window.clearTimeout(machineTimer);
+  machineTimer = window.setTimeout(machineStep, delay);
+}
 
-  if (state === 'marked') {
-    erased += 1;
-    erasedEl.textContent = erased;
-    saveErased(erased);
-    renderMilestones();
+function machineStep() {
+  machineTimer = null;
 
-    // The card loses the mark; the ledger gains it.
-    words.unshift(lastWord || 'a squiggle');
-    words = words.slice(0, MAX_LEDGER);
-    saveWords();
-    renderLedger();
+  if (!running) {
+    return;
+  }
 
-    enter('erasing', ERASE_MS);
-    readout.textContent = 'The arm arrives, and the mark begins to go.';
-  } else if (state === 'erasing') {
-    enter('retracting', RETRACT_MS);
-    readout.textContent = 'Wiped clean. The arm withdraws.';
-  } else if (state === 'retracting') {
-    enter('blank');
+  const available = [];
+  for (let index = 0; index < states.length; index += 1) {
+    if (states[index] && !targeting.has(index)) {
+      available.push(index);
+    }
+  }
 
-    // Clear the field only if it still holds the word just erased. If the
-    // visitor started typing the next one mid-erase, put that word on the
-    // card instead.
-    if (readWord() === lastWord) {
-      markInput.value = '';
-      showWord('');
-    } else {
-      showWord(readWord());
+  if (available.length === 0) {
+    scheduleMachine(260);
+    return;
+  }
+
+  const p = progress();
+  const count = p > 0.5 && available.length > 1 && Math.random() < 0.45 ? 2 : 1;
+  const chosen = [];
+
+  for (let n = 0; n < count && available.length > 0; n += 1) {
+    const pick = Math.floor(Math.random() * available.length);
+    chosen.push(available.splice(pick, 1)[0]);
+  }
+
+  for (const index of chosen) {
+    targeting.add(index);
+    units[index].classList.add('is-targeted');
+  }
+
+  const telegraph = Math.round(300 - 150 * p);
+
+  machineTimer = window.setTimeout(() => {
+    if (!running) {
+      return;
     }
 
-    render();
-    readout.textContent = completionLine(erased);
-  }
+    for (const index of chosen) {
+      targeting.delete(index);
+      units[index].classList.remove('is-targeted');
+      units[index].classList.add('is-flipping');
+
+      states[index] = false;
+      renderUnit(index);
+      perfectPending = true;         // the next all-on board can pay again
+
+      window.setTimeout(() => {
+        units[index].classList.remove('is-flipping');
+      }, 120);
+    }
+
+    const delay = Math.round(950 - 600 * p + Math.random() * 160);
+    scheduleMachine(delay);
+  }, telegraph);
 }
 
-/** A random pause between WAIT_MIN and WAIT_MAX, in whole milliseconds. */
-function randomWait() {
-  return Math.round(WAIT_MIN + Math.random() * (WAIT_MAX - WAIT_MIN));
-}
+// -- The player ------------------------------------------------------------
 
-/**
- * Put the typed word on the card, or put the default squiggle back if the
- * field is empty. textContent, never innerHTML: the word is the visitor's.
- */
-function readWord() {
-  return markInput.value.trim().slice(0, MAX_WORD);
-}
-
-function showWord(word) {
-  if (word === '') {
-    markWord.textContent = '';
-    markBox.classList.remove('has-word');
+function pressUnit(index) {
+  if (!running || states[index]) {
     return;
   }
 
-  markWord.textContent = word;
-  markBox.classList.add('has-word');
+  states[index] = true;
+  renderUnit(index);
+
+  const unit = units[index];
+  unit.classList.remove('is-hit');
+  void unit.offsetWidth;             // restart the press animation
+  unit.classList.add('is-hit');
+
+  const now = Date.now();
+  combo = now - lastHitAt < COMBO_WINDOW ? combo + 1 : 1;
+  lastHitAt = now;
+  bestCombo = Math.max(bestCombo, combo);
+
+  const points = POINTS_PER_ON * combo;
+  const perfect = allOn() && perfectPending;
+
+  score += points;
+
+  if (perfect) {
+    perfectPending = false;
+    score += PERFECT_BONUS;
+    board.classList.add('is-perfect');
+    window.setTimeout(() => board.classList.remove('is-perfect'), 520);
+    statusEl.textContent = `Perfect panel. +${PERFECT_BONUS}.`;
+  } else if (combo >= 3 && combo % 3 === 0) {
+    flashCombo(`×${combo}`);
+  }
+
+  // The perfect bonus rides on the same floating number instead of a
+  // board-wide stamp that would cover the switches.
+  pop(
+    units[index],
+    `+${points + (perfect ? PERFECT_BONUS : 0)}`,
+    combo
+  );
+
+  updateHud();
+  bump(scoreEl);
+
+  if (combo > 1) {
+    bump(comboEl);
+  }
 }
 
-// A few words get a reply. They are small rewards for trying things.
-const REACTIONS = {
-  stop: 'It has heard that before.',
-  hello: 'It does not say hello back.',
-  again: 'That word keeps coming back.',
-  erase: 'That is the job.',
-  remember: 'It will not.',
-  why: 'It does not explain itself.'
-};
+// -- Start and end ---------------------------------------------------------
 
-// Live preview: the word appears on the card as it is typed. While the arm
-// is working, the field holds the next word without disturbing the mark
-// being erased.
-markInput.addEventListener('input', () => {
-  if (state === 'blank') {
-    const word = readWord();
-    showWord(word);
-    render();
-    readout.textContent = word === ''
-      ? 'Blank. Write a word, then make a mark.'
-      : `“${word}” is on the card. Press the button when you are ready.`;
-  }
-});
+function rank(value) {
+  if (value >= 1500) return "The machine's equal";
+  if (value >= 900) return 'Night manager';
+  if (value >= 450) return 'Operator';
+  if (value >= 150) return 'Trainee';
+  return 'Visitor';
+}
 
-// The paper is the obvious place to click if you want to write on it.
-paper.addEventListener('click', () => markInput.focus());
-
-// -- The one control -------------------------------------------------------
-
-markForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-
-  // The arm is working. Refuse the press rather than queuing it — a queue is
-  // how a machine ends up doing two things at once.
-  if (state === 'erasing' || state === 'retracting') {
-    readout.textContent = 'The arm is already at work. Let it finish.';
+function startShift() {
+  if (running) {
     return;
   }
 
-  const word = readWord();
-  showWord(word);
-  lastWord = word;
+  window.clearTimeout(machineTimer);
+  window.clearInterval(clockTimer);
+  machineTimer = null;
+  clockTimer = null;
+  targeting.clear();
 
-  const reaction = REACTIONS[word.toLowerCase()];
+  score = 0;
+  combo = 0;
+  lastHitAt = 0;
+  perfectPending = true;
+  states.fill(true);
+  renderBoard();
 
-  // Submitting while the ink is still there does not add a second mark — it
-  // restarts the wait, which is exactly the machine being patient with you.
-  if (state === 'marked') {
-    enter('marked', randomWait());
-    readout.textContent = reaction || (word === ''
-      ? 'Another mark, on top of the first. It will not help.'
-      : `“${word}” replaces the first mark. It will not help.`);
+  running = true;
+  startedAt = performance.now();
+  remaining = SHIFT_MS;
+  panel.classList.remove('is-final');
+  board.classList.remove('is-perfect');
+
+  overlay.hidden = true;
+  shiftState.textContent = 'Live';
+  statusEl.textContent = 'Shift started. Keep the switches on.';
+  updateHud();
+  tickClock();
+
+  clockTimer = window.setInterval(tickClock, 100);
+  scheduleMachine(750);
+
+  board.focus({ preventScroll: true });
+}
+
+function endShift() {
+  if (!running) {
     return;
   }
 
-  enter('marked', randomWait());
-  readout.textContent = reaction || (word === ''
-    ? 'A mark. The arm is on its way.'
-    : `“${word}” — the arm will take it back.`);
-});
+  running = false;
+  window.clearTimeout(machineTimer);
+  window.clearInterval(clockTimer);
+  machineTimer = null;
+  clockTimer = null;
 
-// Open in the state the markup already shows. A returning visitor gets a
-// line that notices them; a first visitor gets the instructions.
-if (erased > 0) {
-  readout.textContent = 'The card is blank, as always. Write something.';
+  for (const index of targeting) {
+    units[index].classList.remove('is-targeted');
+    units[index].classList.remove('is-flipping');
+  }
+  targeting.clear();
+
+  remaining = 0;
+  timeEl.textContent = '0:00';
+  timerFill.style.width = '0%';
+  panel.classList.remove('is-final');
+
+  shifts += 1;
+  saveNumber(SHIFTS_KEY, shifts);
+
+  if (score > best) {
+    best = score;
+    saveNumber(BEST_KEY, best);
+  }
+
+  if (bestCombo > 0) {
+    saveNumber(COMBO_KEY, bestCombo);
+  }
+
+  scores = [...scores, score].sort((a, b) => b - a).slice(0, 3);
+  saveTop();
+
+  updateHud();
+  updateRecord();
+
+  overlayRules.hidden = true;
+  overlayTitle.textContent = 'Shift over.';
+  overlayCopy.textContent =
+    `${rank(score)} — ${score} points. The machine turned the board off again; you kept the score.`;
+  startBtn.textContent = 'One more shift';
+  overlay.hidden = false;
+  shiftState.textContent = 'Closed';
+
+  statusEl.textContent =
+    `Shift over. ${score} points. The machine always gets the board.`;
+
+  startBtn.focus();
 }
-enter('blank');
 
+// -- First paint -----------------------------------------------------------
+
+startBtn.addEventListener('click', startShift);
+
+renderBoard();
+updateHud();
+updateRecord();
+startBtn.focus({ preventScroll: true });
