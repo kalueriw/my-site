@@ -294,6 +294,13 @@ main {
   max-width: 62ch;
 }
 
+/* Bulleted prose (the three things on the About page) is read item by item,
+   but the list items have no space of their own — only the line-height. A
+   little air keeps three separate thoughts from reading as one paragraph. */
+.section-body > ul > li + li {
+  margin-top: .45rem;
+}
+
 @media (min-width: 56rem) {
   .section-split {
     grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
@@ -400,6 +407,19 @@ p:last-child {
   color: var(--ink-faint);
 }
 
+/* Inline code is set a little smaller than the sentence around it and given
+   its own sheet of paper. At full body size the mono face reads as a different
+   voice rather than as a filename, and there is nothing to show where it
+   starts and stops. */
+code {
+  padding: .1em .4em;
+  border-radius: 4px;
+  background: var(--paper-sunk);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: .88em;
+}
+
 /* A heading a screen reader needs but the eye does not — it keeps the
    document's outline correct without adding a line of visible text. */
 .visually-hidden {
@@ -430,6 +450,13 @@ a:hover {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
   border-radius: 3px;
+}
+
+/* The browser's default blue has nothing to do with this palette, and on a
+   dark page it is the brightest thing on screen. */
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
 }
 
 /* A button here is a small object on the page, not a lozenge: a soft corner,
@@ -929,7 +956,7 @@ a:hover {
 .quote .source::before {
   content: "—";
   margin-right: .45em;
-  color: var(--rule);
+  color: var(--rule-strong);
 }
 
 /* A quote wall that reads left to right. CSS columns fill a column top to
@@ -1108,7 +1135,7 @@ a:hover {
 
    The label column is a fixed width, for the same reason .definitions uses
    one: max-content sizes the column to the single longest label, so
-   "Ingredient-fusion recipes" stretched it to 236px and left "Band page"
+   "Ingredient-fusion recipes" stretched it to 236px and left "Pet chooser"
    stranded against 140px of dead space — the short rows read as a missing
    column rather than a short label. 13rem holds the longest label on two
    lines and gives every row the same shape. */
@@ -1119,9 +1146,23 @@ a:hover {
   margin: 0;
 }
 
+/* Above 56rem the split grid squeezes this list into a column about 470px
+   wide, where 13rem of labels takes half of it and leaves the answers at
+   ~22 characters a line. Below 56rem the list has the full page width, so
+   it keeps the fixed column; above it, a fluid one gives way as the page
+   narrows and widens back to 13rem when there is room. */
+@media (min-width: 56rem) {
+  .audience {
+    grid-template-columns: clamp(9rem, 14vw, 13rem) minmax(0, 1fr);
+  }
+}
+
 .audience dt {
   font-family: var(--font-serif);
   font-weight: 600;
+  /* Labels wrap at mid widths; tighter leading keeps a two-line name reading
+     as one label rather than two short ones. */
+  line-height: 1.35;
   color: var(--ink);
 }
 

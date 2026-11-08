@@ -372,7 +372,7 @@ function feedCoin(index) {
 // -- Start and end ---------------------------------------------------------
 
 function rank(value) {
-  if (value >= 1500) return "The machine's equal";
+  if (value >= 1500) return "The machine’s equal";
   if (value >= 900) return 'Regular customer';
   if (value >= 450) return 'Window shopper';
   if (value >= 150) return 'First-timer';
