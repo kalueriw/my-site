@@ -137,15 +137,18 @@
   <!-- the far edge of the water, a single ink line -->
   <rect x="0" y="558" width="1600" height="3" fill="#C9B79C"/>
 
-  <!-- reflection: the whole skyline, flipped about the waterline and faded -->
+  <!-- reflection: the whole skyline, flipped about the waterline and faded.
+       The painting order has to match the sky above, or the mirror lies: the
+       sun goes down first so the buildings sit in front of it, exactly as they
+       do up there. Drawn last, it floated on the water in front of the hall. -->
   <g clip-path="url(#lake)" filter="url(#ripple)" opacity="0.3">
     <g transform="translate(0 1120) scale(1 -1)">
+      <circle cx="800" cy="470" r="104" fill="#F0A94B"/>
       <rect x="352" y="452" width="596" height="108" fill="#C2552C"/>
       <path d="M352 452 L650 396 L948 452 Z" fill="#8E3415"/>
       <rect x="978" y="352" width="104" height="208" fill="#B4441F"/>
       <path d="M978 352 L1030 296 L1082 352 Z" fill="#7A2C11"/>
       <rect x="1112" y="486" width="286" height="74" fill="#D07A4E"/>
-      <circle cx="800" cy="470" r="104" fill="#F0A94B"/>
       <ellipse cx="196" cy="536" rx="46" ry="54" fill="#7E8A62"/>
       <ellipse cx="1444" cy="542" rx="42" ry="48" fill="#7E8A62"/>
     </g>
