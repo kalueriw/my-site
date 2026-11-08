@@ -56,6 +56,30 @@ radius, background and max-width once; all twenty cards obey. The site
 footer is `#site-footer` — an **id**, not a `footer` tag selector — because
 every quote card contains a `<footer>` of its own.
 
+The site has a **light and a dark theme**, switched from the nav on any page.
+The palette is written once, in `:root`, with every colour as
+`light-dark(light, dark)`; `color-scheme` decides which half is used. So the
+theme is one attribute on `<html>`, and no component rule knows a theme
+exists. Precedence: the visitor's stored choice beats the operating system,
+and with no choice stored the page follows the OS — including when the OS
+changes mid-visit. A two-line inline script in each `<head>` reads the stored
+choice before first paint, so a returning dark-mode visitor never sees a
+flash of cream paper. Contrast was measured in both themes against the
+actual rendered pixels (the text is hidden, the background is sampled): every
+text node on all five pages clears 4.5:1, or 3:1 where it is large.
+
+**5b · Focus containment.** The start/end ticket is `role="dialog"
+aria-modal="true"`, so it has to behave like one. When it opens, everything
+outside it gets `inert`: one attribute takes the header, footer, receipt and
+coin board out of the tab order, out of hit-testing and out of the
+accessibility tree together. Browsers without `inert` fall back to a Tab trap
+on the dialog, which is enough because the dialog holds a single control.
+
+**5c · The last-ten-seconds warning.** `.refund-panel.is-final` recolours and
+pulses the time dial. It read `.panel.is-final` for a while, which matches
+nothing — the class is on `.refund-panel` — so the warning never appeared.
+Worth keeping as a note on how quietly a selector can be wrong.
+
 The words inside a card are set in the serif at a slightly larger size than
 body text, so a quotation reads as a different kind of writing from the page
 around it. The cards are laid out in CSS columns rather than grid rows: a grid
@@ -127,3 +151,7 @@ tools/check.mjs                      ← not loaded by any page
   they work for the visit and disappear with the tab.
 - The run is designed for pointer and touch. Every coin is a keyboard button as
   well, but sixty seconds of twelve coins is a fast game.
+- The theme switch stores its choice in `localStorage`. In a private window the
+  choice holds for the visit and is forgotten with the tab; the page then falls
+  back to following the operating system, which is the same behaviour as a
+  first-time visitor.

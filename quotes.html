@@ -6,6 +6,19 @@
   <title>Quotes · Learning HTML</title>
   <meta name="description" content="Twenty quotations in English — books, speeches, songs, films and one saying from home — each with its author and its source.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Runs before the first paint, and must: nav.js arrives after the page
+       has already been drawn, so a visitor who chose dark last week would get
+       a flash of cream paper first. Two lines, no dependencies, and it fails
+       silently — if localStorage is unavailable the page simply follows the
+       operating system. -->
+  <script>
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') {
+        document.documentElement.dataset.theme = t;
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>

@@ -21,32 +21,92 @@
 /* 1 · Tokens ---------------------------------------------------------------
    A custom property is a value with a name. Change it here and it changes
    everywhere; that is the same argument as using a class instead of twenty
-   inline styles, one level up. */
+   inline styles, one level up.
+
+   Every colour below is written once, as light-dark(light, dark). That keeps
+   ONE palette in ONE place instead of two lists that have to be kept in step
+   — the failure mode of a second theme is always that someone adds a colour
+   to the light one and forgets the dark. light-dark() resolves against
+   color-scheme, which this block sets, and the switch on the page sets.
+
+   Both gradients and plain colours are allowed to use it; a gradient is just
+   a list of colours. What it cannot do is hold another var(), because then
+   the substituted value could itself be a light-dark() and the function
+   would have no single colour to choose between — so the button gradients
+   spell their three stops out rather than reaching for --accent. */
 :root {
-  /* paper: warm off-whites, darkest to lightest */
-  --paper: #FAF5EA;          /* the page itself */
-  --paper-raised: #FFFDF7;   /* cards sitting on the page */
-  --paper-sunk: #F1E8D8;     /* quiet panels, the spotlight band */
+  color-scheme: light;
 
-  /* ink: three text weights. All three clear 4.5:1 on --paper. */
-  --ink: #191512;            /* body text, nearly black */
-  --ink-soft: #443E37;       /* secondary text */
-  --ink-faint: #675F57;      /* captions, quote sources */
+  /* paper: the page, the cards on it, and quiet panels */
+  --paper:      light-dark(#FAF5EA, #17150F);
+  --paper-raised: light-dark(#FFFDF7, #201D16);
+  --paper-sunk: light-dark(#F1E8D8, #12110C);
 
-  --rule: #DDD4C2;           /* hairlines: borders, dividers */
-  --rule-strong: #C4B9A5;
-  --accent: #AE3F1B;         /* the one loud colour: ochre red */
-  --accent-dark: #822D0E;    /* its hover state */
-  --accent-soft: #F0DACB;    /* its wash: nav highlight, tags */
-  --amber: #D9822B;          /* the machine's brass, and only that */
-  --amber-light: #E9A24F;    /* its hover state */
+  /* ink: three text weights. In dark they are warm off-whites rather than
+     pure white, which is the difference between paper at night and a screen. */
+  --ink:        light-dark(#191512, #F4EDE0);
+  --ink-soft:   light-dark(#443E37, #D2C9B8);
+  --ink-faint:  light-dark(#675F57, #A79E8D);
+
+  --rule:        light-dark(#DDD4C2, #353026);
+  --rule-strong: light-dark(#C4B9A5, #4A4436);
+
+  /* The one loud colour. It lifts on dark because a dark red on a dark
+     ground is a smudge; the warmth stays in it either way. */
+  --accent:      light-dark(#AE3F1B, #E8703F);
+  --accent-dark: light-dark(#822D0E, #FF9066);   /* its hover state */
+  --accent-deep: light-dark(#98330F, #F08355);   /* red on a red wash */
+  --accent-soft: light-dark(#F0DACB, #3A2418);   /* its wash: nav, tags */
+  --amber:       light-dark(#D9822B, #E9A24F);   /* the machine's brass */
+  --amber-light: light-dark(#E9A24F, #FFC978);
+
+  --card:       light-dark(linear-gradient(180deg, #FFFFFF, #FEFBF5),
+                           linear-gradient(180deg, #232019, #1C1914));
+  --card-hover: light-dark(#FFFCF4, #2A2620);
+  --nav-bg:     light-dark(rgb(251 247 240 / .93), rgb(23 21 15 / .93));
+
+  --btn-ink:  light-dark(#FFF8F2, #1A0E07);
+  --btn-face: light-dark(linear-gradient(180deg, #BE4B25, #AE3F1B 55%, #9E3714),
+                         linear-gradient(180deg, #F08355, #E8703F 55%, #C85A2E));
+  --btn-face-hover:
+    light-dark(linear-gradient(180deg, #C95630, #B64620 55%, #8B2F10),
+               linear-gradient(180deg, #FF9670, #F07A48 55%, #D2653A));
+
+  /* The dark callout band is dark in both themes — it is the machine's
+     advertisement, and it should read as an object either way. Only its
+     surroundings change. */
+  --band: light-dark(linear-gradient(135deg, #1C1917, #2A2420),
+                     linear-gradient(135deg, #241F18, #2E2820));
+  --band-ink:     light-dark(#E8E1D7, #F0E7D9);
+  --band-ink-dim: light-dark(#BFB5A8, #BDB2A1);
+  --band-rule:    light-dark(#B4741F, #C98A38);
+  --band-btn-ink: light-dark(#2A1706, #241507);
+  --band-btn-face:
+    light-dark(linear-gradient(180deg, #F2B662, #D9822B 55%, #B86D1A),
+               linear-gradient(180deg, #F2B662, #D9822B 55%, #B86D1A));
+  --band-btn-face-hover:
+    light-dark(linear-gradient(180deg, #FFC978, #E89440 55%, #C5751C),
+               linear-gradient(180deg, #FFC978, #E89440 55%, #C5751C));
+
+  --step-ink:  light-dark(#FFFFFF, #17150F);
+  --shadow-rgb: light-dark(28 25 23, 0 0 0);
+  --spotlight-mark: light-dark(.06, .09);
+  --hero-top: light-dark(#FFFDF8, #241F16);
+
+  /* The paper texture is a data URI, so it cannot read a custom property from
+     inside itself — the whole layer is the token instead. On dark it flips
+     from a 3.5% black speckle to a 3% white one; the same file left as-is
+     would be invisible against charcoal. */
+  --grain: light-dark(
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.028'/%3E%3C/svg%3E"));
 
   --measure: 66ch;           /* a comfortable line of text */
   --measure-wide: 74rem;     /* the page's outer grid */
   --radius: 10px;
   --radius-lg: 16px;
-  --shadow: 0 12px 32px rgb(28 25 23 / .07);
-  --shadow-lift: 0 24px 56px rgb(28 25 23 / .11);
+  --shadow: 0 12px 32px rgb(var(--shadow-rgb) / .07);
+  --shadow-lift: 0 24px 56px rgb(var(--shadow-rgb) / .11);
 
   /* The small end of the type scale, named once. Everything below body copy
      picks a step from here instead of inventing a size: .7, .72, .75, .78 and
@@ -61,6 +121,31 @@
   --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+}
+
+/* 1b · Choosing a theme ----------------------------------------------------
+   color-scheme decides which half of every light-dark() pair is used, so the
+   whole palette turns on these two rules and nothing else.
+
+     - no data-theme  → follow the operating system (color-scheme above is
+                        "light"; this block hands it over to the OS only when
+                        the OS actually asks for dark, so a browser with no
+                        preference keeps the light theme)
+     - data-theme set → that wins, whatever the OS thinks
+
+   The switch writes the attribute and remembers it in localStorage. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 /* 2 · Reset & base ---------------------------------------------------------
@@ -87,8 +172,8 @@ body {
      and banded badly when the page was captured or printed. */
   background-color: var(--paper);
   background-image:
-    radial-gradient(70rem 34rem at 50% -18rem, #FFFDF8 0%, transparent 68%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    radial-gradient(70rem 34rem at 50% -18rem, var(--hero-top) 0%, transparent 68%),
+    var(--grain);
   background-repeat: no-repeat, repeat;
   background-attachment: scroll;
   color: var(--ink);
@@ -349,8 +434,8 @@ a:hover {
   padding: .62em 1.1em;
   border: 1px solid var(--accent-dark);
   border-radius: 8px;
-  background: linear-gradient(180deg, #BE4B25 0%, var(--accent) 55%, #9E3714 100%);
-  color: #FFF8F2;
+  background: var(--btn-face);
+  color: var(--btn-ink);
   font: inherit;
   font-size: var(--text-md);
   font-weight: 600;
@@ -360,7 +445,7 @@ a:hover {
   cursor: pointer;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / .22),
-    0 1px 2px rgb(28 25 23 / .18);
+    0 1px 2px rgb(var(--shadow-rgb) / .18);
   transition:
     background-color .16s ease,
     transform .12s ease,
@@ -368,8 +453,8 @@ a:hover {
 }
 
 .btn:hover {
-  background: linear-gradient(180deg, #C95630 0%, #B64620 55%, #8B2F10 100%);
-  color: #FFF8F2;
+  background: var(--btn-face-hover);
+  color: var(--btn-ink);
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / .26),
@@ -380,21 +465,21 @@ a:hover {
   transform: translateY(0);
   box-shadow:
     inset 0 2px 4px rgb(60 20 4 / .35),
-    0 1px 1px rgb(28 25 23 / .15);
+    0 1px 1px rgb(var(--shadow-rgb) / .15);
 }
 
 .btn--ghost {
   background: var(--paper-raised);
   border-color: var(--rule-strong);
   color: var(--ink);
-  box-shadow: 0 1px 2px rgb(28 25 23 / .06);
+  box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / .06);
 }
 
 .btn--ghost:hover {
-  background: #FFFCF4;
+  background: var(--card-hover);
   border-color: var(--accent);
   color: var(--accent-dark);
-  box-shadow: 0 6px 14px -6px rgb(28 25 23 / .22);
+  box-shadow: 0 6px 14px -6px rgb(var(--shadow-rgb) / .22);
 }
 
 /* The skip link is the first thing a keyboard meets. Off-screen until it
@@ -430,7 +515,7 @@ a:hover {
   z-index: 100;
   min-height: 3.9rem;
   border-bottom: 1px solid var(--rule);
-  background: rgb(251 247 240 / .93);
+  background: var(--nav-bg);
   backdrop-filter: blur(14px) saturate(1.05);
   -webkit-backdrop-filter: blur(14px) saturate(1.05);
 }
@@ -507,10 +592,57 @@ a:hover {
   color: var(--ink);
 }
 
-/* aria-current is set by nav.js on the link for the page you are on. */
+/* The theme switch. It sits beside the Contact pill and is built from the
+   same parts as the rest of the nav — a hairline, a pill radius, the small
+   mono size — so it reads as one more control rather than a gadget bolted
+   on. The icon is a CSS circle that swaps its fill for a crescent: the same
+   shape doing both jobs, so the button does not grow on toggle. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .45em;
+  padding: .35em .8em .35em .65em;
+  border: 1px solid var(--rule-strong);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent);
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+
+.theme-toggle-icon {
+  width: .85em;
+  height: .85em;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  background: currentColor;
+  /* A crescent, not a full disc: the inset shadow cuts one side away. */
+  box-shadow: inset -.32em -.1em 0 0 var(--paper);
+  transition: box-shadow .2s ease, background-color .2s ease;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle-icon {
+  background: transparent;
+  box-shadow: inset -.34em -.06em 0 0 currentColor;
+}
+
+/* aria-current is set by nav.js on the link for the page you are on.
+   The ink is one step deeper than --accent: on the peach wash, the plain accent
+   measured 4.42 and missed AA by a hair. Deepening the text rather than paling
+   the wash keeps the pill recognisable as the site's red. */
 .nav-links a[aria-current="page"] {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-deep);
   font-weight: 600;
 }
 
@@ -527,7 +659,7 @@ a:hover {
 
 .nav-cta:hover {
   background: var(--accent);
-  color: #fff;
+  color: var(--step-ink);
 }
 
 /* Shown only when the fetch fails — almost always because the page was
@@ -661,7 +793,7 @@ a:hover {
   padding: 1.45rem 1.5rem 1.55rem;
   border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, #FFFFFF 0%, #FEFBF5 100%);
+  background: var(--card);
   color: inherit;
   text-decoration: none;
   transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
@@ -844,7 +976,7 @@ a:hover {
   font-size: clamp(12rem, 26vw, 22rem);
   line-height: 1;
   color: var(--accent);
-  opacity: .06;
+  opacity: var(--spotlight-mark);
   pointer-events: none;
 }
 
@@ -944,10 +1076,17 @@ a:hover {
 }
 
 /* A description list is a question and its answer: the idea, then who it
-   is for. A grid makes the pairs line up as pairs. */
+   is for. A grid makes the pairs line up as pairs.
+
+   The label column is a fixed width, for the same reason .definitions uses
+   one: max-content sizes the column to the single longest label, so
+   "Ingredient-fusion recipes" stretched it to 236px and left "Band page"
+   stranded against 140px of dead space — the short rows read as a missing
+   column rather than a short label. 13rem holds the longest label on two
+   lines and gives every row the same shape. */
 .audience {
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: 13rem minmax(0, 1fr);
   gap: .55rem 1.75rem;
   margin: 0;
 }
@@ -990,7 +1129,7 @@ a:hover {
   height: 1.85rem;
   border-radius: 50%;
   background: var(--accent);
-  color: #fff;
+  color: var(--step-ink);
   font-size: var(--text-2xs);
   font-weight: 700;
   line-height: 1;
@@ -1052,8 +1191,8 @@ a:hover {
   border-radius: var(--radius-lg);
   background:
     radial-gradient(40rem 20rem at 100% 0%, rgb(217 130 43 / .12), transparent 60%),
-    linear-gradient(135deg, #1C1917 0%, #2A2420 100%);
-  color: #E8E1D7;
+    var(--band);
+  color: var(--band-ink);
 }
 
 .callout-kicker {
@@ -1074,7 +1213,7 @@ a:hover {
 
 .callout p {
   margin: 0;
-  color: #BFB5A8;
+  color: var(--band-ink-dim);
   max-width: 48ch;
 }
 
@@ -1082,17 +1221,17 @@ a:hover {
    than to the page around it. Same geometry as .btn, different metal. */
 .callout .btn {
   flex: none;
-  border-color: #B4741F;
-  background: linear-gradient(180deg, #F2B662 0%, var(--amber) 55%, #B86D1A 100%);
-  color: #2A1706;
+  border-color: var(--band-rule);
+  background: var(--band-btn-face);
+  color: var(--band-btn-ink);
   box-shadow:
     inset 0 1px 0 rgb(255 244 220 / .5),
     0 1px 2px rgb(0 0 0 / .35);
 }
 
 .callout .btn:hover {
-  background: linear-gradient(180deg, #FFC978 0%, #E89440 55%, #C5751C 100%);
-  color: #2A1706;
+  background: var(--band-btn-face-hover);
+  color: var(--band-btn-ink);
   box-shadow:
     inset 0 1px 0 rgb(255 248 232 / .55),
     0 8px 20px -6px rgb(217 130 43 / .5);
@@ -1248,6 +1387,23 @@ a:hover {
 
   .nav-cta {
     margin-left: auto;
+  }
+
+  /* The switch drops its label on a phone and keeps the glyph, which is the
+     part that says what it does. Both it and the Contact pill stay on the
+     first row with the brand; the links scroll underneath. */
+  .theme-toggle {
+    padding: .35em;
+    border-radius: 50%;
+  }
+
+  .theme-toggle-text {
+    display: none;
+  }
+
+  .theme-toggle-icon {
+    width: 1rem;
+    height: 1rem;
   }
 
   /* Two columns of dt/dd become one stacked pair. */

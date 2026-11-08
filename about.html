@@ -6,6 +6,19 @@
   <title>About · Learning HTML</title>
   <meta name="description" content="Who writes this site, what Qiao Yi is learning, and how to get in touch.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Runs before the first paint, and must: nav.js arrives after the page
+       has already been drawn, so a visitor who chose dark last week would get
+       a flash of cream paper first. Two lines, no dependencies, and it fails
+       silently — if localStorage is unavailable the page simply follows the
+       operating system. -->
+  <script>
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') {
+        document.documentElement.dataset.theme = t;
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>

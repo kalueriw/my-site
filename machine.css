@@ -234,8 +234,14 @@
 }
 
 /* Last ten seconds: the time dial is the one that changes colour, because it
-   is the one thing the player can no longer ignore. */
-.panel.is-final .hud-stat--time strong {
+   is the one thing the player can no longer ignore.
+
+   The class is on the cabinet, and the cabinet is .refund-panel — not .panel.
+   This read ".panel.is-final" for a long time and so never matched anything:
+   machine.js was toggling a class no rule was listening for, and the warning
+   simply never appeared. The selector has to name the same element the script
+   and the markup do. */
+.refund-panel.is-final .hud-stat--time strong {
   color: #FF9E74;
   animation: time-warn 1s ease-in-out infinite;
 }
@@ -1096,7 +1102,7 @@
   .hud-stat strong.is-bumped,
   .combo-flash.is-showing,
   .coin-board.is-full,
-  .panel.is-final .hud-stat--time strong {
+  .refund-panel.is-final .hud-stat--time strong {
     animation: none;
   }
 }

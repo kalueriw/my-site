@@ -391,6 +391,58 @@ function stampTicket() {
   }
 }
 
+// -- Focus containment -----------------------------------------------------
+//
+// The ticket claims role="dialog" aria-modal="true", so a screen reader tells
+// its user everything else is unavailable. Nothing enforced that: Tab walked
+// straight out of the dialog into the footer, and on to the skip link, past a
+// dozen coin buttons behind the modal. aria-modal was a promise the page did
+// not keep.
+//
+// `inert` is the right tool — one attribute takes a subtree out of the tab
+// order, out of hit-testing and out of the accessibility tree together, which
+// is exactly what "modal" means. Everything that is not an ancestor-or-self of
+// the overlay gets it, so the walk is up the tree rather than a list of
+// selectors that would go stale the next time the markup changes.
+const NATIVE_INERT = 'inert' in HTMLElement.prototype;
+
+function outsideTheOverlay() {
+  const found = [];
+  for (let node = overlay; node && node !== document.body; node = node.parentElement) {
+    for (const sibling of node.parentElement.children) {
+      if (sibling !== node) {
+        found.push(sibling);
+      }
+    }
+  }
+  return found;
+}
+
+const pageOutside = outsideTheOverlay();
+
+function containFocus(contained) {
+  for (const el of pageOutside) {
+    el.inert = contained;
+  }
+
+  // Old browsers without inert: the dialog holds exactly one focusable control,
+  // so keeping Tab on it is the whole trap.
+  if (!NATIVE_INERT) {
+    if (contained) {
+      overlay.addEventListener('keydown', keepTabInside);
+    } else {
+      overlay.removeEventListener('keydown', keepTabInside);
+    }
+  }
+}
+
+function keepTabInside(event) {
+  if (event.key === 'Tab') {
+    event.preventDefault();
+    startBtn.focus();
+  }
+}
+
 function startRun() {
   if (running) {
     return;
@@ -426,6 +478,7 @@ function startRun() {
 
   stampTicket();
   overlay.hidden = true;
+  containFocus(false);
   panelState.textContent = 'Open';
   statusEl.textContent = 'The machine is open. Feed it a coin.';
   updateHud();
@@ -491,6 +544,7 @@ function endRun() {
     `${rank(score)} — ${score} points. Nothing was sold, and every coin came back.`;
   startBtn.textContent = 'One more refund';
   overlay.hidden = false;
+  containFocus(true);
   panelState.textContent = 'Closed';
 
   statusEl.textContent =
@@ -507,4 +561,6 @@ renderBoard();
 updateHud();
 updateRecord();
 stampTicket();
+// The ticket is open on load, so the page behind it starts out unavailable.
+containFocus(true);
 startBtn.focus({ preventScroll: true });

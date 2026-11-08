@@ -10,6 +10,88 @@
 
 'use strict';
 
+// -- Theme ------------------------------------------------------------------
+//
+// The palette in style.css has a light half and a dark half, chosen by
+// color-scheme. This file only has to set the attribute and remember the
+// choice. It does NOT know any colours.
+//
+// The stored value is deliberately not "which colours are on" but "which
+// choice the visitor made", and it is allowed to be absent. Absent means
+// "follow the operating system", which is what most people expect and what
+// costs them nothing.
+const THEME_KEY = 'theme';
+
+function storedTheme() {
+  try {
+    const value = localStorage.getItem(THEME_KEY);
+    return value === 'light' || value === 'dark' ? value : null;
+  } catch (error) {
+    // Private mode, or storage disabled. Not worth failing over: the page
+    // simply follows the OS for the rest of the visit.
+    return null;
+  }
+}
+
+function systemPrefersDark() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+/** The theme in force right now, whatever decided it. */
+function activeTheme() {
+  return document.documentElement.dataset.theme ||
+    (systemPrefersDark() ? 'dark' : 'light');
+}
+
+function applyTheme(theme) {
+  // "auto" is not a third theme — it means "no attribute", so the media query
+  // in style.css takes over again.
+  if (theme === 'auto') {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = theme;
+  }
+}
+
+function paintSwitch(button) {
+  const dark = activeTheme() === 'dark';
+  button.setAttribute('aria-pressed', String(dark));
+  // The label names where the button takes you, not where you are: a button
+  // that says "Dark" while you are already in dark mode is a dead end.
+  button.querySelector('.theme-toggle-text').textContent = dark ? 'Light' : 'Dark';
+  button.hidden = false;
+}
+
+function startTheme() {
+  const button = document.getElementById('theme-toggle');
+  if (!button) {
+    return;
+  }
+
+  paintSwitch(button);
+
+  button.addEventListener('click', () => {
+    const next = activeTheme() === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch (error) {
+      // Choosing within the visit still works; it just will not be remembered.
+    }
+    paintSwitch(button);
+  });
+
+  // If the visitor has expressed no preference, follow the system when it
+  // changes mid-visit — someone's laptop switching to dark at sunset should
+  // take the page with it.
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (!storedTheme()) {
+      paintSwitch(button);
+    }
+  });
+}
+
+
 /**
  * Fetch an HTML fragment and put it inside the element with the given id.
  * Resolves to the fragment's element, or null if the fetch failed.
@@ -89,6 +171,7 @@ async function start() {
 
   if (header) {
     markCurrentPage(header);
+    startTheme();
   } else {
     const host = document.getElementById('site-header');
     if (host) {
