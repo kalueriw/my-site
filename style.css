@@ -23,27 +23,28 @@
    everywhere; that is the same argument as using a class instead of twenty
    inline styles, one level up. */
 :root {
-  /* paper: four warm off-whites, darkest to lightest */
-  --paper: #FBF7F0;          /* the page itself */
-  --paper-raised: #FFFFFF;   /* cards sitting on the page */
-  --paper-sunk: #F3EDE2;     /* quiet panels, the spotlight band */
+  /* paper: warm off-whites, darkest to lightest */
+  --paper: #FAF5EA;          /* the page itself */
+  --paper-raised: #FFFDF7;   /* cards sitting on the page */
+  --paper-sunk: #F1E8D8;     /* quiet panels, the spotlight band */
 
   /* ink: three text weights. All three clear 4.5:1 on --paper. */
-  --ink: #1C1917;            /* body text, nearly black */
-  --ink-soft: #4A453F;       /* secondary text */
-  --ink-faint: #6E6861;      /* captions, quote sources */
+  --ink: #191512;            /* body text, nearly black */
+  --ink-soft: #443E37;       /* secondary text */
+  --ink-faint: #675F57;      /* captions, quote sources */
 
-  --rule: #DCD6C9;           /* hairlines: borders, dividers */
-  --accent: #B4441F;         /* the one loud colour: ochre red */
-  --accent-dark: #8E3415;    /* its hover state */
-  --accent-soft: #F0DDD2;    /* its wash: nav highlight, tags */
+  --rule: #DDD4C2;           /* hairlines: borders, dividers */
+  --rule-strong: #C4B9A5;
+  --accent: #AE3F1B;         /* the one loud colour: ochre red */
+  --accent-dark: #822D0E;    /* its hover state */
+  --accent-soft: #F0DACB;    /* its wash: nav highlight, tags */
   --amber: #D9822B;          /* the machine's brass, and only that */
+  --amber-light: #E9A24F;    /* its hover state */
 
   --measure: 66ch;           /* a comfortable line of text */
   --measure-wide: 74rem;     /* the page's outer grid */
   --radius: 10px;
   --radius-lg: 16px;
-  --rule-strong: #C9C1B2;
   --shadow: 0 12px 32px rgb(28 25 23 / .07);
   --shadow-lift: 0 24px 56px rgb(28 25 23 / .11);
 
@@ -67,14 +68,25 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(70rem 34rem at 50% -18rem, #FFFDF9 0%, transparent 70%),
-    var(--paper);
+  /* Three washes, not one: a warm spotlight behind the header, a faint ochre
+     bloom low on the left, and a hairline of warmer paper at the very bottom.
+     Between them the page reads as a sheet with a lamp on it rather than a
+     flat fill — and none of it competes with the text. */
+  /* The grain is the LAST layer, so it tiles over the washes rather than
+     sitting in a fixed overlay. A fixed overlay looked right in the viewport
+     and banded badly when the page was captured or printed. */
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(70rem 34rem at 50% -18rem, #FFFDF8 0%, transparent 68%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, repeat;
+  background-attachment: scroll;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: clamp(1rem, .95rem + .25vw, 1.125rem);   /* 16 → 18 px */
   line-height: 1.65;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 img,
@@ -251,10 +263,14 @@ p:last-child {
   margin-bottom: 0;
 }
 
+/* A lede is set larger than body copy, so it needs LESS leading than body
+   copy to look right — 1.65 at 20px reads as a gap, not as a sentence. */
 .lede {
   font-size: clamp(1.05rem, 1rem + .4vw, 1.25rem);
+  line-height: 1.5;
   color: var(--ink-soft);
   max-width: 44ch;
+  text-wrap: pretty;
 }
 
 .eyebrow {
@@ -313,35 +329,62 @@ a:hover {
   border-radius: 3px;
 }
 
+/* A button here is a small object on the page, not a lozenge: a soft corner,
+   a one-pixel lift that deepens on hover, and a shadow that only appears when
+   there is light to catch it. */
 .btn {
-  display: inline-block;
-  padding: .65em 1.15em;
-  border: 1px solid transparent;
-  border-radius: 99px;
-  background: var(--accent);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+  padding: .62em 1.1em;
+  border: 1px solid var(--accent-dark);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #BE4B25 0%, var(--accent) 55%, #9E3714 100%);
+  color: #FFF8F2;
   font: inherit;
-  font-size: .95rem;
+  font-size: .96rem;
   font-weight: 600;
   line-height: 1.2;
+  letter-spacing: -.005em;
   text-decoration: none;
   cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .22),
+    0 1px 2px rgb(28 25 23 / .18);
+  transition:
+    background-color .16s ease,
+    transform .12s ease,
+    box-shadow .16s ease;
 }
 
 .btn:hover {
-  background: var(--accent-dark);
-  color: #fff;
+  background: linear-gradient(180deg, #C95630 0%, #B64620 55%, #8B2F10 100%);
+  color: #FFF8F2;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .26),
+    0 6px 16px -4px rgb(130 45 14 / .45);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 2px 4px rgb(60 20 4 / .35),
+    0 1px 1px rgb(28 25 23 / .15);
 }
 
 .btn--ghost {
-  background: transparent;
-  border-color: var(--rule);
+  background: var(--paper-raised);
+  border-color: var(--rule-strong);
   color: var(--ink);
+  box-shadow: 0 1px 2px rgb(28 25 23 / .06);
 }
 
 .btn--ghost:hover {
-  background: var(--paper-sunk);
-  color: var(--ink);
+  background: #FFFCF4;
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  box-shadow: 0 6px 14px -6px rgb(28 25 23 / .22);
 }
 
 /* The skip link is the first thing a keyboard meets. Off-screen until it
@@ -416,14 +459,14 @@ a:hover {
 }
 
 .brand-name {
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: -.01em;
 }
 
 .brand-site {
   font-family: var(--font-mono);
-  font-size: .62rem;
+  font-size: .7rem;
   font-weight: 400;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -467,7 +510,7 @@ a:hover {
   border: 1px solid var(--accent);
   border-radius: 99px;
   color: var(--accent);
-  font-size: .88rem;
+  font-size: .9rem;
   text-decoration: none;
   transition: background-color .16s ease, color .16s ease;
 }
@@ -494,7 +537,7 @@ a:hover {
   border-top: 1px solid var(--rule);
   padding-block: 1.75rem;
   color: var(--ink-faint);
-  font-size: .85rem;
+  font-size: .82rem;
 }
 
 .site-footer-inner {
@@ -567,7 +610,7 @@ a:hover {
 .hero-meta {
   margin: 1.1rem 0 0;
   font-family: var(--font-mono);
-  font-size: .72rem;
+  font-size: .7rem;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -656,7 +699,7 @@ a:hover {
 
 .entry-desc {
   color: var(--ink-soft);
-  font-size: .95rem;
+  font-size: .96rem;
   line-height: 1.6;
 }
 
@@ -875,7 +918,7 @@ a:hover {
 .idea-name {
   display: block;
   font-family: var(--font-serif);
-  font-size: 1.22rem;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -.01em;
@@ -951,7 +994,7 @@ a:hover {
 
 .definitions dt {
   font-family: var(--font-mono);
-  font-size: .78rem;
+  font-size: .8rem;
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -985,7 +1028,7 @@ a:hover {
 .callout-kicker {
   margin: 0 0 .9rem;
   font-family: var(--font-mono);
-  font-size: .71rem;
+  font-size: .7rem;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--amber);
@@ -1004,15 +1047,24 @@ a:hover {
   max-width: 48ch;
 }
 
+/* On the dark band the button turns brass, so it belongs to the machine rather
+   than to the page around it. Same geometry as .btn, different metal. */
 .callout .btn {
-  background: var(--amber);
-  color: #2A1A0C;
   flex: none;
+  border-color: #B4741F;
+  background: linear-gradient(180deg, #F2B662 0%, var(--amber) 55%, #B86D1A 100%);
+  color: #2A1706;
+  box-shadow:
+    inset 0 1px 0 rgb(255 244 220 / .5),
+    0 1px 2px rgb(0 0 0 / .35);
 }
 
 .callout .btn:hover {
-  background: #E79544;
-  color: #2A1A0C;
+  background: linear-gradient(180deg, #FFC978 0%, #E89440 55%, #C5751C 100%);
+  color: #2A1706;
+  box-shadow:
+    inset 0 1px 0 rgb(255 248 232 / .55),
+    0 8px 20px -6px rgb(217 130 43 / .5);
 }
 
 /* 13b · Contact card ------------------------------------------------------
@@ -1041,7 +1093,103 @@ a:hover {
   word-break: break-word;
 }
 
-/* 14 · Small screens & reduced motion -------------------------------------- */
+/* 14 · Motion: page changes and first paint --------------------------------
+   Two separate ideas, both optional by design:
+
+   a) Cross-page transitions. The View Transitions API is used where the
+      browser has it (Chrome 111+, Safari 18+). It cross-fades between pages
+      and gives the hero image and the page title a name, so the image stays
+      put across index → anywhere rather than blinking out and back. Nothing
+      is required for this to work: without support, navigation is a plain
+      page load and every rule below is ignored.
+
+   b) First paint. Content rises a few pixels into place, staggered by
+      position. It runs once on load, never on scroll, so reading is never
+      interrupted and the page is legible before it finishes. */
+
+@view-transition {
+  navigation: auto;
+}
+
+/* The title and the hero share a name across pages, so they morph instead of
+   fading. Two pages can only share a name if only one element per page uses
+   it, which is why the hero is named and the entries are not. */
+.hero-title h1,
+.page-head h1 {
+  view-transition-name: page-title;
+}
+
+.hero-img {
+  view-transition-name: hero;
+}
+
+::view-transition-old(page-title),
+::view-transition-new(page-title) {
+  animation-duration: .32s;
+  animation-timing-function: cubic-bezier(.22, .61, .36, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: .26s;
+}
+
+/* The sticky header is the one thing that should not move: naming it keeps it
+   fixed in place while the content under it changes. */
+#site-header {
+  view-transition-name: site-header;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Opacity is held back to a floor rather than zero, so a slow machine never
+   shows a blank page while the animation is waiting to start. */
+@keyframes fade-in {
+  from { opacity: .001; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero {
+    animation: fade-in .5s ease-out both;
+  }
+
+  .hero-text > *,
+  .page-head > *,
+  .section-head,
+  .entries > li,
+  .quote-grid > li,
+  .idea-list > li,
+  .callout {
+    animation: rise-in .5s cubic-bezier(.22, .61, .36, 1) both;
+  }
+
+  /* A short stagger, set with a delay rather than a duration so the motion
+     itself stays the same speed everywhere. */
+  .entries > li:nth-child(1) { animation-delay: .04s; }
+  .entries > li:nth-child(2) { animation-delay: .1s; }
+  .entries > li:nth-child(3) { animation-delay: .16s; }
+
+  .quote-grid > li:nth-child(-n+3) { animation-delay: .03s; }
+  .quote-grid > li:nth-child(n+4):nth-child(-n+6) { animation-delay: .09s; }
+  .quote-grid > li:nth-child(n+7) { animation-delay: .14s; }
+
+  .page-head > *:last-child { animation-delay: .08s; }
+
+  /* The entrance is a first-load flourish, not a re-trigger on every hash
+     jump or back-navigation restore. */
+}
+
+/* 14b · Small screens & reduced motion ------------------------------------- */
 @media (max-width: 40rem) {
   /* Two rows, not four: the brand and the Contact pill share the first row,
      and the links move to their own full-width strip. The strip scrolls
