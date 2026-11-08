@@ -683,8 +683,16 @@ a:hover {
   margin: 0;
 }
 
+/* The words themselves are set in the serif, at a size and measure that make a
+   card feel like a page rather than a UI tile. The rest of the page stays in
+   the sans, so a quotation is visibly a different kind of text. */
 .quote p {
   margin: 0 0 .55em;
+  font-family: var(--font-serif);
+  font-size: clamp(1.02rem, .96rem + .22vw, 1.12rem);
+  line-height: 1.5;
+  letter-spacing: -.005em;
+  color: var(--ink);
 }
 
 .quote p:last-child {
@@ -723,11 +731,13 @@ a:hover {
   color: var(--rule);
 }
 
+/* A quote wall, not a table. Columns let each card take exactly the height its
+   words need and still pack tight against the one above it; a grid row would
+   either stretch "This is for everyone." into a half-empty box or leave a hole
+   under it. The cards still come from ONE rule — this only positions them. */
 .quote-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-  gap: 1rem;
-  align-items: stretch;        /* every card in a row shares one height */
+  columns: 19rem 3;
+  column-gap: 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -735,22 +745,13 @@ a:hover {
 }
 
 .quote-grid > li {
-  display: flex;
-  flex-direction: column;
+  break-inside: avoid;         /* never split a quote across two columns */
+  margin-bottom: 1rem;         /* the vertical gap, since columns have no row gap */
   counter-increment: quote;
 }
 
-/* Fill the cell and hold the source line at the bottom, so a short quote and
-   a long quote on the same row end on the same line. */
 .quote-grid .quote {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   max-width: none;
-}
-
-.quote-grid .quote footer {
-  margin-top: auto;            /* the source line sits on the card's floor */
 }
 
 /* A quiet index number above each card: twenty entries, numbered like pages,

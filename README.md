@@ -56,6 +56,13 @@ radius, background and max-width once; all twenty cards obey. The site
 footer is `#site-footer` — an **id**, not a `footer` tag selector — because
 every quote card contains a `<footer>` of its own.
 
+The words inside a card are set in the serif at a slightly larger size than
+body text, so a quotation reads as a different kind of writing from the page
+around it. The cards are laid out in CSS columns rather than grid rows: a grid
+row either stretches "This is for everyone." into a half-empty box or leaves a
+hole beneath it, while columns let every card take the height its words need
+and still pack tight.
+
 **6 · The useless machine.** A green-enamel vending machine with twelve brass
 coins and one return arm. Every shelf is sold out, so when the visitor feeds a
 coin the machine checks, finds nothing, and gives the coin back. A run is sixty
@@ -67,6 +74,13 @@ receipt beside the board keeps the best run, the number of runs, the longest
 combo and the top three scores in `localStorage`.
 Minsky described the useless machine in 1952; Shannon built the switch version
 in 1950.
+
+The board is drawn as a glass tray rather than a keypad: no cell frames, a
+milled rim on each coin, and a recess that stays warm after a coin goes in. The
+coin's artwork lives in a clipping stage (`.coin-stage`), so the return arm
+cannot slide over its neighbours or out into the receipt column — a bug the
+first version of this panel had. The coin fades in place when fed, because
+sliding it downward let the tray's edge cut it into a half-moon mid-animation.
 
 **7 · No runaway state.** The board is one state machine: `ready` → `running`
 → `closed`. While running, exactly one machine timer schedules the next return
@@ -104,7 +118,11 @@ tools/check.mjs                      ← not loaded by any page
 
 - The fonts are system fonts plus Georgia, so there is nothing to download and
   nothing to fail — but the exact rendering differs a little between Windows,
-  macOS and Android. That is expected.
+  macOS and Android. That is expected. Every declared family was checked as
+  installed and rendering (Georgia measures wider than Times, which is how the
+  probe proved it was not silently falling back). The quotation cards were
+  being drawn in the sans at one point while the spotlight copy of the same
+  quote drew in the serif; both are now set from one rule.
 - The record, best run and top scores use `localStorage`. In a private window
   they work for the visit and disappear with the tab.
 - The run is designed for pointer and touch. Every coin is a keyboard button as

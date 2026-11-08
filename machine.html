@@ -22,8 +22,8 @@
       </div>
       <div class="page-head-copy">
         <p class="lede">
-          Everything in this machine is sold out. You feed it a coin; it hands
-          the coin back. Sixty seconds, twelve coins, nothing for sale.
+          Every shelf is empty. You feed it a coin, it checks, finds nothing to
+          sell you, and hands the coin back — a little faster each time.
         </p>
         <p class="page-head-meta">60 seconds · 12 coins · nothing for sale</p>
       </div>
@@ -64,103 +64,132 @@
             <span id="timer-fill"></span>
           </div>
 
+          <!-- Decoration only: it says the joke in the machine's own voice.
+               The shelves are not controls, so this is hidden from assistive
+               technology and takes no focus. -->
+          <p class="shelf-strip" aria-hidden="true">All shelves sold out</p>
+
           <div class="coin-board" id="board" role="group"
                aria-label="Twelve coins in the return tray" tabindex="-1">
             <span class="combo-flash" id="combo-flash" aria-hidden="true"></span>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 1, in the tray. Feed it to the machine."
                     data-coin="0">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 2, in the tray. Feed it to the machine."
                     data-coin="1">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 3, in the tray. Feed it to the machine."
                     data-coin="2">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 4, in the tray. Feed it to the machine."
                     data-coin="3">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 5, in the tray. Feed it to the machine."
                     data-coin="4">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 6, in the tray. Feed it to the machine."
                     data-coin="5">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 7, in the tray. Feed it to the machine."
                     data-coin="6">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 8, in the tray. Feed it to the machine."
                     data-coin="7">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 9, in the tray. Feed it to the machine."
                     data-coin="8">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 10, in the tray. Feed it to the machine."
                     data-coin="9">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 11, in the tray. Feed it to the machine."
                     data-coin="10">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
             <button class="coin is-in-tray" type="button"
                     aria-label="Coin 12, in the tray. Feed it to the machine."
                     data-coin="11">
-              <span class="coin-slot" aria-hidden="true"></span>
-              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
-              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-stage" aria-hidden="true">
+                <span class="coin-slot"></span>
+                <span class="coin-disc"><span class="coin-face">1</span></span>
+                <span class="coin-arm"></span>
+              </span>
               <span class="coin-pop" aria-hidden="true"></span>
             </button>
           </div>
