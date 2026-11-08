@@ -861,39 +861,57 @@
    a record that slides is hard to read as a record. It sits still in its own
    column instead.
 
-   It is dark on purpose. As a cream card on cream paper it had almost no
-   edge — the border was the only thing saying a card was there, and the
-   numbers carried no more weight than the body text around them. In the
-   cabinet's own enamel with brass figures it becomes the second object on
-   the page, and it belongs to the machine rather than floating beside it.
-   The palette is redeclared here because .receipt sits outside .refund-panel. */
+   It is a brass plate. Three attempts got here, and the first two are worth
+   recording so they are not repeated:
+
+     - cream card on cream paper — no edge at all; the border was the only
+       thing saying a card was there.
+     - the cabinet's own enamel (dark green) — it stopped looking invisible
+       and started looking like a piece that had snapped off the machine. The
+       two dark slabs sat side by side and neither read as in front.
+     - espresso brown — same failure, one shade warmer. Next to a dark
+       cabinet, any dark card is just more dark.
+
+   What separates it is value, not colour: light plate on dark cabinet, and
+   the plate is the one brass the site already keeps for this machine
+   (--amber). So it reads as the machine's own metal — the take-away slip
+   sitting in front of it — rather than a second, unrelated object.
+
+   The local tokens are role names, not hues, because on light metal the
+   "highlight" colour is the dark one. Declared here because .receipt sits
+   outside .refund-panel and cannot see its palette. */
 .receipt {
-  --r-ink: #F6ECDA;          /* the card's body text */
-  --r-ink-dim: #D4CCBC;      /* labels, notes; clears 4.5:1 on every stop */
-  --r-brass: #F7E3BC;        /* figures */
-  --r-led: #FFC46A;          /* the best run, the one number to beat */
-  --r-rule: rgb(216 167 94 / .26);
+  --r-ink: #2A1B0C;          /* body text */
+  --r-ink-dim: #4A3520;      /* labels, notes, ranks */
+  --r-figure: #6B3A12;       /* the three totals */
+  --r-hot: #8C2E0B;          /* the best run — the one number to beat */
+  --r-rule: rgb(90 60 25 / .28);
 
   position: relative;
   padding: clamp(1.25rem, 3vw, 1.75rem);
-  border: 1px solid #06120F;
+  border: 1px solid #8A6229;
   border-radius: var(--radius-lg);
+  /* Two layers: a plaque of light across the top right, then the plate
+     itself. The narrow value range is deliberate — a wider one looked like
+     gold foil and pushed the pale end far enough to break contrast. */
   background:
-    radial-gradient(26rem 16rem at 100% -10%, rgb(255 196 106 / .12), transparent 64%),
-    linear-gradient(163deg, #2D5B4D 0%, #1B4036 46%, #0E2620 100%);
+    radial-gradient(20rem 13rem at 94% -8%, rgb(255 240 205 / .45), transparent 62%),
+    linear-gradient(163deg, #F1D6A2 0%, #E4BE80 48%, #D6A75F 100%);
   color: var(--r-ink);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .16),
-    inset 0 -2px 0 rgb(0 0 0 / .35),
-    0 18px 36px -14px rgb(28 25 23 / .42);
+    inset 0 1px 0 rgb(255 250 232 / .85),
+    inset 0 -2px 0 rgb(120 80 30 / .3),
+    0 2px 0 rgb(138 98 41 / .45),
+    0 20px 40px -16px rgb(28 25 23 / .42);
 }
 
-/* A brass hairline just inside the edge, the same trim as the cabinet. */
+/* A hairline struck just inside the edge, the same trim as the cabinet —
+   only bitten into the metal instead of raised on it. */
 .receipt::after {
   content: "";
   position: absolute;
   inset: 6px;
-  border: 1px solid rgb(216 167 94 / .18);
+  border: 1px solid rgb(90 60 25 / .22);
   border-radius: 11px;
   pointer-events: none;
 }
@@ -912,10 +930,11 @@
   line-height: 1.2;
 }
 
-/* The eyebrow above the heading is the site's accent red, which disappears on
-   dark green. Brass instead — the machine's own highlight. */
+/* The eyebrow above the heading. The site's accent red is close in value to
+   the engraved line beside it and muddies on brass, so this one goes to the
+   deeper end of the same red. */
 .receipt .eyebrow {
-  color: var(--r-led);
+  color: var(--r-hot);
 }
 
 .record-stats {
@@ -938,8 +957,9 @@
   line-height: 1.35;
 }
 
-/* The three totals are the reason the card exists, so they are brass and set
-   large enough to read across the column. */
+/* The three totals are the reason the card exists, so they are the darkest
+   ink on the plate and set large enough to read across the column. No glow:
+   a light source behind a light plate just smears the edge. */
 .record-stats dd {
   flex: none;
   min-width: 3.5ch;
@@ -950,14 +970,13 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: -.01em;
   text-align: right;
-  color: var(--r-brass);
-  text-shadow: 0 0 1.1rem rgb(255 196 106 / .22);
+  color: var(--r-figure);
 }
 
-/* Best run is the number you are trying to beat: the one lit value. */
+/* Best run is the number you are trying to beat: the one figure in the red
+   the machine uses for its own stamp. */
 .record-stats div:first-child dd {
-  color: var(--r-led);
-  text-shadow: 0 0 1.3rem rgb(255 196 106 / .38);
+  color: var(--r-hot);
 }
 
 .record-label {
