@@ -786,8 +786,8 @@
   position: relative;
   padding-left: 2rem;
   color: var(--ink-soft);
-  font-size: var(--text-md);
-  line-height: 1.45;
+  font-size: var(--text-base);
+  line-height: var(--lh-snug);
   counter-increment: rule;
 }
 

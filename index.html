@@ -27,12 +27,12 @@
   <header id="site-header"></header>
 
   <main id="main">
-    <!-- The hero: one wide picture, cropped to a fixed height rather than
-         squashed, then the site title and one sentence about the site. -->
+    <!-- The hero uses the same shape as every inner page's .page-head: title
+         on the left, the promise of the page on the right, a hairline under
+         both. The picture sits below the words rather than above them, so the
+         first thing a visitor reads is the name of the site. -->
     <section class="hero">
-      <img class="hero-img" src="images/hero.svg" width="1600" height="900"
-           alt="The campus at sunrise seen across the lake: a long hall with a colonnade, a clock tower, and the sun’s reflection on the water.">
-      <div class="wrap wrap--wide hero-text">
+      <div class="wrap wrap--wide page-head hero-text">
         <div class="hero-title">
           <p class="eyebrow">A hand-written site · Vol. 1</p>
           <h1>Learning HTML</h1>
@@ -43,8 +43,12 @@
             machine that sells nothing and refunds every coin — built in plain
             HTML, CSS and JavaScript.
           </p>
-          <p class="hero-meta">2026 · Five pages · No build step</p>
+          <p class="page-head-meta hero-meta">2026 · Five pages · No build step</p>
         </div>
+      </div>
+      <div class="wrap wrap--wide">
+        <img class="hero-img" src="images/hero.svg" width="1600" height="900"
+             alt="The campus at sunrise seen across the lake: a long hall with a colonnade, a clock tower, and the sun’s reflection on the water.">
       </div>
     </section>
 
