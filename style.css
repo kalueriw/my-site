@@ -48,6 +48,16 @@
   --shadow: 0 12px 32px rgb(28 25 23 / .07);
   --shadow-lift: 0 24px 56px rgb(28 25 23 / .11);
 
+  /* The small end of the type scale, named once. Everything below body copy
+     picks a step from here instead of inventing a size: .7, .72, .75, .78 and
+     .8rem all used to mean "small mono label", and read as six accidents
+     rather than one idea. rem, never em, so a label nested in a 13px footer
+     does not come out at 12.07px. */
+  --text-2xs: .7rem;         /* 11.2px — source lines, serials, stamps */
+  --text-xs: .75rem;         /* 12px   — eyebrows, captions, meta */
+  --text-sm: .875rem;        /* 14px   — nav, footers, notes */
+  --text-md: .95rem;         /* 15.2px — card copy, buttons, definitions */
+
   --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
@@ -155,7 +165,7 @@ main {
 .page-head-meta {
   margin: 1rem 0 0;
   font-family: var(--font-mono);
-  font-size: .75rem;
+  font-size: var(--text-xs);
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -220,7 +230,7 @@ main {
 .section-note {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: .75rem;
+  font-size: var(--text-xs);
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -278,7 +288,7 @@ p:last-child {
   align-items: center;
   gap: .65rem;
   font-family: var(--font-mono);
-  font-size: .75rem;
+  font-size: var(--text-xs);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--accent);
@@ -342,7 +352,7 @@ a:hover {
   background: linear-gradient(180deg, #BE4B25 0%, var(--accent) 55%, #9E3714 100%);
   color: #FFF8F2;
   font: inherit;
-  font-size: .96rem;
+  font-size: var(--text-md);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -.005em;
@@ -466,7 +476,7 @@ a:hover {
 
 .brand-site {
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   font-weight: 400;
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -487,7 +497,7 @@ a:hover {
   padding: .35em .7em;
   border-radius: 99px;
   color: var(--ink-soft);
-  font-size: .92rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   transition: background-color .16s ease, color .16s ease;
 }
@@ -510,7 +520,7 @@ a:hover {
   border: 1px solid var(--accent);
   border-radius: 99px;
   color: var(--accent);
-  font-size: .9rem;
+  font-size: var(--text-sm);
   text-decoration: none;
   transition: background-color .16s ease, color .16s ease;
 }
@@ -526,7 +536,7 @@ a:hover {
   margin: 0;
   padding-block: 1rem;
   color: var(--ink-soft);
-  font-size: .9rem;
+  font-size: var(--text-sm);
 }
 
 /* 7 · Site footer ----------------------------------------------------------
@@ -537,7 +547,7 @@ a:hover {
   border-top: 1px solid var(--rule);
   padding-block: 1.75rem;
   color: var(--ink-faint);
-  font-size: .82rem;
+  font-size: var(--text-sm);
 }
 
 .site-footer-inner {
@@ -550,7 +560,7 @@ a:hover {
 
 .footer-top {
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -610,7 +620,7 @@ a:hover {
 .hero-meta {
   margin: 1.1rem 0 0;
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -673,7 +683,7 @@ a:hover {
 
 .entry-num {
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .14em;
   color: var(--ink-faint);
 }
@@ -699,7 +709,7 @@ a:hover {
 
 .entry-desc {
   color: var(--ink-soft);
-  font-size: .96rem;
+  font-size: var(--text-md);
   line-height: 1.6;
 }
 
@@ -752,7 +762,7 @@ a:hover {
   margin-top: .9rem;
   padding-top: .7rem;
   border-top: 1px dashed var(--rule);
-  font-size: .82rem;
+  font-size: var(--text-xs);
   line-height: 1.4;
 }
 
@@ -762,9 +772,12 @@ a:hover {
   color: var(--ink);
 }
 
+/* A rem, not an em: .92em of the footer's 13.12px rounded to a 12.0704px
+   that matches nothing else on the site. Source lines are the smallest text
+   there is, so they get the smallest step in the scale. */
 .quote .source {
   font-family: var(--font-mono);
-  font-size: .92em;
+  font-size: var(--text-2xs);
   color: var(--ink-faint);
 }
 
@@ -804,7 +817,7 @@ a:hover {
   display: block;
   margin: 0 0 .5rem .25rem;
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .14em;
   color: var(--ink-faint);
 }
@@ -858,7 +871,7 @@ a:hover {
 
 .spotlight-label {
   font-family: var(--font-mono);
-  font-size: .75rem;
+  font-size: var(--text-xs);
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: .14em;
@@ -898,7 +911,7 @@ a:hover {
   top: 1.05rem;
   left: 1.4rem;
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .14em;
   color: var(--accent);
 }
@@ -927,7 +940,7 @@ a:hover {
 .idea-list p {
   margin: .3rem 0 0;
   color: var(--ink-soft);
-  font-size: .96rem;
+  font-size: var(--text-md);
 }
 
 /* A description list is a question and its answer: the idea, then who it
@@ -978,34 +991,52 @@ a:hover {
   border-radius: 50%;
   background: var(--accent);
   color: #fff;
-  font-size: .8rem;
+  font-size: var(--text-2xs);
   font-weight: 700;
   line-height: 1;
 }
 
 /* A second description list, on the machine page: the four properties of a
-   useless machine, each named and explained. */
+   useless machine, each named and explained.
+
+   The label column is a fixed width rather than max-content. With max-content
+   it grew to fit "Back to the start", and the three shorter labels then sat
+   against a stretch of empty space wide enough to read as a missing column.
+   At a fixed 9rem the longest label wraps to two lines and every row has the
+   same shape. A hairline per row keeps the pairs from floating apart. */
 .definitions {
   display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: .9rem 2rem;
-  margin: 1.5rem 0 0;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  gap: 0;
+  margin: 1.75rem 0 0;
+  border-top: 1px solid var(--rule);
 }
 
 .definitions dt {
+  padding: .95rem 1.25rem .95rem 0;
+  border-top: 1px solid var(--rule);
   font-family: var(--font-mono);
-  font-size: .8rem;
+  font-size: var(--text-xs);
   font-weight: 700;
+  line-height: 1.35;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--accent);
-  padding-top: .15rem;
 }
 
 .definitions dd {
   margin: 0;
+  padding: .9rem 0;
+  border-top: 1px solid var(--rule);
   color: var(--ink-soft);
-  font-size: .96rem;
+  font-size: var(--text-md);
+}
+
+/* The first pair sits under the list's own rule; a second rule between the
+   two would double the line. */
+.definitions dt:first-of-type,
+.definitions dd:first-of-type {
+  border-top: 0;
 }
 
 /* 13 · Callout ------------------------------------------------------------- */
@@ -1028,7 +1059,7 @@ a:hover {
 .callout-kicker {
   margin: 0 0 .9rem;
   font-family: var(--font-mono);
-  font-size: .7rem;
+  font-size: var(--text-2xs);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--amber);
@@ -1226,18 +1257,33 @@ a:hover {
     gap: .1rem;
   }
 
-  .audience dd,
-  .definitions dd {
+  .audience dd {
     margin-bottom: .85rem;
   }
 
-  .audience dd:last-child,
-  .definitions dd:last-child {
+  .audience dd:last-child {
     margin-bottom: 0;
   }
 
+  /* The ruled rows need their padding turned into a stacked shape: the label
+     sits on the rule, its explanation directly under it. */
+  .definitions {
+    border-top: 0;
+  }
+
   .definitions dt {
-    margin-top: .5rem;
+    padding: .9rem 0 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .definitions dt:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .definitions dd {
+    padding: .35rem 0 .95rem;
+    border-top: 0;
   }
 
   .spotlight-inner {

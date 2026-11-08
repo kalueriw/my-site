@@ -22,6 +22,7 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayCopy = document.getElementById('overlay-copy');
 const overlayBest = document.getElementById('overlay-best');
 const overlayRules = document.getElementById('overlay-rules');
+const ticketSerial = document.querySelector('.ticket-serial');
 const startBtn = document.getElementById('start');
 const statusEl = document.getElementById('status');
 const panelState = document.getElementById('panel-state');
@@ -97,6 +98,14 @@ const COMBO_WINDOW = 2500;       // time to keep a combo alive
 const POINTS_PER_COIN = 10;      // base points for feeding one coin
 const FULL_REFUND_BONUS = 100;
 
+// Kept here rather than read back from the DOM: startRun() has to restore the
+// copy after endRun() rewrote it, and reading it from the element would make
+// the second run inherit the first run's ending.
+const START_COPY =
+  'Feed it a coin. It checks the shelf, finds nothing, and hands the coin ' +
+  'back. The machine never sells anything — the score is the only thing you ' +
+  'keep.';
+
 let running = false;
 let startedAt = 0;
 let remaining = RUN_MS;
@@ -144,6 +153,13 @@ function updateHud() {
   scoreEl.textContent = score;
   comboEl.textContent = `×${combo > 1 ? combo : 1}`;
   bestEl.textContent = Math.max(best, score);
+
+  // The combo dial only lights up once the combo is real. At ×1 it is just
+  // another quiet number, so growth is visible rather than assumed.
+  const comboStat = comboEl.closest('.hud-stat');
+  if (comboStat) {
+    comboStat.classList.toggle('is-live', combo > 1);
+  }
 }
 
 /** Restart a short CSS pulse on a HUD number. */
@@ -363,6 +379,18 @@ function rank(value) {
   return 'Bystander';
 }
 
+/**
+ * The ticket's serial: the run it belongs to, zero-padded like a counterfoil.
+ * It is printed before the run starts, so the first ticket is No. 000001 —
+ * and because nothing re-stamps it at the end, the closed ticket still bears
+ * the number of the run you just played.
+ */
+function stampTicket() {
+  if (ticketSerial) {
+    ticketSerial.textContent = `No. ${String(runs + 1).padStart(6, '0')}`;
+  }
+}
+
 function startRun() {
   if (running) {
     return;
@@ -381,12 +409,22 @@ function startRun() {
   inTray.fill(true);
   renderBoard();
 
+  // The overlay is reused for the start screen and the end screen. endRun()
+  // hides the rules and rewrites the title and the button, so every path back
+  // into a run has to put the start copy back — otherwise the second run
+  // opens on "Machine closed." with no explanation of how to play.
+  overlayRules.hidden = false;
+  overlayTitle.textContent = 'Everything is sold out.';
+  overlayCopy.textContent = START_COPY;
+  startBtn.textContent = 'Open the machine';
+
   running = true;
   startedAt = performance.now();
   remaining = RUN_MS;
   panel.classList.remove('is-final');
   board.classList.remove('is-full');
 
+  stampTicket();
   overlay.hidden = true;
   panelState.textContent = 'Open';
   statusEl.textContent = 'The machine is open. Feed it a coin.';
@@ -424,6 +462,10 @@ function endRun() {
   timeEl.textContent = '0:00';
   timerFill.style.width = '0%';
   panel.classList.remove('is-final');
+
+  // The combo is over. Leaving the dial lit would say a run is still going
+  // while the closed ticket is on screen.
+  combo = 0;
 
   runs += 1;
   saveNumber(RUNS_KEY, runs);
@@ -464,4 +506,5 @@ startBtn.addEventListener('click', startRun);
 renderBoard();
 updateHud();
 updateRecord();
+stampTicket();
 startBtn.focus({ preventScroll: true });

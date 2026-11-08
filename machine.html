@@ -42,19 +42,19 @@
           </div>
 
           <div class="panel-hud">
-            <div class="hud-stat">
+            <div class="hud-stat hud-stat--time">
               <span class="hud-label">Time</span>
               <strong id="time">1:00</strong>
             </div>
-            <div class="hud-stat">
+            <div class="hud-stat hud-stat--score">
               <span class="hud-label">Score</span>
               <strong id="score">0</strong>
             </div>
-            <div class="hud-stat">
+            <div class="hud-stat hud-stat--combo">
               <span class="hud-label">Combo</span>
               <strong id="combo">×1</strong>
             </div>
-            <div class="hud-stat">
+            <div class="hud-stat hud-stat--best">
               <span class="hud-label">Best</span>
               <strong id="best">0</strong>
             </div>
@@ -194,24 +194,38 @@
             </button>
           </div>
 
-          <!-- Start and end are the same panel, swapped by machine.js. -->
+          <!-- Start and end are the same panel, swapped by machine.js.
+               It is a ticket: a brass header strip, a torn lower edge, and a
+               counterfoil at the bottom for the record. -->
           <div class="game-overlay" id="overlay">
             <div class="overlay-card" role="dialog" aria-modal="true"
                  aria-labelledby="overlay-title">
-              <p class="eyebrow">The machine</p>
-              <h2 id="overlay-title">Everything is sold out.</h2>
-              <p id="overlay-copy">
-                Feed it a coin. It checks the shelf, finds nothing, and hands
-                the coin back. The machine never sells anything — the score is
-                the only thing you keep.
-              </p>
-              <ul class="overlay-rules" id="overlay-rules">
-                <li>Feed a coin within 2.5 seconds of the last to grow the combo.</li>
-                <li>Get all twelve coins inside at once for a 100-point full refund.</li>
-                <li>Sixty seconds. The return arm gets faster.</li>
-              </ul>
-              <button class="btn" id="start" type="button">Open the machine</button>
-              <p class="overlay-best">Best run: <strong id="overlay-best">0</strong></p>
+              <div class="ticket-head">
+                <span class="ticket-name">Refund machine</span>
+                <span class="ticket-serial">No. 000 000</span>
+              </div>
+
+              <div class="ticket-body">
+                <h2 id="overlay-title">Everything is sold out.</h2>
+                <p id="overlay-copy">
+                  Feed it a coin. It checks the shelf, finds nothing, and hands
+                  the coin back. The machine never sells anything — the score is
+                  the only thing you keep.
+                </p>
+                <ul class="overlay-rules" id="overlay-rules">
+                  <li>Feed a coin within 2.5 seconds of the last to grow the combo.</li>
+                  <li>Get all twelve coins inside at once for a 100-point full refund.</li>
+                  <li>Sixty seconds. The return arm gets faster.</li>
+                </ul>
+              </div>
+
+              <div class="ticket-foot">
+                <button class="btn" id="start" type="button">Open the machine</button>
+                <p class="overlay-best">
+                  <span>Best run</span>
+                  <strong id="overlay-best">0</strong>
+                </p>
+              </div>
             </div>
           </div>
         </div>

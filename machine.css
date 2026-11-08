@@ -68,7 +68,7 @@
   gap: .4rem 1rem;
   margin-bottom: 1rem;
   font-family: var(--font-mono);
-  font-size: .68rem;
+  font-size: var(--text-2xs);
   letter-spacing: .15em;
   text-transform: uppercase;
   color: var(--cream-dim);
@@ -80,16 +80,18 @@
   opacity: .8;
 }
 
-/* The enamel badge that says the whole joke in two words. */
+/* The enamel badge that says the whole joke in two words. It carries its
+   emphasis in weight, colour and the tilt — not in being smaller, which at
+   .82em put it under 10px and made it unreadable on the cabinet. */
 .panel-stamp {
   padding: .22em .6em;
   border: 1px solid rgb(226 122 96 / .55);
   border-radius: 3px;
   background: rgb(120 36 20 / .22);
   color: #F2A78D;
-  font-size: .95em;
+  font-size: 1em;
   font-weight: 700;
-  letter-spacing: .18em;
+  letter-spacing: .16em;
   transform: rotate(-2.5deg);
   transform-origin: center;
 }
@@ -112,46 +114,113 @@
   box-shadow: 0 0 .55rem currentColor;
 }
 
+/* The four dials, in one recessed strip. They are not equal: score is the
+   number you came for, combo is the one you are chasing, time is a budget,
+   and best is a memory. Size, colour and rule weight all say so. */
 .panel-hud {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .6rem;
-  padding: .7rem .85rem;
+  grid-template-columns:
+    minmax(0, .85fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, .8fr);
+  align-items: center;
+  gap: 0;
+  padding: .55rem .2rem;
   border-radius: 10px;
-  background: rgb(4 12 10 / .42);
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / .45);
+  background:
+    radial-gradient(16rem 6rem at 38% 50%, rgb(255 196 106 / .1), transparent 70%),
+    linear-gradient(180deg, rgb(4 12 10 / .62), rgb(3 10 8 / .46));
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / .55),
+    inset 0 -1px 0 rgb(255 255 255 / .05);
+}
+
+/* Each dial is its own cell, split by a brass hairline that fades out at both
+   ends rather than a full-height rule running the whole strip. */
+.hud-stat {
+  position: relative;
+  padding: 0 clamp(.5rem, 1.1vw, .8rem);
+}
+
+.hud-stat + .hud-stat::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 62%;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(216 167 94 / .34) 30%,
+    rgb(216 167 94 / .34) 70%,
+    transparent
+  );
 }
 
 .hud-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: .68rem;
-  letter-spacing: .15em;
+  font-size: var(--text-2xs);
+  font-weight: 400;
+  letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--cream-dim);
+  opacity: .82;
 }
 
 .hud-stat strong {
   display: block;
-  margin-top: .1rem;
+  margin-top: .06rem;
   font-family: var(--font-mono);
-  font-size: clamp(1.1rem, 2.6vw, 1.55rem);
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
   font-weight: 600;
-  line-height: 1.15;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -.01em;
+  letter-spacing: -.02em;
   color: var(--cream);
-  text-shadow: 0 0 1.2rem rgb(255 196 106 / .18);
+  transition: color .25s ease;
 }
 
-.panel-hud .hud-stat:last-child strong {
+/* Score: the largest number, and the only one in brass. The glow behind it is
+   the reason the eye lands here first. */
+.hud-stat--score strong {
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  letter-spacing: -.03em;
+  color: var(--brass-light);
+  text-shadow:
+    0 0 1.4rem rgb(255 196 106 / .35),
+    0 0 3rem rgb(255 160 50 / .16);
+}
+
+/* Combo: amber, and only lit once it is above one. At ×1 it sits down with
+   the quieter numbers, so growth is something you can see. */
+.hud-stat--combo strong {
+  display: inline-block;
+  padding: .04em .38em;
+  border: 1px solid rgb(255 196 106 / .22);
+  border-radius: 99px;
+  background: rgb(255 196 106 / .07);
+  color: var(--cream);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  transition:
+    color .2s ease,
+    background-color .2s ease,
+    border-color .2s ease;
+}
+
+/* is-live is set by machine.js the moment a combo passes ×1. */
+.hud-stat--combo.is-live strong {
+  border-color: rgb(255 196 106 / .65);
+  background: rgb(255 196 106 / .18);
   color: var(--led);
+  box-shadow: 0 0 .9rem rgb(255 196 106 / .3);
 }
 
-/* The combo is the number worth watching, so it is the biggest one. */
-.panel-hud .hud-stat:nth-child(3) strong {
-  font-size: clamp(1.3rem, 3vw, 1.85rem);
-  color: #FFD591;
+/* Best: a memory, not a live reading. Quietest of the four. */
+.hud-stat--best strong {
+  font-size: clamp(.98rem, 2.2vw, 1.15rem);
+  color: var(--cream-dim);
 }
 
 .hud-stat strong.is-bumped {
@@ -160,8 +229,20 @@
 
 @keyframes hud-bump {
   0% { transform: scale(1); }
-  40% { transform: scale(1.14); color: #FFE0AC; }
+  40% { transform: scale(1.12); }
   100% { transform: scale(1); }
+}
+
+/* Last ten seconds: the time dial is the one that changes colour, because it
+   is the one thing the player can no longer ignore. */
+.panel.is-final .hud-stat--time strong {
+  color: #FF9E74;
+  animation: time-warn 1s ease-in-out infinite;
+}
+
+@keyframes time-warn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .62; }
 }
 
 .timer-track {
@@ -190,16 +271,25 @@
 
 /* The product strip: the row of labels above a vending machine's shelves,
    all of them crossed out. Decoration — the markup marks it aria-hidden. */
+/* Quiet, but legible. Quiet comes from the letter-spacing and the hairlines
+   either side, not from fading the text: at .55 alpha on the enamel this line
+   blended down to about 2.7:1, which is below the 4.5:1 floor.
+
+   The colour is a step brighter than --cream-dim on purpose. The cabinet is a
+   gradient, and --cream-dim only reaches 3.56:1 against its lightest stop at
+   the top left — enough for large text, not for an 11px label. #D6CFBF clears
+   4.5:1 at that same worst-case stop and still reads as the quietest line on
+   the panel. */
 .shelf-strip {
   display: flex;
   align-items: center;
   gap: .75rem;
   margin: 0 0 .75rem;
   font-family: var(--font-mono);
-  font-size: .68rem;
+  font-size: var(--text-2xs);
   letter-spacing: .28em;
   text-transform: uppercase;
-  color: rgb(185 175 156 / .55);
+  color: #D6CFBF;
 }
 
 .shelf-strip::before,
@@ -596,7 +686,11 @@
   }
 }
 
-/* 4 · The start / end overlay -------------------------------------------- */
+/* 4 · The start / end overlay --------------------------------------------
+   The card is a printed ticket that the machine spits out: a brass header
+   strip with the machine's own name, a cream body, and a counterfoil at the
+   bottom where the record is stamped. It is the one warm object on the
+   cabinet, which is why it reads as something handed to you. */
 .game-overlay {
   position: absolute;
   inset: 0;
@@ -605,57 +699,143 @@
   place-items: center;
   padding: clamp(1rem, 3vw, 2rem);
   border-radius: 20px;
-  background: rgb(5 14 11 / .82);
-  backdrop-filter: blur(4px) saturate(.9);
-  -webkit-backdrop-filter: blur(4px) saturate(.9);
+  background:
+    radial-gradient(30rem 20rem at 50% 40%, rgb(255 196 106 / .08), transparent 70%),
+    rgb(5 14 11 / .84);
+  backdrop-filter: blur(5px) saturate(.9);
+  -webkit-backdrop-filter: blur(5px) saturate(.9);
 }
 
 .overlay-card {
-  width: min(100%, 27rem);
-  padding: clamp(1.5rem, 4vw, 2.15rem);
-  border-radius: var(--radius-lg);
+  width: min(100%, 28rem);
+  border-radius: 4px;
   background: var(--paper);
   color: var(--ink);
-  box-shadow: 0 30px 60px -18px rgb(0 0 0 / .55);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / .6) inset,
+    0 30px 60px -18px rgb(0 0 0 / .6),
+    0 2px 0 rgb(0 0 0 / .3);
+}
+
+/* The header: dark brass, the machine's name, and a serial number that is
+   never going to be used. */
+.ticket-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem clamp(1.1rem, 3.5vw, 1.9rem);
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #2A2118 0%, #1B150F 100%);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.ticket-name {
+  color: var(--brass-light);
+}
+
+/* A solid grey, not a faded brass: the serial is decorative in meaning but it
+   is still text, and .55 alpha put it under 4.5:1 on the dark header. */
+.ticket-serial {
+  color: #9C9384;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .12em;
+}
+
+.ticket-body {
+  padding: clamp(1.3rem, 3.6vw, 1.9rem) clamp(1.1rem, 3.5vw, 1.9rem)
+           clamp(.5rem, 1.6vw, .8rem);
 }
 
 .overlay-card h2 {
-  margin-bottom: .5rem;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  line-height: 1.14;
+  margin-bottom: .55rem;
+  font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+  line-height: 1.1;
+  letter-spacing: -.025em;
 }
 
-.overlay-card p {
+/* The one paragraph of explanation, set a little larger than body copy: on
+   this card it is the instruction, not a caption. */
+.overlay-card #overlay-copy {
+  margin-bottom: 1.15rem;
   color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
+/* The rules are a numbered list of three short lines, not bullets: the eye
+   should count them, because they are the three things to remember. */
 .overlay-rules {
-  margin: .95rem 0 1.2rem;
-  padding-left: 1.05rem;
-  color: var(--ink-soft);
-  font-size: .92rem;
-  line-height: 1.55;
+  display: grid;
+  gap: .55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: rule;
 }
 
 .overlay-rules li {
-  margin: .3rem 0;
+  position: relative;
+  padding-left: 2rem;
+  color: var(--ink-soft);
+  font-size: var(--text-md);
+  line-height: 1.45;
+  counter-increment: rule;
 }
 
-.overlay-rules li::marker {
-  color: var(--accent);
+.overlay-rules li::before {
+  content: counter(rule);
+  position: absolute;
+  left: 0;
+  top: .18rem;
+  display: grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #FFF8F2;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  line-height: 1;
 }
 
-.overlay-card .btn {
-  margin-top: .3rem;
+/* The counterfoil: a dashed tear line, then the button and the record. */
+.ticket-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .9rem 1.25rem;
+  margin-top: .4rem;
+  padding: clamp(.95rem, 2.6vw, 1.25rem) clamp(1.1rem, 3.5vw, 1.9rem)
+           clamp(1.2rem, 3vw, 1.5rem);
+  border-top: 1px dashed var(--rule-strong);
 }
 
 .overlay-best {
-  margin: 1rem 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin: 0;
   font-family: var(--font-mono);
-  font-size: .68rem;
-  letter-spacing: .1em;
+  font-size: var(--text-2xs);
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--ink-faint);
+}
+
+.overlay-best strong {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--ink);
 }
 
 /* 5 · Layout and the receipt ---------------------------------------------- */
@@ -673,7 +853,7 @@
   min-height: 1.5em;
   margin: 1rem 0 0;
   color: var(--ink-soft);
-  font-size: .92rem;
+  font-size: var(--text-sm);
 }
 
 .receipt {
@@ -718,7 +898,7 @@
 
 .record-stats dt {
   color: var(--ink-soft);
-  font-size: .92rem;
+  font-size: var(--text-sm);
   line-height: 1.35;
 }
 
@@ -737,7 +917,7 @@
 .record-label {
   margin: 1.25rem 0 .45rem;
   font-family: var(--font-mono);
-  font-size: .68rem;
+  font-size: var(--text-2xs);
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--ink-faint);
@@ -762,28 +942,28 @@
 
 .score-rank {
   font-family: var(--font-mono);
-  font-size: .68rem;
+  font-size: var(--text-2xs);
   letter-spacing: .12em;
   color: var(--ink-faint);
 }
 
 .score-value {
   font-family: var(--font-mono);
-  font-size: 1.08rem;
+  font-size: 1.05rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .score-empty {
   color: var(--ink-faint);
-  font-size: .92rem;
+  font-size: var(--text-sm);
   font-style: italic;
 }
 
 .record-note {
   margin: 1.1rem 0 0;
   color: var(--ink-faint);
-  font-size: .92rem;
+  font-size: var(--text-sm);
   font-style: italic;
 }
 
@@ -794,24 +974,44 @@
     gap: .55rem;
   }
 
+  /* Four dials on a phone: the labels shrink, the numbers do not, and the
+     outer padding comes in, so the strip still fits without wrapping. */
   .panel-hud {
-    gap: .4rem;
-    padding: .6rem .7rem;
+    padding: .5rem .1rem;
+  }
+
+  .hud-stat {
+    padding: 0 .38rem;
   }
 
   .hud-label,
   .panel-top {
-    font-size: .68rem;
+    font-size: var(--text-2xs);
     letter-spacing: .1em;
   }
 
+  /* The machine's full name is decoration; the stamp and the lamp are the
+     two things worth reading. Dropping the name keeps one row. */
+  .panel-mark {
+    display: none;
+  }
+
+  .panel-top {
+    justify-content: space-between;
+  }
+
   .shelf-strip {
-    font-size: .68rem;
+    font-size: var(--text-2xs);
     letter-spacing: .2em;
   }
 
   .overlay-card .btn {
-    width: 100%;
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .ticket-foot {
+    gap: .75rem;
   }
 }
 
@@ -819,7 +1019,8 @@
   .coin,
   .coin-disc,
   .coin-arm,
-  .timer-track span {
+  .timer-track span,
+  .hud-stat--combo strong {
     transition-duration: .01ms;
   }
 
@@ -828,7 +1029,8 @@
   .coin.is-returning .coin-disc,
   .hud-stat strong.is-bumped,
   .combo-flash.is-showing,
-  .coin-board.is-full {
+  .coin-board.is-full,
+  .panel.is-final .hud-stat--time strong {
     animation: none;
   }
 }
