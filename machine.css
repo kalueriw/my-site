@@ -859,13 +859,43 @@
 /* The receipt scrolls with the page. It used to be position: sticky, which
    pinned it under the header so it drifted while everything else moved — and
    a record that slides is hard to read as a record. It sits still in its own
-   column instead. */
+   column instead.
+
+   It is dark on purpose. As a cream card on cream paper it had almost no
+   edge — the border was the only thing saying a card was there, and the
+   numbers carried no more weight than the body text around them. In the
+   cabinet's own enamel with brass figures it becomes the second object on
+   the page, and it belongs to the machine rather than floating beside it.
+   The palette is redeclared here because .receipt sits outside .refund-panel. */
 .receipt {
+  --r-ink: #F6ECDA;          /* the card's body text */
+  --r-ink-dim: #D4CCBC;      /* labels, notes; clears 4.5:1 on every stop */
+  --r-brass: #F7E3BC;        /* figures */
+  --r-led: #FFC46A;          /* the best run, the one number to beat */
+  --r-rule: rgb(216 167 94 / .26);
+
+  position: relative;
   padding: clamp(1.25rem, 3vw, 1.75rem);
-  border: 1px solid var(--rule);
+  border: 1px solid #06120F;
   border-radius: var(--radius-lg);
   background:
-    linear-gradient(180deg, #FFFFFF 0%, #FDFAF4 100%);
+    radial-gradient(26rem 16rem at 100% -10%, rgb(255 196 106 / .12), transparent 64%),
+    linear-gradient(163deg, #2D5B4D 0%, #1B4036 46%, #0E2620 100%);
+  color: var(--r-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .16),
+    inset 0 -2px 0 rgb(0 0 0 / .35),
+    0 18px 36px -14px rgb(28 25 23 / .42);
+}
+
+/* A brass hairline just inside the edge, the same trim as the cabinet. */
+.receipt::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgb(216 167 94 / .18);
+  border-radius: 11px;
+  pointer-events: none;
 }
 
 @media (min-width: 60rem) {
@@ -877,8 +907,15 @@
 
 .receipt h2 {
   margin-bottom: .3rem;
+  color: var(--r-ink);
   font-size: clamp(1.3rem, 2.4vw, 1.6rem);
   line-height: 1.2;
+}
+
+/* The eyebrow above the heading is the site's accent red, which disappears on
+   dark green. Brass instead — the machine's own highlight. */
+.receipt .eyebrow {
+  color: var(--r-led);
 }
 
 .record-stats {
@@ -892,25 +929,35 @@
   justify-content: space-between;
   gap: 1rem;
   padding: .55rem 0;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px dashed var(--r-rule);
 }
 
 .record-stats dt {
-  color: var(--ink-soft);
+  color: var(--r-ink-dim);
   font-size: var(--text-sm);
   line-height: 1.35;
 }
 
+/* The three totals are the reason the card exists, so they are brass and set
+   large enough to read across the column. */
 .record-stats dd {
   flex: none;
   min-width: 3.5ch;
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0;
+  letter-spacing: -.01em;
   text-align: right;
+  color: var(--r-brass);
+  text-shadow: 0 0 1.1rem rgb(255 196 106 / .22);
+}
+
+/* Best run is the number you are trying to beat: the one lit value. */
+.record-stats div:first-child dd {
+  color: var(--r-led);
+  text-shadow: 0 0 1.3rem rgb(255 196 106 / .38);
 }
 
 .record-label {
@@ -919,7 +966,7 @@
   font-size: var(--text-2xs);
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--r-ink-dim);
 }
 
 .score-list {
@@ -936,14 +983,14 @@
   justify-content: space-between;
   gap: 1rem;
   padding: .45rem 0;
-  border-bottom: 1px dashed var(--rule);
+  border-bottom: 1px dashed var(--r-rule);
 }
 
 .score-rank {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   letter-spacing: .12em;
-  color: var(--ink-faint);
+  color: var(--r-ink-dim);
 }
 
 .score-value {
@@ -951,17 +998,18 @@
   font-size: 1.05rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--r-ink);
 }
 
 .score-empty {
-  color: var(--ink-faint);
+  color: var(--r-ink-dim);
   font-size: var(--text-sm);
   font-style: italic;
 }
 
 .record-note {
   margin: 1.1rem 0 0;
-  color: var(--ink-faint);
+  color: var(--r-ink-dim);
   font-size: var(--text-sm);
   font-style: italic;
 }
