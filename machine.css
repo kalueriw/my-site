@@ -14,9 +14,8 @@
    ========================================================================== */
 
 /* 1 · The cabinet and the run clock ---------------------------------------- */
-[hidden] {
-  display: none !important;
-}
+/* `[hidden] { display: none !important }` lives in style.css, which every
+   page loads — the ticket and its rules rely on it here. */
 
 .refund-panel {
   --machine-line: #06120F;
@@ -803,7 +802,10 @@
   height: 1.35rem;
   border-radius: 50%;
   background: var(--accent);
-  color: #FFF8F2;
+  /* The ticket is paper, which turns dark with the rest of the page, while
+     the accent turns bright: a fixed cream numeral measured 2.5:1 there.
+     --step-ink is the token that flips with the accent. */
+  color: var(--step-ink);
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   font-weight: 700;
@@ -1084,6 +1086,17 @@
 
   .ticket-foot {
     gap: .75rem;
+  }
+}
+
+/* Under 23rem (a 320–360px phone) the ticket's own content grows taller than
+   the cabinet — its paragraphs and rules wrap more as the column narrows —
+   and the absolutely-placed overlay spills out over the receipt below. The
+   cabinet gets a floor tall enough for the tallest ticket; the extra height
+   is dark cabinet, not a gap in the page. */
+@media (max-width: 23rem) {
+  .refund-panel {
+    min-height: 39.5rem;
   }
 }
 

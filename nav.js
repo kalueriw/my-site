@@ -166,8 +166,13 @@ function explainFailure(host) {
 }
 
 async function start() {
-  const header = await inject('nav.html', 'site-header');
-  const footer = await inject('footer.html', 'site-footer');
+  // Both fragments at once: they are independent files, and waiting for the
+  // nav before asking for the footer doubled the time the header slot sat
+  // empty on a slow connection.
+  const [header, footer] = await Promise.all([
+    inject('nav.html', 'site-header'),
+    inject('footer.html', 'site-footer'),
+  ]);
 
   if (header) {
     markCurrentPage(header);

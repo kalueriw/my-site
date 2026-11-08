@@ -193,6 +193,15 @@ img {
   height: auto;                /* keep the proportions */
 }
 
+/* The hidden attribute is a UA rule (`display: none`), and any author display
+   rule outranks it. Every component here sets its own display, so without this
+   a `hidden` control would still show — the theme switch is inserted with
+   `hidden` until nav.js wires it up, and the machine's ticket uses `hidden`
+   to leave the screen between runs. */
+[hidden] {
+  display: none !important;
+}
+
 /* 3 · Layout ---------------------------------------------------------------
    One column, centred, with the same gutters on every page. */
 .wrap {
@@ -348,8 +357,17 @@ main {
   text-wrap: balance;
 }
 
+/* Clear the sticky header. Below 56rem the nav wraps to two rows and stands
+   ~97px tall, so the 5.5rem that clears the one-row header would land the
+   target 9px under it. */
 [id] {
-  scroll-margin-top: 5.5rem;   /* clears the sticky header */
+  scroll-margin-top: 7rem;
+}
+
+@media (min-width: 56rem) {
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
 }
 
 /* 4 · Typography ----------------------------------------------------------- */
@@ -648,7 +666,9 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: .45em;
-  padding: .35em .8em .35em .65em;
+  /* .45em of block padding puts the switch at 25px tall; at .35em it measured
+     23px, under the 24px minimum pointer target. */
+  padding: .45em .8em .45em .65em;
   border: 1px solid var(--rule-strong);
   border-radius: 99px;
   background: transparent;
@@ -758,7 +778,13 @@ a:hover {
   font-style: normal;
 }
 
+/* The two footer links are 18px tall — under the 24px minimum pointer target.
+   The padding grows the hit area; the matching negative margin keeps the
+   footer's own height and baseline exactly where they were. */
 #site-footer a {
+  display: inline-block;
+  padding-block: .3rem;
+  margin-block: -.3rem;
   color: var(--ink-soft);
   text-decoration: none;
 }
@@ -1121,9 +1147,21 @@ a:hover {
   }
 
   /* Five ideas over two columns: the fifth gets the full row rather than
-     leaving a hole where a sixth ought to be. */
+     leaving a hole where a sixth ought to be. Left stacked, that row ran one
+     description line the whole width of the page — 133 characters at 1440px,
+     against roughly 60 above it. The feature row sets the name on the left
+     and gives the description a reading measure beside it. */
   .idea-list li:last-child {
     grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: baseline;
+  }
+
+  .idea-list li:last-child p {
+    margin-top: 0;
+    max-width: 66ch;
   }
 }
 
@@ -1287,7 +1325,10 @@ a:hover {
 
 .callout h2 {
   margin: 0 0 .45rem;
-  color: var(--paper);
+  /* The band is dark in both themes, so the heading cannot take a theme
+     colour: --paper turns near-black in dark mode and the title disappears
+     into the band. --band-ink is the token that stays light in both. */
+  color: var(--band-ink);
   font-size: clamp(1.6rem, 3.5vw, 2.4rem);
   line-height: 1.1;
 }
@@ -1572,5 +1613,14 @@ a:hover {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+  }
+
+  /* The cross-page fade is drawn by ::view-transition-* pseudo-elements,
+     which `*` does not match — without this rule, asking for less motion
+     still left every navigation dissolving into the next. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
