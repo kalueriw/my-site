@@ -404,13 +404,23 @@ function stampTicket() {
 // is exactly what "modal" means. Everything that is not an ancestor-or-self of
 // the overlay gets it, so the walk is up the tree rather than a list of
 // selectors that would go stale the next time the markup changes.
+//
+// The site header and footer are the exception, and this is not a detail. The
+// ticket sits inside the machine cabinet; the nav is above it, fully visible
+// and looking exactly as clickable as it does on every other page. Inerting it
+// would leave something that looks live and silently is not — and on a page
+// that opens a 60-second game by itself, the nav is the only way out. A modal
+// that traps a visitor on a game page is worse than a slightly looser one.
+// Everything the dialog actually covers still goes inert: the coin board, the
+// receipt, the article underneath.
 const NATIVE_INERT = 'inert' in HTMLElement.prototype;
+const ALWAYS_LIVE = '#site-header, #site-footer';
 
 function outsideTheOverlay() {
   const found = [];
   for (let node = overlay; node && node !== document.body; node = node.parentElement) {
     for (const sibling of node.parentElement.children) {
-      if (sibling !== node) {
+      if (sibling !== node && !sibling.matches(ALWAYS_LIVE)) {
         found.push(sibling);
       }
     }
