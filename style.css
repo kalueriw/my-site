@@ -218,6 +218,17 @@ main {
   padding-top: 0;              /* sections own their bottom space only */
 }
 
+/* The audience list and the build order share one column, so the gap that
+   separates ordinary sections (52px at a wide size) made the second list read
+   as a continuation of the first — "Walk the route myself..." sat almost on
+   top of the last answer above it. A hairline and a deeper top pad turn the
+   build order into a block of its own. Two selectors so this out-ranks the
+   .section + .section rule above. */
+.section.section--ruled {
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--rule);
+}
+
 /* A page's opening block: the title on the left, the promise of the page on
    the right. Every inner page uses the same shape, so moving between pages
    feels like turning pages of one book rather than visiting five sites. */
