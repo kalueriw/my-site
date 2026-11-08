@@ -172,15 +172,4 @@
     <path d="M860 842 H1240" stroke-width="2" opacity="0.3"/>
   </g>
 
-  <!-- the sun's own path on the water: broken into short strokes -->
-  <g stroke="#F0A94B" stroke-linecap="round" fill="none" opacity="0.5">
-    <path d="M742 606 H858" stroke-width="9"/>
-    <path d="M756 636 H842" stroke-width="7"/>
-    <path d="M722 668 H878" stroke-width="8"/>
-    <path d="M766 700 H820" stroke-width="6"/>
-    <path d="M736 736 H864" stroke-width="7"/>
-    <path d="M772 774 H828" stroke-width="5"/>
-    <path d="M700 818 H900" stroke-width="6" opacity="0.6"/>
-    <path d="M780 862 H820" stroke-width="4"/>
-  </g>
 </svg>
