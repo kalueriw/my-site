@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Night shift at the useless machine · Learning HTML</title>
-  <meta name="description" content="A useless machine on the night shift: twelve switches, one hand, sixty seconds. The machine turns them off; you turn them back on. Chase your best score.">
+  <title>The refund machine · Learning HTML</title>
+  <meta name="description" content="A vending machine where everything is sold out. Feed it a coin; it gives the coin back. Sixty seconds, twelve coins, nothing for sale.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="machine.css">
@@ -18,14 +18,14 @@
     <section class="page-head wrap wrap--wide">
       <div>
         <p class="eyebrow">03 · The useless machine</p>
-        <h1>Night shift at the useless machine</h1>
+        <h1>The refund machine</h1>
       </div>
       <div class="page-head-copy">
         <p class="lede">
-          The machine turns the switches off. You turn them back on. Sixty
-          seconds, twelve switches, no point at all.
+          Everything in this machine is sold out. You feed it a coin; it hands
+          the coin back. Sixty seconds, twelve coins, nothing for sale.
         </p>
-        <p class="page-head-meta">60 seconds · 12 switches · 1 machine</p>
+        <p class="page-head-meta">60 seconds · 12 coins · nothing for sale</p>
       </div>
     </section>
 
@@ -34,13 +34,14 @@
       <h2 class="visually-hidden" id="machine-title">The machine</h2>
 
       <div class="machine-main">
-        <div class="shift-panel" id="panel">
-          <div class="shift-top">
-            <span class="shift-mark">U.S.M. · Night shift</span>
-            <span class="shift-state" id="shift-state">Ready</span>
+        <div class="refund-panel" id="panel">
+          <div class="panel-top">
+            <span class="panel-mark">R.M. · The refund machine</span>
+            <span class="panel-stamp">Sold out</span>
+            <span class="panel-state" id="panel-state">Ready</span>
           </div>
 
-          <div class="shift-hud">
+          <div class="panel-hud">
             <div class="hud-stat">
               <span class="hud-label">Time</span>
               <strong id="time">1:00</strong>
@@ -63,92 +64,104 @@
             <span id="timer-fill"></span>
           </div>
 
-          <div class="switch-board" id="board" role="group" aria-label="Twelve switches"
-               tabindex="-1">
+          <div class="coin-board" id="board" role="group"
+               aria-label="Twelve coins in the return tray" tabindex="-1">
             <span class="combo-flash" id="combo-flash" aria-hidden="true"></span>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 1" data-unit="0">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 1, in the tray. Feed it to the machine."
+                    data-coin="0">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 2" data-unit="1">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 2, in the tray. Feed it to the machine."
+                    data-coin="1">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 3" data-unit="2">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 3, in the tray. Feed it to the machine."
+                    data-coin="2">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 4" data-unit="3">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 4, in the tray. Feed it to the machine."
+                    data-coin="3">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 5" data-unit="4">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 5, in the tray. Feed it to the machine."
+                    data-coin="4">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 6" data-unit="5">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 6, in the tray. Feed it to the machine."
+                    data-coin="5">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 7" data-unit="6">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 7, in the tray. Feed it to the machine."
+                    data-coin="6">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 8" data-unit="7">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 8, in the tray. Feed it to the machine."
+                    data-coin="7">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 9" data-unit="8">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 9, in the tray. Feed it to the machine."
+                    data-coin="8">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 10" data-unit="9">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 10, in the tray. Feed it to the machine."
+                    data-coin="9">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 11" data-unit="10">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 11, in the tray. Feed it to the machine."
+                    data-coin="10">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
-            <button class="unit is-on" type="button" role="switch" aria-checked="true"
-                    aria-label="Switch 12" data-unit="11">
-              <span class="unit-lamp" aria-hidden="true"></span>
-              <span class="unit-lever" aria-hidden="true"></span>
-              <span class="unit-hand" aria-hidden="true"></span>
-              <span class="unit-pop" aria-hidden="true"></span>
+            <button class="coin is-in-tray" type="button"
+                    aria-label="Coin 12, in the tray. Feed it to the machine."
+                    data-coin="11">
+              <span class="coin-slot" aria-hidden="true"></span>
+              <span class="coin-disc" aria-hidden="true"><span class="coin-face">1</span></span>
+              <span class="coin-arm" aria-hidden="true"></span>
+              <span class="coin-pop" aria-hidden="true"></span>
             </button>
           </div>
 
@@ -156,41 +169,42 @@
           <div class="game-overlay" id="overlay">
             <div class="overlay-card" role="dialog" aria-modal="true"
                  aria-labelledby="overlay-title">
-              <p class="eyebrow">The shift</p>
-              <h2 id="overlay-title">Twelve switches. Sixty seconds.</h2>
+              <p class="eyebrow">The machine</p>
+              <h2 id="overlay-title">Everything is sold out.</h2>
               <p id="overlay-copy">
-                The machine will turn them off. You turn them back on. It has
-                never lost the board — the score is the only thing you keep.
+                Feed it a coin. It checks the shelf, finds nothing, and hands
+                the coin back. The machine never sells anything — the score is
+                the only thing you keep.
               </p>
               <ul class="overlay-rules" id="overlay-rules">
-                <li>Re-on a switch within 2.5 seconds to grow the combo.</li>
-                <li>Clear all twelve for a 100-point perfect panel.</li>
-                <li>Sixty seconds. The hand gets faster.</li>
+                <li>Feed a coin within 2.5 seconds of the last to grow the combo.</li>
+                <li>Get all twelve coins inside at once for a 100-point full refund.</li>
+                <li>Sixty seconds. The return arm gets faster.</li>
               </ul>
-              <button class="btn" id="start" type="button">Start the shift</button>
-              <p class="overlay-best">Best shift: <strong id="overlay-best">0</strong></p>
+              <button class="btn" id="start" type="button">Open the machine</button>
+              <p class="overlay-best">Best run: <strong id="overlay-best">0</strong></p>
             </div>
           </div>
         </div>
 
         <p class="game-status" id="status" role="status">
-          Ready. Start the shift when you are.
+          Ready. Open the machine when you are.
         </p>
       </div>
 
-      <!-- The record. The machine keeps the switches; the visitor keeps the score. -->
-      <aside class="ledger" aria-labelledby="record-title">
-        <p class="eyebrow">The record</p>
-        <h2 id="record-title">It keeps the switches. You keep the score.</h2>
+      <!-- The receipt. The machine keeps nothing; the visitor keeps the score. -->
+      <aside class="receipt" aria-labelledby="receipt-title">
+        <p class="eyebrow">The receipt</p>
+        <h2 id="receipt-title">It keeps nothing. You keep the score.</h2>
 
         <dl class="record-stats">
           <div>
-            <dt>Best shift</dt>
+            <dt>Best run</dt>
             <dd id="record-best">0</dd>
           </div>
           <div>
-            <dt>Shifts worked</dt>
-            <dd id="record-shifts">0</dd>
+            <dt>Runs</dt>
+            <dd id="record-runs">0</dd>
           </div>
           <div>
             <dt>Longest combo</dt>
@@ -198,11 +212,12 @@
           </div>
         </dl>
 
-        <p class="record-label">Best shifts</p>
+        <p class="record-label">Best runs</p>
         <ol class="score-list" id="score-list"></ol>
 
         <p class="record-note">
-          The machine has never lost. The score is the only thing that stays.
+          The machine has never made a sale. The score is the only thing that
+          stays.
         </p>
       </aside>
     </section>
@@ -213,41 +228,44 @@
         <p class="eyebrow">The idea</p>
         <h2 id="why">Why this is a useless machine</h2>
         <p class="muted">
-          Claude Shannon built one in 1950. Marvin Minsky described it in
-          1952. Either way, the machine ends where it began.
+          A machine with one job — giving your money back — and no way to do
+          anything else.
         </p>
       </div>
       <div class="section-body">
         <p>
-          In 1952 the mathematician Marvin Minsky described a machine whose
-          only job was to switch itself off. Claude Shannon built one in 1950
-          as a joke: a box with one switch, and a hand inside that flipped the
-          switch back.
+          In 1950 Claude Shannon built a box with one switch and a hand inside
+          that flipped the switch back. In 1952 the mathematician Marvin Minsky
+          described a machine whose only job was to switch itself off. The joke
+          is the same: you do something, the machine undoes it, and nothing
+          changes.
         </p>
         <p>
-          This page is that machine on a night shift. Twelve switches, one
-          hand, sixty seconds. You cannot win the board — the machine will keep
-          turning switches off — but you can keep a score. That is the whole
-          joke, and the only reason to go again.
+          This page is that joke at a vending machine. Every shelf is empty. You
+          feed a coin, the machine checks, finds nothing to sell you, and
+          returns the coin. You cannot buy anything and the machine cannot keep
+          anything. The score is how many times it has handed your money back
+          in sixty seconds.
         </p>
         <p>It has the four parts a useless machine needs. Remove one and it
            becomes something else:</p>
         <dl class="definitions">
           <dt>Simple</dt>
-          <dd>Twelve switches and one job. Nothing to learn, nothing to
-            configure, no way to read the instructions wrong.</dd>
+          <dd>Twelve coins and one return slot. There is nothing to buy,
+            nothing to choose, and no way to read the label wrong.</dd>
 
           <dt>Unexpected</dt>
-          <dd>It does not turn off the switch you are watching. It turns off
-            the one you just turned on, and looks pleased about it.</dd>
+          <dd>It does not return the coin you are watching. It returns one you
+            just fed, with a small brass arm, and looks pleased about it.</dd>
 
           <dt>Back to the start</dt>
-          <dd>When the shift ends, the switches are off and the hand is inside.
-            You can start again immediately, and it will be the same.</dd>
+          <dd>When the run ends, every coin is back in the tray and the machine
+            is empty. Start again and nothing has changed.</dd>
 
           <dt>Funny, then not</dt>
-          <dd>The first shift is a gag. By the fifth it is a machine with a
-            small amount of power that it will not give up.</dd>
+          <dd>The first run is a gag. By the fifth it is a machine with a small
+            amount of power — the power to refuse you — and it will not give it
+            up.</dd>
         </dl>
       </div>
     </section>

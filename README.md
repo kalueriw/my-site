@@ -22,7 +22,7 @@ From this folder, either:
 | `index.html` | Hero image, site title, one sentence, and the three entries |
 | `quotes.html` | 20 quotes in English; one picked at random on load |
 | `project.html` | 5 project ideas, each with the person it is for |
-| `machine.html` | A 60-second game: twelve switches, one hand, a local high score |
+| `machine.html` | A 60-second game: twelve coins, one refund slot, a local high score |
 | `about.html` | Who I am, what I am learning, and `#contact` |
 
 `nav.html` and `footer.html` are **fragments**, not pages: no `<!DOCTYPE>`,
@@ -56,29 +56,30 @@ radius, background and max-width once; all twenty cards obey. The site
 footer is `#site-footer` — an **id**, not a `footer` tag selector — because
 every quote card contains a `<footer>` of its own.
 
-**6 · The useless machine.** A walnut night-shift panel with twelve brass
-switches, twelve lamps, and one hand inside. The machine turns switches off;
-the visitor turns them back on. A shift is sixty seconds, the hand gets
-faster, and in the second half it can flip two switches at once. Each switch
-is worth 10 points, multiplied by the combo; switching a lamp back on within
-2.5 seconds of the last one keeps the chain alive. Clearing the whole board
-pays a 100-point "perfect panel" bonus. The record beside the board keeps the
-best shift, the number of shifts worked, the longest combo and the top three
-scores in `localStorage`.
-Minsky described the idea in 1952; Shannon built the switch version in 1950.
+**6 · The useless machine.** A green-enamel vending machine with twelve brass
+coins and one return arm. Every shelf is sold out, so when the visitor feeds a
+coin the machine checks, finds nothing, and gives the coin back. A run is sixty
+seconds, the arm gets faster, and in the second half it can return two coins at
+once. Each coin fed is worth 10 points, multiplied by the combo; feeding a coin
+within 2.5 seconds of the last one keeps the chain alive. Getting all twelve
+coins inside the machine at once pays a 100-point "full refund" bonus. The
+receipt beside the board keeps the best run, the number of runs, the longest
+combo and the top three scores in `localStorage`.
+Minsky described the useless machine in 1952; Shannon built the switch version
+in 1950.
 
 **7 · No runaway state.** The board is one state machine: `ready` → `running`
-→ `closed`. While running, exactly one machine timer schedules the next hand
+→ `closed`. While running, exactly one machine timer schedules the next return
 and one clock interval paints the remaining time; both are cleared on end and
-on restart. The twelve switches are real buttons with `aria-checked`; the
-player only changes the board, and the machine only changes it back. Verified:
+on restart. The twelve coins are real buttons with a label that says whether
+the coin is in the tray or inside the machine; the player only feeds coins, and
+the machine only puts them back. Verified:
 
 - start → 60 seconds → `closed` once, with the result overlay and score
-- a switch turned on during a hand's telegraph keeps the hand's target, and
-  its class and `aria-checked` agree
-- rapid clicks do not start a second shift or stack machine timers
-- best shift, shifts worked, longest combo and the top three scores survive
-  a reload
+- a coin fed during the return arm's telegraph keeps the arm's target, and its
+  class and label agree
+- rapid clicks do not start a second run or stack machine timers
+- best run, runs, longest combo and the top three scores survive a reload
 
 **8 · Final pass.** `node tools/check.mjs` checks every link and image with
 exact-case matching (so `Hero.jpg` vs `hero.jpg` cannot slip through), plus
@@ -104,7 +105,7 @@ tools/check.mjs                      ← not loaded by any page
 - The fonts are system fonts plus Georgia, so there is nothing to download and
   nothing to fail — but the exact rendering differs a little between Windows,
   macOS and Android. That is expected.
-- The record, best shift and top scores use `localStorage`. In a private
-  window they work for the visit and disappear with the tab.
-- The shift is designed for pointer and touch. Every switch is a keyboard
-  button as well, but sixty seconds of twelve switches is a fast game.
+- The record, best run and top scores use `localStorage`. In a private window
+  they work for the visit and disappear with the tab.
+- The run is designed for pointer and touch. Every coin is a keyboard button as
+  well, but sixty seconds of twelve coins is a fast game.

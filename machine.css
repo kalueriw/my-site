@@ -1,61 +1,81 @@
 /* ==========================================================================
-   machine.css — the night shift panel
+   machine.css — the refund machine
    --------------------------------------------------------------------------
-   Loaded only by machine.html, after style.css. Colours come from the tokens
-   in style.css, so this page still belongs to the site.
+   Loaded only by machine.html, after style.css. The panel has its own enamel
+   and brass palette; the page around it still uses the site tokens.
 
    Reading order:
-    1  The panel and the shift clock
-    2  The board and its twelve switches
-    3  The hand, the pop, and the perfect flash
+    1  The panel and the run clock
+    2  The board, the coins and the return arm
+    3  The pop, the combo and the full refund
     4  The start / end overlay
-    5  Layout and the record
+    5  Layout and the receipt
     6  Small screens & reduced motion
    ========================================================================== */
 
-/* 1 · The panel and the shift clock --------------------------------------- */
+/* 1 · The panel and the run clock ----------------------------------------- */
 [hidden] {
   display: none !important;
 }
 
-.shift-panel {
+.refund-panel {
+  --machine-line: #0A1713;
+  --machine-dark: #0C1A16;
+  --brass: #C79A55;
+  --brass-light: #F0D9AF;
+  --brass-dark: #8B642C;
+  --cream: #F2E8D5;
+  --cream-dim: #C9BCA0;
+  --led: #FFC15E;
+
   position: relative;
   padding: clamp(1rem, 2.5vw, 1.5rem);
-  border: 1px solid #3A2112;
+  border: 1px solid var(--machine-line);
   border-radius: 18px;
   background:
     repeating-linear-gradient(
       90deg,
-      rgb(255 255 255 / .018) 0 2px,
-      transparent 2px 8px
+      rgb(255 255 255 / .02) 0 2px,
+      transparent 2px 7px
     ),
-    linear-gradient(155deg, #7B4A28 0%, #5B321A 45%, #40220F 100%);
+    linear-gradient(155deg, #2F5448 0%, #1D3A31 45%, #122820 100%);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .18),
-    inset 0 -2px 0 rgb(0 0 0 / .35),
+    inset 0 1px 0 rgb(255 255 255 / .16),
+    inset 0 -2px 0 rgb(0 0 0 / .4),
     0 30px 50px rgb(28 25 23 / .28);
 }
 
-.shift-top {
+.panel-top {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: .35rem 1rem;
   margin-bottom: .9rem;
   font-family: var(--font-mono);
-  font-size: .64rem;
+  font-size: .62rem;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: #D6B67B;
+  color: var(--cream-dim);
 }
 
-.shift-state {
-  color: #C9A66B;
-  opacity: .8;
+/* The enamel badge that says the whole joke in two words. */
+.panel-stamp {
+  padding: .18em .55em;
+  border: 1px solid rgb(240 161 138 / .75);
+  border-radius: 3px;
+  color: #F0A18A;
+  font-weight: 700;
+  letter-spacing: .2em;
+  transform: rotate(-3deg);
 }
 
-.shift-hud {
+.panel-state {
+  color: var(--led);
+  opacity: .85;
+}
+
+.panel-hud {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: .75rem;
@@ -68,7 +88,7 @@
   font-size: .62rem;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: #C9A66B;
+  color: var(--cream-dim);
 }
 
 .hud-stat strong {
@@ -79,15 +99,15 @@
   font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  color: #FBF7F0;
+  color: var(--cream);
 }
 
-.shift-hud .hud-stat:last-child strong {
-  color: #D6B67B;
+.panel-hud .hud-stat:last-child strong {
+  color: var(--led);
 }
 
 /* The combo is the number worth watching, so it is the biggest one. */
-.shift-hud .hud-stat:nth-child(3) strong {
+.panel-hud .hud-stat:nth-child(3) strong {
   font-size: clamp(1.35rem, 3.2vw, 2rem);
   color: #FFD58A;
 }
@@ -107,8 +127,8 @@
   margin-bottom: 1rem;
   overflow: hidden;
   border-radius: 99px;
-  background: #2A160B;
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / .6);
+  background: #06120E;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / .7);
 }
 
 .timer-track span {
@@ -120,29 +140,31 @@
   transition: width .1s linear;
 }
 
-.shift-panel.is-final .timer-track span {
+.refund-panel.is-final .timer-track span {
   background: linear-gradient(90deg, var(--accent), #FF9C5B);
 }
 
-/* 2 · The board and its twelve switches ----------------------------------- */
-.switch-board:focus {
+/* 2 · The board, the coins and the return arm ----------------------------- */
+.coin-board:focus {
   outline: none;
 }
 
-.switch-board {
+.coin-board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(.5rem, 1.2vw, .8rem);
   padding: clamp(.65rem, 1.6vw, 1rem);
   border-radius: 12px;
-  background: #241209;
+  background:
+    linear-gradient(155deg, rgb(255 255 255 / .05), transparent 42%),
+    var(--machine-dark);
   box-shadow:
-    inset 0 6px 18px rgb(0 0 0 / .55),
-    inset 0 -1px 0 rgb(255 255 255 / .06);
+    inset 0 6px 18px rgb(0 0 0 / .6),
+    inset 0 -1px 0 rgb(255 255 255 / .05);
 }
 
-/* A board-sized combo stamp. It sits above the switches, not inside one. */
+/* A board-sized combo stamp. It sits above the coins, not inside one. */
 .combo-flash {
   position: absolute;
   left: 50%;
@@ -185,193 +207,179 @@
   }
 }
 
-.unit {
+/* One coin slot. The coin sits in the slot; feeding it drops the coin in. */
+.coin {
   position: relative;
   display: block;
-  aspect-ratio: 1.25 / 1;
+  aspect-ratio: 1.15 / 1;
   padding: 0;
   overflow: hidden;
-  border: 1px solid #3A2112;
+  border: 1px solid var(--machine-line);
   border-radius: 10px;
-  background: linear-gradient(180deg, #5A3018, #3A1E0E);
+  background: linear-gradient(180deg, #1C3A31, #0F241D);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .12),
-    inset 0 -2px 0 rgb(0 0 0 / .25);
+    inset 0 1px 0 rgb(255 255 255 / .08),
+    inset 0 -2px 0 rgb(0 0 0 / .3);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: border-color .12s ease, box-shadow .12s ease, transform .08s ease;
 }
 
-.unit:active {
+.coin:active {
   transform: scale(.97);
 }
 
-/* The press: a quick squeeze, a glow, a ring that runs inward, and a bright
-   lamp. */
-.unit::before {
-  content: "";
-  position: absolute;
-  inset: -20%;
-  z-index: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgb(255 214 130 / .5) 0%,
-    rgb(255 180 70 / .2) 38%,
-    transparent 68%
-  );
-  opacity: 0;
-  transform: scale(.3);
-  pointer-events: none;
+.coin:hover {
+  border-color: var(--brass);
 }
 
-.unit.is-hit::before {
-  animation: unit-burst .5s ease-out;
-}
-
-@keyframes unit-burst {
-  0% { opacity: .85; transform: scale(.25); }
-  70% { opacity: .22; }
-  100% { opacity: 0; transform: scale(1.4); }
-}
-
-.unit::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 0 rgb(255 194 92 / 0);
-  pointer-events: none;
-}
-
-.unit.is-hit {
-  animation: unit-hit .3s ease;
-}
-
-.unit.is-hit::after {
-  animation: unit-ring .38s ease-out;
-}
-
-.unit.is-hit .unit-lamp {
-  animation: lamp-hit .32s ease;
-}
-
-@keyframes unit-hit {
-  0% { transform: scale(1); }
-  35% { transform: scale(.94); }
-  70% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-
-@keyframes unit-ring {
-  0% { box-shadow: inset 0 0 0 0 rgb(255 194 92 / .65); }
-  100% { box-shadow: inset 0 0 0 1.8rem rgb(255 194 92 / 0); }
-}
-
-@keyframes lamp-hit {
-  0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
-  40% { transform: translateX(-50%) scale(1.35); filter: brightness(1.45); }
-  100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
-}
-
-.unit:hover {
-  border-color: #C9A66B;
-}
-
-.unit:focus-visible {
-  outline: 3px solid var(--amber);
+.coin:focus-visible {
+  outline: 3px solid var(--led);
   outline-offset: -3px;
 }
 
-.unit.is-on {
-  background: linear-gradient(180deg, #6A3B1E, #46250F);
-}
-
-.unit.is-targeted {
-  border-color: #FFC15E;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / .12),
-    inset 0 0 18px rgb(255 185 80 / .22);
-}
-
-.unit-lamp {
+/* The recessed hole the coin sits in. */
+.coin-slot {
   position: absolute;
-  top: 14%;
   left: 50%;
-  width: clamp(.8rem, 1.8vw, 1.05rem);
+  top: 50%;
+  width: 78%;
   aspect-ratio: 1;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: #2A160B;
+  background: radial-gradient(circle at 50% 38%, #17332B, #071410 72%);
   box-shadow:
-    inset 0 2px 4px #000,
-    0 0 0 2px #8B6A37;
-  transition: background .18s ease, box-shadow .2s ease;
+    inset 0 3px 8px rgb(0 0 0 / .7),
+    0 1px 0 rgb(255 255 255 / .06);
+  transition: box-shadow .2s ease;
 }
 
-.unit.is-on .unit-lamp {
-  background: radial-gradient(circle at 35% 30%, #FFF4CF, #FFC15E 55%, #D9822B);
+/* A fed coin leaves the slot lit, so the machine reads as "working". */
+.coin:not(.is-in-tray) .coin-slot {
   box-shadow:
-    inset 0 1px 2px #FFF,
-    0 0 0 2px #8B6A37,
-    0 0 .8rem rgb(255 185 80 / .8);
+    inset 0 3px 8px rgb(0 0 0 / .8),
+    0 0 0 1px rgb(255 193 94 / .26),
+    0 0 1.2rem rgb(255 185 80 / .16);
 }
 
-.unit-lever {
+.coin-disc {
   position: absolute;
   left: 50%;
-  bottom: 20%;
-  width: clamp(.35rem, .8vw, .5rem);
-  height: clamp(1.4rem, 3.2vw, 2.1rem);
-  transform-origin: 50% 100%;
-  transform: translateX(-50%) rotate(-28deg);
-  border-radius: 99px;
-  background: linear-gradient(90deg, #F0D9AF, #C79A55 55%, #8B642C);
-  box-shadow:
-    0 2px 4px rgb(0 0 0 / .4),
-    inset 0 1px 0 rgb(255 255 255 / .5);
-  transition: transform .16s cubic-bezier(.4, 1.5, .5, 1);
-}
-
-.unit.is-on .unit-lever {
-  transform: translateX(-50%) rotate(28deg);
-}
-
-/* 3 · The hand, the pop, and the perfect flash ---------------------------- */
-.unit-hand {
-  position: absolute;
-  right: -60%;
-  top: 55%;
+  top: 50%;
   z-index: 2;
-  width: 55%;
-  height: .32rem;
+  display: grid;
+  place-items: center;
+  width: 66%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      #C79A55 0deg 6deg,
+      #B3863F 6deg 12deg
+    ),
+    radial-gradient(circle at 35% 28%, #FFF3D2, #D9AE67 45%, #9C6E2F 100%);
+  box-shadow:
+    inset 0 0 0 3px rgb(255 245 215 / .18),
+    inset 0 2px 5px rgb(255 255 255 / .5),
+    inset 0 -4px 8px rgb(87 52 12 / .5),
+    0 4px 6px rgb(0 0 0 / .45);
+  transition:
+    transform .24s cubic-bezier(.4, 1.2, .5, 1),
+    opacity .2s ease,
+    filter .2s ease;
+}
+
+.coin-disc::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgb(90 58 20 / .45);
+  border-radius: 50%;
+}
+
+.coin-face {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-serif);
+  font-size: clamp(1.1rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #7A5320;
+  text-shadow: 0 1px 0 rgb(255 240 200 / .55);
+}
+
+/* Fed: the coin has dropped through the slot and is out of reach. */
+.coin:not(.is-in-tray) .coin-disc {
+  transform: translate(-50%, 38%) scale(.55);
+  opacity: .12;
+  filter: grayscale(.4);
+}
+
+/* Feeding: the coin falls in. */
+.coin.is-fed-now .coin-disc {
+  animation: coin-feed .3s ease-in;
+}
+
+@keyframes coin-feed {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  40% { transform: translate(-50%, -38%) scale(.88); opacity: .9; }
+  100% { transform: translate(-50%, 38%) scale(.55); opacity: .12; }
+}
+
+/* Returning: the arm pushes the coin back up into the tray. */
+.coin.is-returning .coin-disc {
+  animation: coin-return .42s cubic-bezier(.3, 1.4, .5, 1);
+}
+
+@keyframes coin-return {
+  0% { transform: translate(-50%, 38%) scale(.55); opacity: .12; }
+  55% { transform: translate(-50%, -58%) scale(1.08); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* The small brass arm that reaches in to return a coin. */
+.coin-arm {
+  position: absolute;
+  right: -70%;
+  top: 50%;
+  z-index: 3;
+  width: 62%;
+  height: .34rem;
   transform: translateY(-50%);
   border-radius: 99px;
   background: linear-gradient(180deg, #EFD09A, #8B5C23);
-  box-shadow: 0 2px 3px rgb(0 0 0 / .35);
+  box-shadow: 0 2px 3px rgb(0 0 0 / .4);
   transition: right .18s ease;
 }
 
-.unit-hand::before {
+.coin-arm::before {
   content: "";
   position: absolute;
-  left: -1rem;
+  left: -.85rem;
   top: 50%;
-  width: 1.1rem;
-  height: .55rem;
+  width: .95rem;
+  height: .5rem;
   transform: translateY(-50%);
   border: 1px solid #C7AD84;
   border-radius: 99px 99px 99px 3px;
   background: linear-gradient(180deg, #FFF9EC, #EAD7B7);
 }
 
-.unit.is-targeted .unit-hand,
-.unit.is-flipping .unit-hand {
-  right: 0;
+.coin.is-targeted {
+  border-color: var(--led);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / .1),
+    inset 0 0 18px rgb(255 185 80 / .2);
 }
 
-.unit-pop {
+.coin.is-targeted .coin-arm {
+  right: 8%;
+}
+
+/* 3 · The pop, the combo and the full refund ------------------------------ */
+.coin-pop {
   position: absolute;
   left: 50%;
   top: 40%;
@@ -390,7 +398,7 @@
 }
 
 /* The combo count rides beside the points, in a small brass pill. */
-.unit-pop.has-combo::after {
+.coin-pop.has-combo::after {
   content: attr(data-combo);
   display: inline-block;
   margin-left: .22em;
@@ -404,11 +412,11 @@
   vertical-align: .22em;
 }
 
-.unit-pop.is-popping {
-  animation: unit-pop .8s ease-out;
+.coin-pop.is-popping {
+  animation: coin-pop .8s ease-out;
 }
 
-@keyframes unit-pop {
+@keyframes coin-pop {
   0% {
     opacity: 0;
     transform: translate(-50%, .55rem) scale(.35) rotate(-5deg);
@@ -426,19 +434,21 @@
   }
 }
 
-.switch-board.is-perfect {
-  animation: perfect-flash .5s ease;
+.coin-board.is-full {
+  animation: full-refund .55s ease;
 }
 
-@keyframes perfect-flash {
+@keyframes full-refund {
   0%, 100% {
-    background: #241209;
+    background:
+      linear-gradient(155deg, rgb(255 255 255 / .05), transparent 42%),
+      var(--machine-dark);
   }
   40% {
-    background: #5A3A16;
+    background: #55400F;
     box-shadow:
       inset 0 6px 18px rgb(0 0 0 / .35),
-      0 0 2rem rgb(255 185 80 / .35);
+      0 0 2rem rgb(255 185 80 / .4);
   }
 }
 
@@ -451,7 +461,7 @@
   place-items: center;
   padding: clamp(1rem, 3vw, 2rem);
   border-radius: 18px;
-  background: rgb(28 25 23 / .74);
+  background: rgb(8 20 16 / .8);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -499,7 +509,7 @@
   color: var(--ink-faint);
 }
 
-/* 5 · Layout and the record ----------------------------------------------- */
+/* 5 · Layout and the receipt ---------------------------------------------- */
 .machine-layout {
   display: grid;
   gap: clamp(1.5rem, 4vw, 2.5rem);
@@ -516,7 +526,7 @@
   color: var(--ink-soft);
 }
 
-.ledger {
+.receipt {
   padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
@@ -529,13 +539,13 @@
     column-gap: clamp(2rem, 4vw, 3.5rem);
   }
 
-  .ledger {
+  .receipt {
     position: sticky;
     top: 5.5rem;
   }
 }
 
-.ledger h2 {
+.receipt h2 {
   margin-bottom: .4rem;
   font-size: clamp(1.3rem, 2.4vw, 1.65rem);
   line-height: 1.18;
@@ -628,11 +638,11 @@
 
 /* 6 · Small screens & reduced motion -------------------------------------- */
 @media (max-width: 40rem) {
-  .switch-board {
+  .coin-board {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .shift-hud {
+  .panel-hud {
     gap: .5rem;
   }
 
@@ -646,22 +656,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .unit,
-  .unit-lamp,
-  .unit-lever,
-  .unit-hand,
+  .coin,
+  .coin-disc,
+  .coin-arm,
   .timer-track span {
     transition-duration: .01ms;
   }
 
-  .unit-pop.is-popping,
-  .unit.is-hit,
-  .unit.is-hit::before,
-  .unit.is-hit::after,
-  .unit.is-hit .unit-lamp,
+  .coin-pop.is-popping,
+  .coin.is-fed-now .coin-disc,
+  .coin.is-returning .coin-disc,
   .hud-stat strong.is-bumped,
   .combo-flash.is-showing,
-  .switch-board.is-perfect {
+  .coin-board.is-full {
     animation: none;
   }
 }
