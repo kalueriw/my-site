@@ -112,10 +112,10 @@
      .8rem all used to mean "small mono label", and read as six accidents
      rather than one idea. rem, never em, so a label nested in a 13px footer
      does not come out at 12.07px. */
-  --text-2xs: .7rem;         /* 11.2px — source lines, serials, stamps */
-  --text-xs: .75rem;         /* 12px   — eyebrows, captions, meta */
+  --text-2xs: .7rem;         /* 11.2px — serials, stamps, decorative labels */
+  --text-xs: .75rem;         /* 12px   — eyebrows, captions, meta, source lines */
   --text-sm: .875rem;        /* 14px   — nav, footers, notes */
-  --text-md: .95rem;         /* 15.2px — card copy, buttons, definitions */
+  --text-md: 1rem;           /* 16px   — card copy, buttons, definitions */
 
   --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
@@ -318,6 +318,9 @@ main {
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  /* On a phone this list of categories wraps; without balance the break left
+     "· FILM" alone on the second line. */
+  text-wrap: balance;
 }
 
 [id] {
@@ -873,7 +876,11 @@ a:hover {
 .quote p {
   margin: 0 0 .55em;
   font-family: var(--font-serif);
-  font-size: clamp(1.02rem, .96rem + .22vw, 1.12rem);
+  /* Always a step above body copy (16.2–18px). The previous range topped out
+     at 17.9px, so on a wide screen a quotation and the paragraph around it
+     were the same size — the serif was doing all the work of saying "this is
+     a quotation", and the card read as UI copy rather than writing. */
+  font-size: clamp(1.06rem, 1rem + .3vw, 1.2rem);
   line-height: 1.5;
   letter-spacing: -.005em;
   color: var(--ink);
@@ -894,7 +901,7 @@ a:hover {
   padding-top: .7rem;
   border-top: 1px dashed var(--rule);
   font-size: var(--text-xs);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .quote cite {
@@ -903,12 +910,13 @@ a:hover {
   color: var(--ink);
 }
 
-/* A rem, not an em: .92em of the footer's 13.12px rounded to a 12.0704px
-   that matches nothing else on the site. Source lines are the smallest text
-   there is, so they get the smallest step in the scale. */
+/* A rem, not an em, so the size does not shrink again inside the footer's own
+   font-size. The source line carries the work and the year — the part a reader
+   checks — so it sits at the same 12px as the cite, and looks quieter only
+   through colour and the mono face. */
 .quote .source {
   font-family: var(--font-mono);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   color: var(--ink-faint);
 }
 
@@ -937,6 +945,18 @@ a:hover {
   padding: 0;
   list-style: none;
   counter-reset: quote;
+}
+
+/* Two columns, not three, once there is room for them. At a third of the page
+   a card is ~310px wide, which at a 17–19px serif is a measure of about 26
+   characters: short enough that the eye jumps back every few words, and short
+   enough to break a poem line in half — "...and I —" was left stranded on its
+   own line. Two columns give ~50 characters, and the cite and its source fit
+   on one line instead of stacking. */
+@media (min-width: 56rem) {
+  .quote-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Two rows: the index number, then the card. It has to be grid rather than
@@ -1361,6 +1381,19 @@ a:hover {
      jump or back-navigation restore. */
 }
 
+/* 14a · Tablet nav ---------------------------------------------------------
+   At 768px the brand, five links and the Contact pill just fit on one row,
+   which left the theme switch as the one item that did not — it wrapped to a
+   new line by itself, stranded under the brand. Giving the links their own
+   row keeps the controls together on the first line and the links together
+   on the second, as a deliberate arrangement rather than an accident. */
+@media (min-width: 40.01rem) and (max-width: 55.99rem) {
+  .nav-links {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
 /* 14b · Small screens & reduced motion ------------------------------------- */
 @media (max-width: 40rem) {
   /* Two rows, not four: the brand and the Contact pill share the first row,
@@ -1377,6 +1410,15 @@ a:hover {
     overflow-x: auto;
     scrollbar-width: none;           /* Firefox */
     -webkit-overflow-scrolling: touch;
+    /* At 390px the five links are 434px wide, so the last one starts just
+       outside the strip and the nav gives no sign there is anything there.
+       The fade is the sign: the strip visibly continues past its edge. It
+       stays put while the links scroll under it, because a mask is painted
+       against the scroll port, not the content. */
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 2.25rem), transparent);
+    /* Keyboard focus should not land under the fade. */
+    scroll-padding-inline: clamp(1rem, 4vw, 2rem);
   }
 
   .nav-links::-webkit-scrollbar {

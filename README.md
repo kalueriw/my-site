@@ -82,10 +82,11 @@ Worth keeping as a note on how quietly a selector can be wrong.
 
 The words inside a card are set in the serif at a slightly larger size than
 body text, so a quotation reads as a different kind of writing from the page
-around it. The cards are laid out in CSS columns rather than grid rows: a grid
-row either stretches "This is for everyone." into a half-empty box or leaves a
-hole beneath it, while columns let every card take the height its words need
-and still pack tight.
+around it. The cards sit in a row-major grid, so the numbering reads 01, 02,
+03 across rather than down a column. A row is as tall as its tallest card, and
+a short quote spends the spare height as space above its attribution — so the
+cite and source lines line up across the row instead of every card ending at a
+different height.
 
 **6 · The useless machine.** A green-enamel vending machine with twelve brass
 coins and one return arm. Every shelf is sold out, so when the visitor feeds a
