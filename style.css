@@ -90,7 +90,6 @@
 
   --step-ink:  light-dark(#FFFFFF, #17150F);
   --shadow-rgb: light-dark(28 25 23, 0 0 0);
-  --spotlight-mark: light-dark(.06, .09);
   --hero-top: light-dark(#FFFDF8, #241F16);
 
   /* The paper texture is a data URI, so it cannot read a custom property from
@@ -958,26 +957,9 @@ a:hover {
    The band at the top of quotes.html. quotes.js clones one of the cards into
    it, so the clone keeps the .quote class and inherits every rule above. */
 .spotlight {
-  position: relative;
-  overflow: hidden;
   background: var(--paper-sunk);
   border-block: 1px solid var(--rule);
   padding-block: clamp(2rem, 4.5vw, 3.25rem);
-}
-
-/* One enormous quotation mark, almost the colour of the paper. It is
-   decoration and is hidden from assistive technology by ::before. */
-.spotlight::before {
-  content: "“";
-  position: absolute;
-  top: -3.5rem;
-  left: max(-1rem, calc(50% - 38rem));
-  font-family: var(--font-serif);
-  font-size: clamp(12rem, 26vw, 22rem);
-  line-height: 1;
-  color: var(--accent);
-  opacity: var(--spotlight-mark);
-  pointer-events: none;
 }
 
 .spotlight-inner {
