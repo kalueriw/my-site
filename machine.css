@@ -856,6 +856,10 @@
   font-size: var(--text-sm);
 }
 
+/* The receipt scrolls with the page. It used to be position: sticky, which
+   pinned it under the header so it drifted while everything else moved — and
+   a record that slides is hard to read as a record. It sits still in its own
+   column instead. */
 .receipt {
   padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--rule);
@@ -868,11 +872,6 @@
   .machine-layout {
     grid-template-columns: minmax(0, 1.5fr) minmax(15rem, .5fr);
     column-gap: clamp(2rem, 4vw, 3.25rem);
-  }
-
-  .receipt {
-    position: sticky;
-    top: 5.5rem;
   }
 }
 
