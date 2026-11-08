@@ -918,27 +918,47 @@ a:hover {
   color: var(--rule);
 }
 
-/* A quote wall, not a table. Columns let each card take exactly the height its
-   words need and still pack tight against the one above it; a grid row would
-   either stretch "This is for everyone." into a half-empty box or leave a hole
-   under it. The cards still come from ONE rule — this only positions them. */
+/* A quote wall that reads left to right. CSS columns fill a column top to
+   bottom before starting the next, so the numbering ran 01, 07, 14 down the
+   page and was only right if you read it like a newspaper. A grid reads
+   01, 02, 03 across, which is how the cards are numbered and how the eye
+   wants them.
+
+   A row is as tall as its tallest card, and every card in it takes that
+   height — a ragged row of half-height boxes reads as a mistake. The space a
+   short quote does not use goes above its attribution rather than below the
+   card, so the cite and source lines line up across the row and the extra
+   room looks like margin. */
 .quote-grid {
-  columns: 19rem 3;
-  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1rem;
   margin: 0;
   padding: 0;
   list-style: none;
   counter-reset: quote;
 }
 
+/* Two rows: the index number, then the card. It has to be grid rather than
+   flex, because the number is a ::before — in a flex row it becomes a flex
+   item and sits BESIDE the card, pushing the card narrow and off to the right.
+   As a grid row it stays above, where it was. */
 .quote-grid > li {
-  break-inside: avoid;         /* never split a quote across two columns */
-  margin-bottom: 1rem;         /* the vertical gap, since columns have no row gap */
+  display: grid;
+  grid-template-rows: auto 1fr;
   counter-increment: quote;
 }
 
+/* The card fills its cell and the attribution is pushed to the bottom, so
+   every cite/source line in a row sits at the same height. */
 .quote-grid .quote {
+  display: flex;
+  flex-direction: column;
   max-width: none;
+}
+
+.quote-grid .quote blockquote {
+  flex: 1;
 }
 
 /* A quiet index number above each card: twenty entries, numbered like pages,
