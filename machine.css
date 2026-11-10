@@ -18,11 +18,23 @@
    page loads — the ticket and its rules rely on it here. */
 
 .refund-panel {
-  --machine-line: #06120F;
-  --machine-dark: #081814;
-  --enamel-hi: #2D5B4D;
-  --enamel-mid: #1B4036;
-  --enamel-lo: #0E2620;
+  /* A kraft-paper cabinet rather than green enamel: the same warm brown the
+     site already uses for paper and rules, so the machine reads as an object
+     made from this site's materials. The tray and HUD stay dark, because the
+     brass coins need a dark well to sit in. */
+  --machine-line: light-dark(#2B1B0C, #140B03);
+  --machine-dark: light-dark(#241407, #0D0602);
+  --enamel-hi: light-dark(#DCC49C, #6B4D2C);
+  --enamel-mid: light-dark(#C4A878, #4F371B);
+  --enamel-lo: light-dark(#A5865A, #37240F);
+  --enamel-ink: light-dark(#241708, #F6EAD2);
+  --enamel-ink-dim: light-dark(#2B1B0C, #E0CFAF);
+  --enamel-hairline: light-dark(rgb(70 45 18 / .3), rgb(255 230 190 / .22));
+  --stamp-ink: light-dark(#6F2408, #FFC2A6);
+  --stamp-rule: light-dark(rgb(111 36 8 / .5), rgb(255 194 166 / .55));
+  --stamp-wash: light-dark(rgb(111 36 8 / .08), rgb(255 194 166 / .1));
+  --state-ink: light-dark(#5C3400, #FFC46A);
+  --state-dot: light-dark(#C46A12, #FFC46A);
   --brass: #D8A75E;
   --brass-light: #F7E3BC;
   --brass-dark: #8A6229;
@@ -55,7 +67,7 @@
   content: "";
   position: absolute;
   inset: 6px;
-  border: 1px solid rgb(216 167 94 / .28);
+  border: 1px solid var(--enamel-hairline);
   border-radius: 15px;
   pointer-events: none;
 }
@@ -70,13 +82,13 @@
   font-size: var(--text-2xs);
   letter-spacing: .15em;
   text-transform: uppercase;
-  color: var(--cream-dim);
+  color: var(--enamel-ink-dim);
 }
 
 .panel-mark {
   margin-right: auto;
-  color: var(--brass-light);
-  opacity: .8;
+  color: var(--enamel-ink);
+  opacity: .9;
 }
 
 /* The enamel badge that says the whole joke in two words. It carries its
@@ -84,10 +96,10 @@
    .82em put it under 10px and made it unreadable on the cabinet. */
 .panel-stamp {
   padding: .22em .6em;
-  border: 1px solid rgb(226 122 96 / .55);
+  border: 1px solid var(--stamp-rule);
   border-radius: 3px;
-  background: rgb(120 36 20 / .22);
-  color: #F2A78D;
+  background: var(--stamp-wash);
+  color: var(--stamp-ink);
   font-size: 1em;
   font-weight: 700;
   letter-spacing: .16em;
@@ -99,18 +111,19 @@
   display: inline-flex;
   align-items: center;
   gap: .45em;
-  color: var(--led);
+  color: var(--state-ink);
   font-weight: 600;
 }
 
-/* A small lamp beside OPEN / CLOSED, so the state reads before the word does. */
+/* A small lamp beside OPEN / CLOSED, so the state reads before the word does.
+   The dot keeps its own amber: a dark text colour would make it a smudge. */
 .panel-state::before {
   content: "";
   width: .42rem;
   height: .42rem;
   border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 .55rem currentColor;
+  background: var(--state-dot);
+  box-shadow: 0 0 .55rem rgb(255 180 80 / .8);
 }
 
 /* The four dials, in one recessed strip. They are not equal: score is the
@@ -127,7 +140,7 @@
   border-radius: 10px;
   background:
     radial-gradient(16rem 6rem at 38% 50%, rgb(255 196 106 / .1), transparent 70%),
-    linear-gradient(180deg, rgb(4 12 10 / .62), rgb(3 10 8 / .46));
+    linear-gradient(180deg, rgb(48 29 12 / .82), rgb(32 18 6 / .72));
   box-shadow:
     inset 0 1px 3px rgb(0 0 0 / .55),
     inset 0 -1px 0 rgb(255 255 255 / .05);
@@ -255,7 +268,7 @@
   margin: 1rem 0 .7rem;
   overflow: hidden;
   border-radius: 99px;
-  background: #040D0A;
+  background: #1A0E04;
   box-shadow: inset 0 1px 2px rgb(0 0 0 / .8);
 }
 
@@ -277,14 +290,8 @@
 /* The product strip: the row of labels above a vending machine's shelves,
    all of them crossed out. Decoration — the markup marks it aria-hidden. */
 /* Quiet, but legible. Quiet comes from the letter-spacing and the hairlines
-   either side, not from fading the text: at .55 alpha on the enamel this line
-   blended down to about 2.7:1, which is below the 4.5:1 floor.
-
-   The colour is a step brighter than --cream-dim on purpose. The cabinet is a
-   gradient, and --cream-dim only reaches 3.56:1 against its lightest stop at
-   the top left — enough for large text, not for an 11px label. #D6CFBF clears
-   4.5:1 at that same worst-case stop and still reads as the quietest line on
-   the panel. */
+   either side, not from fading the text. On the light kraft cabinet the quiet
+   ink is the same dark brown the rest of the cabinet text uses. */
 .shelf-strip {
   display: flex;
   align-items: center;
@@ -294,7 +301,7 @@
   font-size: var(--text-2xs);
   letter-spacing: .28em;
   text-transform: uppercase;
-  color: #D6CFBF;
+  color: var(--enamel-ink-dim);
 }
 
 .shelf-strip::before,
@@ -302,11 +309,11 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(216 167 94 / .3));
+  background: linear-gradient(90deg, transparent, var(--enamel-hairline));
 }
 
 .shelf-strip::after {
-  background: linear-gradient(90deg, rgb(216 167 94 / .3), transparent);
+  background: linear-gradient(90deg, var(--enamel-hairline), transparent);
 }
 
 /* 2 · The tray, the coins and the return arm ------------------------------- */
@@ -332,7 +339,7 @@
       rgb(255 255 255 / .02) 30%,
       transparent 46%
     ),
-    radial-gradient(120% 90% at 50% 0%, #0D211B 0%, #06100D 68%, #030A08 100%);
+    radial-gradient(120% 90% at 50% 0%, #2A1A0B 0%, #150C04 68%, #0A0502 100%);
   box-shadow:
     inset 0 8px 22px rgb(0 0 0 / .7),
     inset 0 -1px 0 rgb(255 255 255 / .06),
@@ -405,6 +412,58 @@
   outline-offset: 2px;
 }
 
+/* The gold coin: a rare bonus that pulses for a few seconds. The halo and
+   ring are drawn on the button, not inside .coin-stage, because the stage
+   clips its children to the cell and a glow needs to spill past it. */
+.coin.is-gold {
+  z-index: 3;
+}
+
+.coin.is-gold::before,
+.coin.is-gold::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.coin.is-gold::before {
+  inset: -12%;
+  background: radial-gradient(
+    circle,
+    rgb(255 226 150 / .6) 0%,
+    rgb(255 194 74 / .32) 46%,
+    transparent 72%
+  );
+  filter: blur(5px);
+  animation: gold-halo 1.3s ease-in-out infinite;
+}
+
+.coin.is-gold::after {
+  inset: 3%;
+  border: 2px solid rgb(255 219 122 / .9);
+  box-shadow:
+    0 0 14px rgb(255 201 90 / .8),
+    inset 0 0 12px rgb(255 231 160 / .55);
+  animation: gold-ring 1.3s ease-in-out infinite;
+}
+
+/* Warm the struck face without repainting it: the coin still reads as the
+   same object, only gilded. */
+.coin.is-gold .coin-disc {
+  filter: sepia(.4) saturate(1.5) brightness(1.08);
+}
+
+@keyframes gold-halo {
+  0%, 100% { opacity: .55; transform: scale(.95); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+
+@keyframes gold-ring {
+  0%, 100% { opacity: .65; }
+  50%      { opacity: 1; }
+}
+
 /* The stage clips every piece of the coin's artwork to its own cell. Without
    it the return arm, which starts outside the cell, would slide over the
    neighbouring coins and out into the receipt column. It is deliberately a
@@ -428,7 +487,7 @@
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #0C211B 0%, #030A08 76%);
+  background: radial-gradient(circle at 50% 40%, #241407 0%, #0A0502 76%);
   box-shadow:
     inset 0 2px 6px rgb(0 0 0 / .85),
     inset 0 -1px 0 rgb(255 255 255 / .05);
@@ -670,24 +729,75 @@
   }
 }
 
+/* The full refund is the one moment the whole tray should feel lit. The board
+   itself warms for a full second; a soft burst and an expanding ring spill
+   past its edges so the light reads on the cabinet too, not just inside the
+   well. The burst sits under the combo stamp and over the coins, and never
+   takes a click. */
 .coin-board.is-full {
-  animation: full-refund .6s ease;
+  animation: full-refund 1.05s ease;
+}
+
+.coin-board.is-full::before,
+.coin-board.is-full::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.coin-board.is-full::before {
+  inset: -2px;
+  z-index: 2;
+  border: 2px solid rgb(255 218 130 / .85);
+  border-radius: 16px;
+  box-shadow:
+    0 0 3rem rgb(255 190 80 / .65),
+    inset 0 0 3rem rgb(255 210 120 / .4);
+  animation: refund-ring 1.05s ease-out;
+}
+
+/* A soft oval bloom, not a second box: the glow should read as light spilling
+   out of the cabinet, so the element has no visible corners. */
+.coin-board.is-full::after {
+  inset: -30% -15%;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(255 230 160 / .5) 0%,
+    rgb(255 196 106 / .22) 40%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  animation: refund-burst 1.05s ease-out;
+}
+
+@keyframes refund-ring {
+  0%   { opacity: 0; transform: scale(.82); }
+  28%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+
+@keyframes refund-burst {
+  0%   { opacity: 0; transform: scale(.45); }
+  22%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.22); }
 }
 
 @keyframes full-refund {
   0%, 100% {
     background:
       linear-gradient(178deg, rgb(255 255 255 / .085) 0%, rgb(255 255 255 / .02) 30%, transparent 46%),
-      radial-gradient(120% 90% at 50% 0%, #0D211B 0%, #06100D 68%, #030A08 100%);
+      radial-gradient(120% 90% at 50% 0%, #2A1A0B 0%, #150C04 68%, #0A0502 100%);
   }
-  40% {
+  38% {
     background:
-      linear-gradient(178deg, rgb(255 236 190 / .22) 0%, rgb(255 210 130 / .08) 30%, transparent 46%),
-      radial-gradient(120% 90% at 50% 0%, #4A360F 0%, #2A1E07 68%, #170F03 100%);
+      linear-gradient(178deg, rgb(255 236 190 / .26) 0%, rgb(255 210 130 / .1) 30%, transparent 46%),
+      radial-gradient(120% 90% at 50% 0%, #5A4113 0%, #342407 68%, #1A1002 100%);
     box-shadow:
-      inset 0 8px 22px rgb(0 0 0 / .4),
-      inset 0 0 2.5rem rgb(255 196 106 / .45),
-      0 0 2.5rem rgb(255 185 80 / .3);
+      inset 0 8px 22px rgb(0 0 0 / .36),
+      inset 0 0 4rem rgb(255 196 106 / .55),
+      0 0 4.5rem rgb(255 185 80 / .4);
   }
 }
 
@@ -706,7 +816,7 @@
   border-radius: 20px;
   background:
     radial-gradient(30rem 20rem at 50% 40%, rgb(255 196 106 / .08), transparent 70%),
-    rgb(5 14 11 / .84);
+    rgb(22 12 4 / .84);
   backdrop-filter: blur(5px) saturate(.9);
   -webkit-backdrop-filter: blur(5px) saturate(.9);
 }
@@ -771,8 +881,8 @@
   line-height: 1.5;
 }
 
-/* The rules are a numbered list of three short lines, not bullets: the eye
-   should count them, because they are the three things to remember. */
+/* The rules are a numbered list of four short lines, not bullets: the eye
+   should count them, because they are the things to remember. */
 .overlay-rules {
   display: grid;
   gap: .55rem;
@@ -874,14 +984,15 @@
 
      - cream card on cream paper — no edge at all; the border was the only
        thing saying a card was there.
-     - the cabinet's own enamel (dark green) — it stopped looking invisible
-       and started looking like a piece that had snapped off the machine. The
-       two dark slabs sat side by side and neither read as in front.
-     - espresso brown — same failure, one shade warmer. Next to a dark
-       cabinet, any dark card is just more dark.
+     - the cabinet's own enamel — it stopped looking invisible and started
+       looking like a piece that had snapped off the machine. The two slabs
+       sat side by side and neither read as in front.
+     - espresso brown — same failure, one shade warmer. Against the cabinet,
+       any dark card is just more dark.
 
-   What separates it is value, not colour: light plate on dark cabinet, and
-   the plate is the one brass the site already keeps for this machine
+   What separates it is value, not colour: a brass plate against the page,
+   with its own border and shadow, whether the cabinet beside it is light or
+   dark. The plate is the one brass the site already keeps for this machine
    (--amber). So it reads as the machine's own metal — the take-away slip
    sitting in front of it — rather than a second, unrelated object.
 
@@ -1089,14 +1200,51 @@
   }
 }
 
-/* Under 23rem (a 320–360px phone) the ticket's own content grows taller than
-   the cabinet — its paragraphs and rules wrap more as the column narrows —
-   and the absolutely-placed overlay spills out over the receipt below. The
-   cabinet gets a floor tall enough for the tallest ticket; the extra height
-   is dark cabinet, not a gap in the page. */
+/* On a phone the ticket's paragraphs and four rules wrap much more, and the
+   absolutely-placed overlay would spill out over the receipt below. Tighten
+   the card's own type and padding first, then give the cabinet a floor tall
+   enough for what is left. The extra height is dark cabinet, not a gap. */
+@media (max-width: 30rem) {
+  .game-overlay {
+    padding-block: .75rem;
+  }
+
+  .ticket-body {
+    padding-top: 1rem;
+  }
+
+  .overlay-card h2 {
+    margin-bottom: .4rem;
+    font-size: 1.45rem;
+  }
+
+  .overlay-card #overlay-copy {
+    margin-bottom: .9rem;
+    font-size: .95rem;
+    line-height: 1.45;
+  }
+
+  .overlay-rules {
+    gap: .4rem;
+  }
+
+  .overlay-rules li {
+    padding-left: 1.6rem;
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+
+  .overlay-rules li::before {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+}
+
+/* Only the narrowest phones need the extra cabinet height; at 360–480 the
+   compressed ticket fits the panel's natural height. */
 @media (max-width: 23rem) {
   .refund-panel {
-    min-height: 39.5rem;
+    min-height: 42rem;
   }
 }
 

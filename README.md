@@ -47,9 +47,9 @@ and has no translation beside it.
 page means editing that one file. `nav.js` also marks the current page with
 `aria-current="page"`, and explains itself in the header if the fetch fails.
 
-**4 · Projects.** Five ideas, and each of the three list types doing its own
-job: `<ul>` for the unordered ideas, `<dl>` for idea → audience pairs,
-`<ol>` for the build order.
+**4 · Projects.** Five ideas in one unordered `<ul>`, each described by what
+it does and who it helps. The list is unordered on purpose: no idea is
+"first", it is just one of the five.
 
 **5 · One rule, twenty cards.** The `.quote` class sets padding, border,
 radius, background and max-width once; all twenty cards obey. The site
@@ -88,15 +88,18 @@ a short quote spends the spare height as space above its attribution — so the
 cite and source lines line up across the row instead of every card ending at a
 different height.
 
-**6 · The useless machine.** A green-enamel vending machine with twelve brass
+**6 · The useless machine.** A kraft-paper vending machine with twelve brass
 coins and one return arm. Every shelf is sold out, so when the visitor feeds a
 coin the machine checks, finds nothing, and gives the coin back. A run is sixty
 seconds, the arm gets faster, and in the second half it can return two coins at
 once. Each coin fed is worth 10 points, multiplied by the combo; feeding a coin
 within 2.5 seconds of the last one keeps the chain alive. Getting all twelve
-coins inside the machine at once pays a 100-point "full refund" bonus. The
-receipt beside the board keeps the best run, the number of runs, the longest
-combo and the top three scores in `localStorage`.
+coins inside the machine at once pays a 100-point "full refund" bonus. Now and
+then, if more than three coins are still in the tray, one of them turns gold;
+clicking it drops the whole tray in at once, and every coin scores at double
+combo, so a clear beats clicking the same coins one by one. The receipt beside
+the board keeps the best run, the number of runs, the longest combo and the top
+three scores in `localStorage`.
 Minsky described the useless machine in 1952; Shannon built the switch version
 in 1950.
 

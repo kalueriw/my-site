@@ -98,6 +98,14 @@ const COMBO_WINDOW = 2500;       // time to keep a combo alive
 const POINTS_PER_COIN = 10;      // base points for feeding one coin
 const FULL_REFUND_BONUS = 100;
 
+// The gold coin is a rare bonus: it glows for a few seconds, and clicking it
+// drops every coin still in the tray into the machine at once, scoring each
+// one as if the player had fed it. Missing it costs nothing; it simply fades.
+const GOLD_LIFE = 5000;
+const GOLD_FIRST_DELAY = 7000;   // let the run settle before the first one
+const GOLD_MIN_DELAY = 9000;
+const GOLD_MAX_DELAY = 14000;
+
 // Kept here rather than read back from the DOM: startRun() has to restore the
 // copy after endRun() rewrote it, and reading it from the element would make
 // the second run inherit the first run's ending.
@@ -116,13 +124,21 @@ let fullRefundPending = true;
 
 let machineTimer = null;         // the next return arm
 let clockTimer = null;           // the remaining-time interval
+let goldTimer = null;            // the gold coin's spawn or expiry
+let goldIndex = -1;              // index of the glowing coin, or -1
 const targeting = new Set();     // coin indexes with an arm out
 
 // true = the coin is in the tray; false = it is inside the machine.
 const inTray = new Array(coins.length).fill(true);
 
 for (const [index, coin] of coins.entries()) {
-  coin.addEventListener('click', () => feedCoin(index));
+  coin.addEventListener('click', () => {
+    if (index === goldIndex) {
+      goldDrop();
+    } else {
+      feedCoin(index);
+    }
+  });
 }
 
 // -- Painting --------------------------------------------------------------
@@ -131,6 +147,16 @@ function renderCoin(index) {
   const coin = coins[index];
   const number = index + 1;
   coin.classList.toggle('is-in-tray', inTray[index]);
+
+  if (index === goldIndex) {
+    coin.setAttribute(
+      'aria-label',
+      `Gold coin ${number}. Clicking it drops every coin in the tray into ` +
+      'the machine, and all of them score at double combo.'
+    );
+    return;
+  }
+
   coin.setAttribute(
     'aria-label',
     inTray[index]
@@ -224,6 +250,108 @@ function flashCombo(text) {
   comboFlash.classList.add('is-showing');
 }
 
+// -- The gold coin ---------------------------------------------------------
+//
+// One coin in the tray occasionally turns gold. Clicking it drops every coin
+// still in the tray into the machine at once, and every one of them scores
+// exactly as if the player had fed it. The glow fades after a few seconds; if
+// it goes out, nothing is lost — the coin is ordinary again.
+
+function scheduleGold(delay = GOLD_MIN_DELAY + Math.random() * (GOLD_MAX_DELAY - GOLD_MIN_DELAY)) {
+  window.clearTimeout(goldTimer);
+  goldTimer = window.setTimeout(spawnGold, delay);
+}
+
+function spawnGold() {
+  goldTimer = null;
+
+  if (!running || goldIndex >= 0) {
+    return;
+  }
+
+  const candidates = [];
+  for (let index = 0; index < inTray.length; index += 1) {
+    // Skip a coin that is still settling back from a refund; the glow should
+    // land on a coin that is already sitting still.
+    if (inTray[index] && !coins[index].classList.contains('is-returning')) {
+      candidates.push(index);
+    }
+  }
+
+  // Only worth spawning when there is a real tray to drop: more than three
+  // coins still in it. With fewer, the bonus would barely differ from one
+  // ordinary feed.
+  if (candidates.length <= 3) {
+    scheduleGold(2500);
+    return;
+  }
+
+  goldIndex = candidates[Math.floor(Math.random() * candidates.length)];
+  coins[goldIndex].classList.add('is-gold');
+  renderCoin(goldIndex);
+  statusEl.textContent =
+    'A gold coin. Click it to drop the tray at double combo.';
+
+  goldTimer = window.setTimeout(expireGold, GOLD_LIFE);
+}
+
+function clearGold() {
+  window.clearTimeout(goldTimer);
+  goldTimer = null;
+
+  if (goldIndex < 0) {
+    return;
+  }
+
+  const index = goldIndex;
+  goldIndex = -1;
+  coins[index].classList.remove('is-gold');
+  renderCoin(index);
+}
+
+function expireGold() {
+  clearGold();
+  if (running) {
+    scheduleGold();
+  }
+}
+
+/**
+ * The payoff: the gold coin goes first, then every other coin still in the
+ * tray, through the same feedCoin() the player uses — so each one earns its
+ * points and combo, and a full tray still pays the full-refund bonus.
+ */
+function goldDrop() {
+  if (!running || goldIndex < 0) {
+    return;
+  }
+
+  const gold = goldIndex;
+  clearGold();
+
+  const order = [gold];
+  for (let index = 0; index < inTray.length; index += 1) {
+    if (index !== gold && inTray[index]) {
+      order.push(index);
+    }
+  }
+
+  // Feeding every tray coin leaves all twelve inside, so whether the bonus
+  // lands depends only on whether a return has happened since the last one.
+  const full = fullRefundPending;
+  for (const index of order) {
+    if (inTray[index]) {
+      // Double step: the clear's own multiplier compounds as it goes.
+      feedCoin(index, 2);
+    }
+  }
+
+  statusEl.textContent = full
+    ? 'The gold coin cleared the tray — double combo, full refund.'
+    : 'The gold coin cleared the tray. Every coin scored at double combo.';
+  scheduleGold();
+}
+
 // -- The clock -------------------------------------------------------------
 
 function formatTime(ms) {
@@ -290,7 +418,10 @@ function machineStep() {
     coins[index].classList.add('is-targeted');
   }
 
-  const telegraph = Math.round(240 - 110 * p);
+  // Slightly quicker than the first cut, especially through the early and
+  // middle minute: the arm starts moving sooner and the gap between returns
+  // is shorter, while the last stretch still tightens faster than the start.
+  const telegraph = Math.round(210 - 100 * p);
 
   machineTimer = window.setTimeout(() => {
     if (!running) {
@@ -311,14 +442,19 @@ function machineStep() {
       }, 420);
     }
 
-    const delay = Math.round(680 - 400 * p + Math.random() * 140);
+    const delay = Math.round(600 - 360 * p + Math.random() * 130);
     scheduleMachine(delay);
   }, telegraph);
 }
 
 // -- The player ------------------------------------------------------------
 
-function feedCoin(index) {
+/**
+ * Feed one coin. `step` is how much the combo grows: 1 for a normal feed, 2
+ * for a gold-coin clear, so clearing the tray compounds faster than clicking
+ * the coins one at a time.
+ */
+function feedCoin(index, step = 1) {
   if (!running || !inTray[index]) {
     return;
   }
@@ -333,7 +469,7 @@ function feedCoin(index) {
   window.setTimeout(() => coin.classList.remove('is-fed-now'), 300);
 
   const now = Date.now();
-  combo = now - lastHitAt < COMBO_WINDOW ? combo + 1 : 1;
+  combo = now - lastHitAt < COMBO_WINDOW ? combo + step : step;
   lastHitAt = now;
   bestCombo = Math.max(bestCombo, combo);
 
@@ -346,7 +482,7 @@ function feedCoin(index) {
     fullRefundPending = false;
     score += FULL_REFUND_BONUS;
     board.classList.add('is-full');
-    window.setTimeout(() => board.classList.remove('is-full'), 550);
+    window.setTimeout(() => board.classList.remove('is-full'), 1100);
     statusEl.textContent = `Full refund. +${FULL_REFUND_BONUS}.`;
     flashCombo('FULL REFUND');
   } else if (combo >= 3 && combo % 3 === 0) {
@@ -462,6 +598,7 @@ function startRun() {
   window.clearInterval(clockTimer);
   machineTimer = null;
   clockTimer = null;
+  clearGold();
   targeting.clear();
 
   score = 0;
@@ -496,6 +633,7 @@ function startRun() {
 
   clockTimer = window.setInterval(tickClock, 100);
   scheduleMachine(500);
+  scheduleGold(GOLD_FIRST_DELAY + Math.random() * 2000);
 
   board.focus({ preventScroll: true });
 }
@@ -510,6 +648,7 @@ function endRun() {
   window.clearInterval(clockTimer);
   machineTimer = null;
   clockTimer = null;
+  clearGold();
 
   for (const index of targeting) {
     coins[index].classList.remove('is-targeted');

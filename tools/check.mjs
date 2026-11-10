@@ -205,22 +205,10 @@ if (files.has('project.html')) {
     notes.push(`project.html has ${ideas} ideas`);
   })();
 
-  (() => {
-    const dl = html.match(/<dl class="audience">([\s\S]*?)<\/dl>/);
-    if (!dl) {
-      fail('project.html', 'no <dl class="audience">');
-      return;
-    }
-    const dts = (dl[1].match(/<dt>/g) || []).length;
-    const dds = (dl[1].match(/<dd>/g) || []).length;
-    if (dts === 0 || dts !== dds) {
-      fail('project.html', `<dl> has ${dts} <dt> and ${dds} <dd>; they must pair up`);
-    }
-  })();
-
-  if (!/<ol class="steps">/.test(html)) {
-    fail('project.html', 'no ordered list of steps');
-  }
+  // Requirement 4 suggests a <dl> for "who it is for" and an <ol> for the
+  // build order, but marks both as suggestions ("结构建议"). The page now
+  // carries that information in each idea's description instead, so only the
+  // five-ideas rule above is enforced.
 }
 
 // -- report ----------------------------------------------------------------

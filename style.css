@@ -1200,88 +1200,8 @@ a:hover {
   }
 }
 
-/* A description list is a question and its answer: the idea, then who it
-   is for. Same ruled shape as the idea list and the machine's definitions,
-   so three lists on three pages read as one component.
-
-   The label column is a fixed width rather than max-content: with
-   max-content, "Ingredient-fusion recipes" stretched it to 236px and left
-   "Pet chooser" stranded against dead space, which reads as a missing
-   column rather than a short label. */
-.audience {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
-  gap: 0;
-  margin: 0;
-  border-top: 1px solid var(--rule);
-}
-
-/* Above 56rem the split grid squeezes this list into a column about 470px
-   wide, where 13rem of labels takes half of it and leaves the answers at
-   ~22 characters a line. Below 56rem the list has the full page width, so
-   it keeps the fixed column; above it, a fluid one gives way as the page
-   narrows and widens back to 13rem when there is room. */
-@media (min-width: 56rem) {
-  .audience {
-    grid-template-columns: clamp(9rem, 14vw, 13rem) minmax(0, 1fr);
-  }
-}
-
-.audience dt,
-.audience dd {
-  padding-block: var(--space-2);
-  border-bottom: 1px solid var(--rule);
-}
-
-.audience dt {
-  padding-right: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  letter-spacing: 0;
-  color: var(--ink);
-}
-
-.audience dd {
-  margin: 0;
-  color: var(--ink-soft);
-}
-
-/* An ordered list, numbered by the browser, drawn as circles by CSS. */
-.steps {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: step;
-}
-
-.steps li {
-  position: relative;
-  padding-left: 2.5rem;
-  counter-increment: step;
-  text-wrap: pretty;
-}
-
-.steps li::before {
-  content: counter(step);
-  position: absolute;
-  left: 0;
-  top: .1rem;
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--step-ink);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* A second description list, on the machine page: the four properties of a
-   useless machine, each named and explained.
+/* A description list, on the machine page: the four properties of a useless
+   machine, each named and explained.
 
    The label column is a fixed width rather than max-content. With max-content
    it grew to fit "Back to the start", and the three shorter labels then sat
@@ -1549,18 +1469,15 @@ a:hover {
 
   /* Two columns of dt/dd become one stacked pair, keeping the rule between
      rows but dropping the one inside each pair. */
-  .audience,
   .definitions {
     grid-template-columns: 1fr;
   }
 
-  .audience dt,
   .definitions dt {
     padding-bottom: 0;
     border-bottom: 0;
   }
 
-  .audience dd,
   .definitions dd {
     padding-top: .35rem;
   }
