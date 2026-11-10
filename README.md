@@ -41,7 +41,8 @@ stays sharp on any screen and weighs 8 KB instead of several megabytes.
 **2 · Quotes.** Twenty entries, each with the text, the author and the
 source. All twenty are in English, so no entry needs a language marker or a
 translation — a quotation is only missing something if it is not in English
-and has no translation beside it.
+and has no translation beside it. The spotlight quotation is set in the
+self-hosted Newsreader typeface (SIL OFL; see `fonts/OFL.txt`).
 
 **3 · DRY navigation.** The `<nav>` exists only in `nav.html`. Adding a sixth
 page means editing that one file. `nav.js` also marks the current page with

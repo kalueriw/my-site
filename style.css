@@ -18,6 +18,17 @@
     14  Small screens & reduced motion
    ========================================================================== */
 
+/* The spotlight's display serif, self-hosted: one variable WOFF2 for 400–500,
+   latin subset, with the OFL text beside it in fonts/OFL.txt. Self-hosting
+   keeps the site free of a runtime font CDN. */
+@font-face {
+  font-family: "Newsreader";
+  src: url("fonts/newsreader-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+}
+
 /* 1 · Tokens ---------------------------------------------------------------
    A custom property is a value with a name. Change it here and it changes
    everywhere; that is the same argument as using a class instead of twenty
@@ -75,10 +86,10 @@
   /* The dark callout band is dark in both themes — it is the machine's
      advertisement, and it should read as an object either way. Only its
      surroundings change. */
-  --band: light-dark(linear-gradient(135deg, #1C1917, #2A2420),
-                     linear-gradient(135deg, #241F18, #2E2820));
-  --band-ink:     light-dark(#E8E1D7, #F0E7D9);
-  --band-ink-dim: light-dark(#BFB5A8, #BDB2A1);
+  --band: light-dark(linear-gradient(135deg, #2E2114, #4A3118),
+                     linear-gradient(135deg, #3A2A18, #5A3C1E));
+  --band-ink:     light-dark(#FFF4E2, #FFF6E8);
+  --band-ink-dim: light-dark(#E0CFB4, #E4D3B8);
   --band-rule:    light-dark(#B4741F, #C98A38);
   --band-btn-ink: light-dark(#2A1706, #241507);
   --band-btn-face:
@@ -148,6 +159,9 @@
   --shadow-lift: 0 24px 56px rgb(var(--shadow-rgb) / .11);
 
   --font-serif: Georgia, "Iowan Old Style", "Noto Serif SC", "Songti SC", serif;
+  /* A second, more bookish serif for the spotlight quotation. Newsreader is
+     self-hosted above; Sitka and Georgia are the offline fallbacks. */
+  --font-quote: "Newsreader", "Sitka Display", "Iowan Old Style", Georgia, serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", "Noto Sans SC", sans-serif;
   /* Reserved for the machine: serials, stamps, the receipt. A page of prose
      has no use for a monospace face, and at 11px with letterspacing it reads
@@ -332,7 +346,7 @@ main {
 @media (min-width: 56rem) {
   .page-head {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
-    align-items: end;
+    align-items: start;
     column-gap: clamp(2rem, 6vw, 6rem);
   }
 }
@@ -1096,26 +1110,53 @@ a:hover {
   padding-block: var(--space-5);
 }
 
+/* The switch sits in its own grid column, pinned to the top of the row. A
+   quote of a different length may make the card taller, but the button does
+   not move with it. */
 .spotlight-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   gap: var(--space-3) var(--space-4);
-  justify-content: space-between;
 }
 
 .spotlight .quote {
-  flex: 1 1 22rem;
-  max-width: 40rem;
+  grid-column: 1;
+  width: 100%;
+  max-width: 50rem;
+  padding: var(--space-4);
   box-shadow: var(--shadow);
 }
 
+.spotlight .btn {
+  grid-column: 2;
+  margin-top: var(--space-4);
+}
+
 /* The spotlight is the one place a quotation is the subject rather than one
-   entry in a list, so it takes the heading step — the only step between the
-   card size and h2. */
+   entry in a list: larger than a card, wider than the reading measure, and
+   with enough leading that a long line does not crowd the next one. */
 .spotlight .quote blockquote p {
-  font-size: var(--text-h2);
-  line-height: var(--lh-tight);
+  font-family: var(--font-quote);
+  font-size: clamp(1.375rem, 1.1rem + .55vw, 1.75rem);
+  line-height: 1.35;
+}
+
+/* The switch belongs to the same family as the Contact pill: accent outline
+   on the paper band, filled accent on hover. The grey ghost button looked
+   like a form control dropped into the quote. */
+.spotlight .btn--ghost {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.spotlight .btn--ghost:hover {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: var(--btn-ink);
+  box-shadow: 0 6px 16px -4px rgb(130 45 14 / .35);
 }
 
 .spotlight-label {
@@ -1207,16 +1248,18 @@ a:hover {
   gap: var(--space-3) var(--space-5);
   overflow: hidden;
   padding: clamp(1.75rem, 4vw, 3rem);
+  border: 1px solid rgb(180 116 31 / .35);
   border-radius: var(--radius-lg);
   background:
-    radial-gradient(40rem 20rem at 100% 0%, rgb(217 130 43 / .12), transparent 60%),
+    radial-gradient(40rem 20rem at 100% 0%, rgb(217 130 43 / .2), transparent 60%),
     var(--band);
   color: var(--band-ink);
 }
 
 .callout-kicker {
   margin: 0 0 var(--space-2);
-  color: var(--amber);
+  color: var(--amber-light);
+  text-wrap: balance;
 }
 
 .callout h2 {
@@ -1432,17 +1475,63 @@ a:hover {
     margin-left: auto;
   }
 
+  /* On a phone the switch moves above the card, still pinned to the top
+     right, so a longer quotation does not push it down the page. */
   .spotlight-inner {
-    display: block;
+    gap: var(--space-2) 0;
+  }
+
+  .spotlight .quote {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .spotlight .btn {
-    margin-top: var(--space-3);
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    margin-top: 0;
   }
 
   .callout .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  /* On a phone the picture is the first thing you see: it names the place
+     before the title does. The desktop order — words, then picture — is
+     unchanged. */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero > .wrap--wide:last-child {
+    order: -1;
+  }
+
+  .hero-img {
+    height: clamp(12rem, 58vw, 15rem);
+    margin-top: var(--space-3);
+    margin-bottom: 0;
+  }
+
+  /* 72px between blocks is right on a wide page and a lot of scrolling on a
+     phone. Tighten the vertical rhythm here only. */
+  main {
+    row-gap: var(--space-5);
+  }
+
+  .page-head {
+    padding-block: var(--space-5) var(--space-4);
+  }
+
+  .section.section--ruled {
+    padding-top: var(--space-5);
+  }
+
+  #site-footer {
+    margin-top: var(--space-5);
   }
 }
 

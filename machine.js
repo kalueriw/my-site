@@ -110,9 +110,8 @@ const GOLD_MAX_DELAY = 14000;
 // copy after endRun() rewrote it, and reading it from the element would make
 // the second run inherit the first run's ending.
 const START_COPY =
-  'Feed it a coin. It checks the shelf, finds nothing, and hands the coin ' +
-  'back. The machine never sells anything — the score is the only thing you ' +
-  'keep.';
+  'Feed it a coin. It checks the shelf, finds nothing, and hands it back. ' +
+  'The machine sells nothing — the score is all you keep.';
 
 let running = false;
 let startedAt = 0;
@@ -627,7 +626,7 @@ function startRun() {
   overlay.hidden = true;
   containFocus(false);
   panelState.textContent = 'Open';
-  statusEl.textContent = 'The machine is open. Feed it a coin.';
+  statusEl.textContent = 'Machine open. Feed it a coin.';
   updateHud();
   tickClock();
 
@@ -690,7 +689,7 @@ function endRun() {
   overlayRules.hidden = true;
   overlayTitle.textContent = 'Machine closed.';
   overlayCopy.textContent =
-    `${rank(score)} — ${score} points. Nothing was sold, and every coin came back.`;
+    `${rank(score)} — ${score} points. Nothing sold; every coin came back.`;
   startBtn.textContent = 'One more refund';
   overlay.hidden = false;
   containFocus(true);
